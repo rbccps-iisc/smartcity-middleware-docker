@@ -1,6 +1,7 @@
 import urllib
 from utils import output_error, output_info, output_ok
 import traceback
+from pathlib2 import Path
 
 
 def download_file(url, filename, success_msg, failure_msg, log_file):
@@ -13,13 +14,17 @@ def download_file(url, filename, success_msg, failure_msg, log_file):
         failure_msg (string): failure message to be displayed when download fails
         log_file    (string): log file path
     """
-    try:
-        urllib.urlretrieve(url, filename)
+    my_file = Path(filename)
+    if my_file.is_file():
         output_ok(success_msg)
-    except Exception:
-        output_error(failure_msg + "\n           Check logs {0} for more details.".format(log_file),
-                     error_message=traceback.format_exc())
-        exit()
+    else:
+        try:
+            urllib.urlretrieve(url, filename)
+            output_ok(success_msg)
+        except Exception:
+            output_error(failure_msg + "\n           Check logs {0} for more details.".format(log_file),
+                         error_message=traceback.format_exc())
+            exit()
 
 
 def download(log_file):

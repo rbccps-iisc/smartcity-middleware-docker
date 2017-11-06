@@ -1,7 +1,7 @@
 ---
 ## sudo apt-get update
   - name: Update repositories
-    shell: apt update
+    shell: sudo apt update
 
   - name: Install locales
     apt: name=locales state=present

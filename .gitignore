@@ -5,3 +5,4 @@
 **/.DS_Store
 .vagrant/
 **/*.tar.gz
+config/apt_repo/keys/ansible.pub

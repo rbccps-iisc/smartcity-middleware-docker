@@ -1,4 +1,4 @@
-FROM harishanand95/middleware-apt-packages:0.1
+FROM harishanand95/middleware-apt-packages:latest
 MAINTAINER Harish Anand "https://github.com/harishanand95"
 
 RUN apt-get update
