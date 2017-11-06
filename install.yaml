@@ -9,6 +9,12 @@
   - include: tasks/update_repos.yml
 #  - include: tasks/apt_repo/create_apt_repository.yml
 
+  - name: Fetch apt-repo's GPG public key
+    fetch:
+      src: '/root/ansible.pub'
+      dest: 'config/apt_repo/keys/ansible.pub'
+      flat: yes
+
   - name: Start supervisor
     shell: service supervisor start
 
