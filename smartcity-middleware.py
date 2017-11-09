@@ -28,7 +28,7 @@ def install(arguments):
         container_setup.docker_setup(log_file=arguments.log_file, config_path=arguments.config_file)
         # TODO: RabbitMQ, Catalogue fails due to network issues. Temporary fix is to run the setup again
         #       limiting the installation only to RabbitMQ and catalogue
-        #       python setup.py -l hypercat,rabbitmq -f middleware.conf
+        #       python smartcity-middleware.py -l hypercat,rabbitmq -f middleware.conf
         container_setup.ansible_setup("kong, rabbitmq, hypercat, apt_repo, tomcat")
 
 

@@ -285,6 +285,20 @@ def docker_setup(log_file, config_path="middleware.conf"):
                           log_file=log_file,
                           exit_on_fail=True)
 
+    cmd = 'docker run -d ' \
+          '-p 31337:1337 ' \
+          '--net mynet ' \
+          '--hostname=konga ' \
+          '--link kong:kong ' \
+          '--name konga ' \
+          '-e "NODE_ENV=production" ' \
+          'pantsel/konga'
+
+    subprocess_with_print(cmd,
+                          success_msg="Created KONGA docker instance. ",
+                          failure_msg="Creation of KONGA docker instance failed.",
+                          log_file=log_file,
+                          exit_on_fail=True)
     create_ansible_host_file(instance_details)
 
 
