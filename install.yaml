@@ -339,6 +339,25 @@
   - name: Install elasticsearch
     apt: pkg=elasticsearch state=present
 
+  - name: Install kibana
+    apt: pkg=kibana state=present
+
+  - name: Install logstash
+    apt: pkg=logstash state=present
+
+  - name: Install Rabbitmq input plugin
+    logstash_plugin:
+      state: present
+      name: logstash-input-rabbitmq
+
+  - name: Copy logstash-input-rabbitmq.conf
+    copy:
+      src: config/elasticsearch/logstash-input-rabbitmq.conf
+      dest: /etc/logstash/conf.d/logstash-input-rabbitmq.conf
+      owner: root
+      group: root
+      mode: 0644
+
 ## Set up ldapd environment
 - hosts: ldapd
   remote_user: root

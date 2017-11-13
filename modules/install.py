@@ -240,6 +240,13 @@ def docker_setup(log_file, config_path="middleware.conf"):
                           log_file=log_file,
                           exit_on_fail=True)
 
+    cmd = "docker build -t ansible/ubuntu-certified-elk:1.0 -f images/Dockerfile.ubuntu.certified.elk ."
+    subprocess_with_print(cmd,
+                          success_msg="Created ansible/ubuntu-certified-elk:1.0 docker image. ",
+                          failure_msg="Building ubuntu image from images/Dockerfile.ubuntu.certified.elk failed.",
+                          log_file=log_file,
+                          exit_on_fail=True)
+
     ip, port, details = create_instance("apt_repo", "ansible/ubuntu-certified-aptrepo:1.0", log_file)
     instance_details["apt_repo"] = [ip, port]
     output_ok("Created Apt Local Repository docker instance. \n " + details)
@@ -266,7 +273,7 @@ def docker_setup(log_file, config_path="middleware.conf"):
     instance_details["rabbitmq"] = [ip, port]
     output_ok("Created RabbitMQ docker instance. \n " + details)
 
-    ip, port, details = create_instance("elasticsearch", "ansible/ubuntu-certified:1.0", log_file=log_file)
+    ip, port, details = create_instance("elasticsearch", "ansible/ubuntu-certified-elk:1.0", log_file=log_file)
     instance_details["elasticsearch"] = [ip, port]
     output_ok("Created Elastic Search docker instance. \n " + details)
 
