@@ -2,7 +2,7 @@
 
 
 ### Web Page:
-[http://rbccps.org/smartcity/](http://rbccps.org/smartcity/doku.php)
+[https://rbccps.org/smartcity/](https://rbccps.org/smartcity/doku.php)
 
 ### Architecture:
 
@@ -12,9 +12,11 @@
   * `Docker`: [Installation steps for Docker in Ubuntu/Debian](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#os-requirements)
   * `Vagrant`: [Installation steps for Vagrant in Ubuntu/Debian](https://www.vagrantup.com/downloads.html)
   * `VirtualBox`: [Installation steps for VirtualBox in Ubuntu/Debian](https://www.virtualbox.org/wiki/Linux_Downloads)
+  * `Ansible`: [Installation steps for Ansible](http://docs.ansible.com/ansible/latest/intro_installation.html)
 
 ### Release:
 [smartcity-middleware v0.1.0.alpha](https://github.com/rbccps-iisc/smartcity-middleware-docker/releases/latest)
+
 ### Configuration:
 `middleware.conf v0.1.0.alpha`
 
@@ -58,14 +60,15 @@ docker containers.**
 
 3. **Serving smart city middleware on** https://localhost:8443
 
-    The application will be serving with a self-signed certificate. If you want to use your certificate, have your .crt and .key file as config/kong/default_443.crt and config/kong/default_443.key respectively.
+    The application will be serving with a self-signed certificate. If you want to use your certificate, have your .crt and .key file as config/kong/default_443.crt and config/kong/default_443.key respectively and do a fresh installation.
+
+    All the GET, POST DELETE requests mentioned in https://rbccps.org/smartcity/doku.php , can be done on https://localhost:8443 .
+
+    For example, registeration of device to local middleware is as follows.
+
+    `curl -i -X GET "https://localhost:8443/api/0.1.0/register" -H 'apikey: <provider_api_key>' -H 'resourceID: <Your-Resource-ID>' -H 'serviceType: publish,subscribe,historicData' `
 
 
 ### NOTE:
    Middleware has been tested on macOS as well.
    After satisfying the requirements, mention `OS=macOS` in middleware.conf. Then follow instructions mentioned in Usage.
-
-### TODO:
-
-- [ ] Support middleware installation using .deb, .rpm packages
-- [ ] Test code registering, publishing, subscribing to the middleware
