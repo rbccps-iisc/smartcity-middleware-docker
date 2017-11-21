@@ -269,9 +269,9 @@ def docker_setup(log_file, config_path="middleware.conf"):
     output_ok("Created Tomcat docker instance. \n " + details)
 
     if config.get('SYSTEM_CONFIG', 'OS') == "linux":
-        cmd = "cp config/tomcat/RegisterAPIDocker.war " + tomcat_storage + "/RegisterAPI.war"
-        subprocess_popen(cmd, log_file, "Copying RegisterAPIDocker.war file to {0} failed.".format(tomcat_storage))
-        output_ok("Copied  RegisterAPIDocker.war file to {0}. ".format(tomcat_storage))
+        cmd = "cp config/tomcat/RegisterAPILinux.war " + tomcat_storage + "/RegisterAPI.war"
+        subprocess_popen(cmd, log_file, "Copying RegisterAPILinux.war file to {0} failed.".format(tomcat_storage))
+        output_ok("Copied  RegisterAPILinux.war file to {0}. ".format(tomcat_storage))
     elif config.get('SYSTEM_CONFIG', 'OS') == "macOS":
         cmd = "cp config/tomcat/RegisterAPIMAC.war " + tomcat_storage + "/RegisterAPI.war"
         subprocess_popen(cmd, log_file, "Copying RegisterAPIMAC.war file to {0} failed.".format(tomcat_storage))
