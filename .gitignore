@@ -8,4 +8,5 @@
 config/apt_repo/keys/ansible.pub
 config/certificate_authority/keys/id_rsa-cert.pub
 hosts
+config/certificate_authority/keys/id_rsa.pub
 config/certificate_authority/keys/ca-user-certificate-key.pub

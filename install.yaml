@@ -40,6 +40,7 @@
       repo: deb [trusted=yes] http://www.rabbitmq.com/debian/ testing main
       state: present
       filename: 'rabbitmq'
+    retry: 5
 
   - include: tasks/update_repos.yml
 
@@ -80,16 +81,11 @@
     environment:
       GOPATH: /home/ansible
 
-  - name: go get github.com/smallfish/rabbitmq-http
-    shell: /usr/local/go/bin/go get github.com/smallfish/rabbitmq-http creates=/home/ansible/src/github.com/smallfish/rabbitmq-http
+  - name: go get github.com/harishanand95/rabbitmq-http
+    shell: /usr/local/go/bin/go get github.com/harishanand95/rabbitmq-http creates=/home/ansible/src/github.com/harishanand95/rabbitmq-http
     environment:
       GOPATH: /home/ansible
     ignore_errors: True
-
-  - name: Bug fixes smallfish/rabbitmq-http
-    copy:
-      src: config/rabbitmq/rabbitmq-http.go
-      dest: /home/ansible/src/github.com/smallfish/rabbitmq-http/rabbitmq-http.go
 
   - name: Install supervisor
     apt: name=supervisor state=present
@@ -123,6 +119,7 @@
     apt_repository:
       repo: 'deb http://repo.mongodb.org/apt/ubuntu {{ansible_distribution_release}}/mongodb-org/3.4 multiverse'
       state: present
+    retry: 5
 
   - name: Install mongodb-org
     apt: pkg=mongodb-org state=present
