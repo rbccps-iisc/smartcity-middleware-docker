@@ -22,7 +22,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision :shell, privileged: false, inline: "sudo pkg_add openldap-client-2.4.45p4"
   config.vm.provision :shell, privileged: false, inline: "sudo cp /home/vagrant/ldapd.conf /etc/ldapd.conf"
   config.vm.provision :shell, privileged: false, inline: "sudo chmod 640 /etc/ldapd.conf"
-  config.vm.provision :shell, privileged: false, inline: "sudo ldapd"
+  config.vm.provision 'deploy', type: :shell, privileged: false, inline: "sudo ldapd"
   config.vm.provision :shell, privileged: false, inline: "ldapmodify -h 127.0.0.1 -p 389 -x -D cn=admin,dc=smartcity -w secret0 -f smartcity.ldif"
   config.vm.provision :shell, privileged: false, inline: "ldapmodify -h 127.0.0.1 -p 389 -x -D cn=admin,dc=smartcity -w secret0 -f devices.ldif"
 end
