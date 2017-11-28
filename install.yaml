@@ -40,7 +40,7 @@
       repo: deb [trusted=yes] http://www.rabbitmq.com/debian/ testing main
       state: present
       filename: 'rabbitmq'
-    retry: 5
+    retries: 5
 
   - include: tasks/update_repos.yml
 
@@ -119,7 +119,7 @@
     apt_repository:
       repo: 'deb http://repo.mongodb.org/apt/ubuntu {{ansible_distribution_release}}/mongodb-org/3.4 multiverse'
       state: present
-    retry: 5
+    retries: 5
 
   - name: Install mongodb-org
     apt: pkg=mongodb-org state=present

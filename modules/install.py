@@ -61,6 +61,12 @@ def remove_containers(log_file):
                           log_file=log_file,
                           exit_on_fail=False)
 
+    subprocess_with_print("vagrant destroy -f",
+                          success_msg="Destroy ldap vagrant machine",
+                          failure_msg="Destroy ldap vagrant failed. SKIPPING THIS ERROR.",
+                          log_file=log_file,
+                          exit_on_fail=False)
+
 
 def stop_containers(log_file):
     """ Stops all existing docker containers like kong, rabbitmq, tomcat et cetera.
@@ -300,6 +306,11 @@ def docker_setup(log_file, config_path="middleware.conf"):
                           log_file=log_file,
                           exit_on_fail=True)
     create_ansible_host_file(instance_details)
+    subprocess_with_print("vagrant up --provision",
+                          success_msg="Created vagrant machine",
+                          failure_msg="Creation of vagrant machine failed. SKIPPING THIS ERROR.",
+                          log_file=log_file,
+                          exit_on_fail=False)
 
 
 def create_instance(server, image, log_file, storage_host="", storage_guest=""):
