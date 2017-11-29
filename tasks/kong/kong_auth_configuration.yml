@@ -34,6 +34,17 @@
     until: (request.status == 201) or (request.status == 409)
     retries: 5
 
+  - name:  Add file-log plugin to kong
+    uri:
+      url: http://localhost:8001/plugins/
+      method: POST
+      body: 'name=file-log&config.path=/tmp/file.log&config.reopen=true'
+      status_code: [201, 409]
+      return_content: yes
+    register: request
+    until: (request.status == 201) or (request.status == 409)
+    retries: 5
+
   - name: (WILL BE REMOVED)  GET test-api from kong without key [401 error case]
     uri:
       url: http://localhost:8000/
