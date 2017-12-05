@@ -4,6 +4,9 @@ import traceback
 import ConfigParser
 import os
 
+kong_log_location=""
+rabbitmq_log_location=""
+tomcat_log_location=""
 
 def remove_containers(log_file):
     """ Removes all existing docker containers with names like kong, rabbitmq. This is done to avoid any
@@ -145,12 +148,15 @@ def docker_setup(log_file, config_path="middleware.conf"):
                           exit_on_fail=False)
 
     kong_storage = config.get('KONG', 'DATA_STORAGE')
+    kong_log_location = config.get('KONG','LOG_LOCATION')
     output_info("Using {0} as Kong's persistant storage. ".format(kong_storage))
     kong_config_storage = config.get('KONG', 'CONFIG_STORAGE')
     output_info("Using {0} as Kong's config persistant storage. ".format(kong_config_storage))
     rabbitmq_storage = config.get('RABBITMQ', 'DATA_STORAGE')
+    rabbitmq_log_location = config.get('RABBITMQ','LOG_LOCATION')
     output_info("Using {0} as RabbitMQ's persistant storage. ".format(rabbitmq_storage))
     tomcat_storage = config.get('TOMCAT', 'DATA_STORAGE')
+    tomcat_log_location = config.get('TOMCAT','LOG_LOCATION')
     output_info("Using {0} as Apache Tomcat's persistant storage. ".format(tomcat_storage))
     catalogue_storage = config.get('CATALOGUE', 'DATA_STORAGE')
     output_info("Using {0} as Catalogue's persistant storage. ".format(catalogue_storage))
@@ -326,8 +332,53 @@ def create_instance(server, image, log_file, storage_host="", storage_guest=""):
     port = ""
     container_id = ""
 
-    if server in ["kong", "rabbitmq", "hypercat", "tomcat"]:  # separate storage needed cases
+    if server == "kong":  # separate storage needed cases
+        cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/kong:/tmp --cap-add=NET_ADMIN --name={0} {1}".\
+            format(server, image, storage_host, storage_guest)
+
+        try:
+            out, err = subprocess_popen(cmd,
+                                        log_file,
+                                        failure_msg="Creation of {0} docker instance failed.".format(server))
+            container_id = out
+        except OSError:
+            output_error("Creation of {0} docker instance failed.".format(server) +
+                         "\n           Check logs {0} for more details.".format(log_file),
+                         error_message=traceback.format_exc())
+            exit()
+
+    elif server == "rabbitmq":  # separate storage needed cases
+        cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/rabbitmq:/var/log/rabbitmq -v /data/logs/rabbitmq:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
+            format(server, image, storage_host, storage_guest)
+
+        try:
+            out, err = subprocess_popen(cmd,
+                                        log_file,
+                                        failure_msg="Creation of {0} docker instance failed.".format(server))
+            container_id = out
+        except OSError:
+            output_error("Creation of {0} docker instance failed.".format(server) +
+                         "\n           Check logs {0} for more details.".format(log_file),
+                         error_message=traceback.format_exc())
+            exit()
+
+    elif server == "hypercat":  # separate storage needed cases
         cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
+            format(server, image, storage_host, storage_guest)
+
+        try:
+            out, err = subprocess_popen(cmd,
+                                        log_file,
+                                        failure_msg="Creation of {0} docker instance failed.".format(server))
+            container_id = out
+        except OSError:
+            output_error("Creation of {0} docker instance failed.".format(server) +
+                         "\n           Check logs {0} for more details.".format(log_file),
+                         error_message=traceback.format_exc())
+            exit()
+
+    elif server == "tomcat":  # separate storage needed cases
+        cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/tomcat:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest)
 
         try:
