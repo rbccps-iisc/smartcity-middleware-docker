@@ -3,7 +3,7 @@ from utils import output_error, output_info, output_ok, output_warning
 import traceback
 import ConfigParser
 import os
-
+from time import time
 kong_log_location=""
 rabbitmq_log_location=""
 tomcat_log_location=""
@@ -126,6 +126,10 @@ def stop_containers(log_file):
                           exit_on_fail=False)
 
 
+def unique_value():
+    return str(int(time()))
+
+
 def docker_setup(log_file, config_path="middleware.conf"):
     """ Creates docker instances for kong, ca, hypercat, rabbitmq, elastic search, apache storm, ldap, ntp and bind
     server from an ubuntu-ssh image. First, docker creates certificate authority (CA) instance and then have the CA
@@ -161,7 +165,7 @@ def docker_setup(log_file, config_path="middleware.conf"):
     catalogue_storage = config.get('CATALOGUE', 'DATA_STORAGE')
     output_info("Using {0} as Catalogue's persistant storage. ".format(catalogue_storage))
 
-    subprocess_with_print("docker build -t ansible/ubuntu-ssh -f images/Dockerfile.ubuntu .",
+    subprocess_with_print("docker build --no-cache -t ansible/ubuntu-ssh -f images/Dockerfile.ubuntu .",
                           success_msg="Created ansible/ubuntu-ssh docker image. ",
                           failure_msg="Building ubuntu image from images/Dockerfile.ubuntu failed.",
                           log_file=log_file,
@@ -196,14 +200,7 @@ def docker_setup(log_file, config_path="middleware.conf"):
     subprocess_popen(cmd, log_file, "Copying Certificate Authority's cert file to ansible's .ssh/ failed.")
     output_ok("Copied Certificate Authority's cert file to Ansible's .ssh. ")
 
-    subprocess_with_print("docker build -t ansible/ubuntu-certified:1.0 -f images/Dockerfile.ubuntu.certified .",
-                          success_msg="Created ansible/ubuntu-certified:1.0 docker image. ",
-                          failure_msg="Building ubuntu image from images/Dockerfile.ubuntu.certified failed.",
-                          log_file=log_file,
-                          exit_on_fail=True)
-
-    cmd = "docker build -t ansible/ubuntu-certified-aptrepo:1.0 -f " \
-          "images/Dockerfile.ubuntu.certified.aptrepo.readytoserve ."
+    cmd = "docker build -t ansible/ubuntu-certified-aptrepo:1.0 --build-arg CACHEBUST={0} -f images/Dockerfile.ubuntu.certified.aptrepo.readytoserve .".format(unique_value())
     subprocess_with_print(cmd,
                           success_msg="Created ansible/ubuntu-certified-aptrepo:1.0 docker image. ",
                           failure_msg="Building ubuntu image from "
@@ -211,20 +208,20 @@ def docker_setup(log_file, config_path="middleware.conf"):
                           log_file=log_file,
                           exit_on_fail=True)
 
-    cmd = "docker build -t ansible/ubuntu-certified-catalogue:1.0 -f images/Dockerfile.ubuntu.certified.catalogue ."
+    cmd = "docker build -t ansible/ubuntu-certified-catalogue:1.0 --build-arg CACHEBUST={0} -f images/Dockerfile.ubuntu.certified.catalogue .".format(unique_value())
     subprocess_with_print(cmd,
                           success_msg="Created ansible/ubuntu-certified-catalogue:1.0 docker image. ",
                           failure_msg="Building ubuntu image from images/Dockerfile.ubuntu.certified.catalogue failed.",
                           log_file=log_file,
                           exit_on_fail=True)
 
-    cmd = "docker build -t ansible/ubuntu-certified-kong:1.0 -f images/Dockerfile.ubuntu.certified.kong ."
+    cmd = "docker build -t ansible/ubuntu-certified-kong:1.0 --build-arg CACHEBUST={0} -f images/Dockerfile.ubuntu.certified.kong .".format(unique_value())
     subprocess_with_print(cmd,
                           success_msg="Created ansible/ubuntu-certified-kong:1.0 docker image. ",
                           failure_msg="Building ubuntu image from images/Dockerfile.ubuntu.certified.kong failed.",
                           log_file=log_file,
                           exit_on_fail=True)
-    cmd = "docker build -t ansible/ubuntu-certified-rabbitmq:1.0 -f images/Dockerfile.ubuntu.certified.rabbitmq ."
+    cmd = "docker build -t ansible/ubuntu-certified-rabbitmq:1.0 --build-arg CACHEBUST={0} -f images/Dockerfile.ubuntu.certified.rabbitmq .".format(unique_value())
     subprocess_with_print(cmd,
                           success_msg="Created ansible/ubuntu-certified-rabbitmq:1.0 docker image. ",
                           failure_msg="Building ubuntu image from images/Dockerfile.ubuntu.certified.rabbitmq failed.",
@@ -237,7 +234,7 @@ def docker_setup(log_file, config_path="middleware.conf"):
                           log_file=log_file,
                           exit_on_fail=True)
 
-    subprocess_with_print("docker build -t ansible/tomcat -f images/Dockerfile.tomcat .",
+    subprocess_with_print("docker build -t ansible/tomcat --build-arg CACHEBUST={0} -f images/Dockerfile.tomcat .".format(unique_value()),
                           success_msg="Created ansible/tomcat docker image. ",
                           failure_msg="Building ansible/tomcat image from images/Dockerfile.tomcat failed.",
                           log_file=log_file,

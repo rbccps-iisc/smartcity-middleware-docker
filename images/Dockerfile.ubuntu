@@ -2,6 +2,10 @@ FROM ubuntu:16.04
 MAINTAINER Harish Anand "https://github.com/harishanand95"
 
 RUN apt-get update
+RUN apt-get install locales
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LC_CTYPE en_US.UTF-8
 
 RUN apt-get install -y openssh-server sudo
 RUN mkdir /var/run/sshd
@@ -11,6 +15,6 @@ RUN echo 'root:rbccps@123456' |chpasswd
 RUN sed -ri 's/^PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config
 RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
 RUN mkdir ~/.ssh
-RUN apt-get install -y python
+RUN apt-get install -y python nano
 EXPOSE 22
 CMD    ["/usr/sbin/sshd", "-D"]
