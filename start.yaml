@@ -1,5 +1,5 @@
 ---
-- hosts: hypercat
+- hosts: catalogue
   remote_user: ansible
   tasks:
   - include: tasks/hypercat/start_hypercat.yaml
@@ -23,3 +23,8 @@
   remote_user: ansible
   tasks:
   - include: tasks/apt_repo/start_apt_repo.yml
+
+- hosts: elasticsearch
+  remote_user: ansible
+  tasks:
+  - include: tasks/elasticsearch/start_elasticsearch.yml

@@ -29,7 +29,7 @@ def install(arguments):
         # TODO: RabbitMQ, Catalogue fails due to network issues. Temporary fix is to run the setup again
         #       limiting the installation only to RabbitMQ and catalogue
         #       python smartcity-middleware.py -l hypercat,rabbitmq -f middleware.conf
-        container_setup.ansible_setup("kong, rabbitmq, hypercat, apt_repo, tomcat")
+        container_setup.ansible_setup("kong, rabbitmq, elasticsearch, apt_repo, tomcat")
 
 
 def start(arguments):

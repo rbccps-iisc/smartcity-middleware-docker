@@ -1,0 +1,9 @@
+---
+  - name: Start logstash service
+    command: service logstash start
+
+  - name: Start elasticsearch service
+    command: service elasticsearch start
+
+  - name: Start kibana service
+    command: service kibana start

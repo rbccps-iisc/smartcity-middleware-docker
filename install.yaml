@@ -345,10 +345,11 @@
   - name: Install logstash
     apt: pkg=logstash state=present
 
-  - name: Install Rabbitmq input plugin
-    logstash_plugin:
-      state: present
-      name: logstash-input-rabbitmq
+  - name: Create logstash service file
+    command: /usr/share/logstash/bin/system-install /etc/logstash/startup.options sysv
+
+  - name: Install logstash-input-rabbitmq plugin
+    command: /usr/share/logstash/bin/logstash-plugin install logstash-input-rabbitmq
 
   - name: Copy logstash-input-rabbitmq.conf
     copy:
@@ -357,6 +358,12 @@
       owner: root
       group: root
       mode: 0644
+
+  - name: Copy kibana.yml
+    copy:
+      src: config/elasticsearch/kibana.yml
+      dest: /etc/kibana/kibana.yml
+
 
 ## Set up ldapd environment
 - hosts: ldapd
