@@ -1,9 +1,16 @@
 ---
-  - name: Start logstash service
-    command: service logstash start
+  - name: Start logstash
+    service: name=logstash state=started
+    become: yes
+    become_user: root
 
-  - name: Start elasticsearch service
-    command: service elasticsearch start
+  - name: Start elasticsearch
+    service: name=elasticsearch state=started
+    become: yes
+    become_user: root
 
-  - name: Start kibana service
-    command: service kibana start
+  - name: Start kibana
+    service: name=kibana state=started
+    become: yes
+    become_user: root
+

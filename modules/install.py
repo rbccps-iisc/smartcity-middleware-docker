@@ -8,6 +8,7 @@ kong_log_location=""
 rabbitmq_log_location=""
 tomcat_log_location=""
 
+
 def remove_containers(log_file):
     """ Removes all existing docker containers with names like kong, rabbitmq. This is done to avoid any
     clash of names during the creation of containers.
