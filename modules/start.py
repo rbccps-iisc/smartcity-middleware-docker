@@ -12,4 +12,5 @@ def start_all():
 
 
 def ansible_setup(limit=""):
+    create_hosts()
     subprocess.call('ansible-playbook -i hosts start.yaml --limit "' + limit + '"', shell=True)
