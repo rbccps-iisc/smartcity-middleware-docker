@@ -38,7 +38,7 @@
     uri:
       url: http://localhost:8001/plugins/
       method: POST
-      body: 'name=file-log&config.path=/tmp/file.log&config.reopen=true'
+      body: 'name=file-log&config.path=/tmp/file.json&config.reopen=true'
       status_code: [201, 409]
       return_content: yes
     register: request

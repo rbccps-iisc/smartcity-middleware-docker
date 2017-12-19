@@ -1,4 +1,9 @@
 ---
+  - name: Setting up RabbitMQ configuration
+    copy:
+      src: config/rabbitmq/rabbitmq.config
+      dest: /etc/rabbitmq/rabbitmq.config
+
   - name: Start rabbitmq-server
     service: name=rabbitmq-server state=restarted
 
