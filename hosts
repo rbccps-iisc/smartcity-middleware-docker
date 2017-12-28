@@ -1,6 +1,1 @@
-kong ansible_host=localhost ansible_port='32896' ansible_user=root
-hypercat ansible_host=localhost ansible_port='32898' ansible_user=root
-apt_repo ansible_host=localhost ansible_port='32894' ansible_user=root
-elasticsearch ansible_host=localhost ansible_port='32911' ansible_user=root
-rabbitmq ansible_host=localhost ansible_port='32901' ansible_user=root
-tomcat ansible_host=localhost ansible_port='32907' ansible_user=root
+certificate_authority ansible_host=localhost ansible_port='32786' ansible_user=root

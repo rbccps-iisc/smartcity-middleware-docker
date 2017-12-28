@@ -65,9 +65,9 @@ def remove_containers(log_file):
                           log_file=log_file,
                           exit_on_fail=False)
 
-    subprocess_with_print("vagrant destroy -f",
-                          success_msg="Destroy ldap vagrant machine",
-                          failure_msg="Destroy ldap vagrant failed. SKIPPING THIS ERROR.",
+    subprocess_with_print("docker rm ldapd",
+                          success_msg="Removing Ldapd",
+                          failure_msg="Ldapd container doesn't exist. SKIPPING THIS ERROR.",
                           log_file=log_file,
                           exit_on_fail=False)
 
@@ -126,6 +126,12 @@ def stop_containers(log_file):
                           log_file=log_file,
                           exit_on_fail=False)
 
+    subprocess_with_print("docker stop ldapd",
+                          success_msg="Stopping Ldapd",
+                          failure_msg="Ldapd container doesn't exist. SKIPPING THIS ERROR.",
+                          log_file=log_file,
+                          exit_on_fail=False)
+
 
 def unique_value():
     return str(int(time()))
@@ -153,18 +159,20 @@ def docker_setup(log_file, config_path="middleware.conf"):
                           exit_on_fail=False)
 
     kong_storage = config.get('KONG', 'DATA_STORAGE')
-    kong_log_location = config.get('KONG','LOG_LOCATION')
+    kong_log_location = config.get('KONG', 'LOG_LOCATION')
     output_info("Using {0} as Kong's persistant storage. ".format(kong_storage))
     kong_config_storage = config.get('KONG', 'CONFIG_STORAGE')
     output_info("Using {0} as Kong's config persistant storage. ".format(kong_config_storage))
     rabbitmq_storage = config.get('RABBITMQ', 'DATA_STORAGE')
-    rabbitmq_log_location = config.get('RABBITMQ','LOG_LOCATION')
+    rabbitmq_log_location = config.get('RABBITMQ', 'LOG_LOCATION')
     output_info("Using {0} as RabbitMQ's persistant storage. ".format(rabbitmq_storage))
     tomcat_storage = config.get('TOMCAT', 'DATA_STORAGE')
-    tomcat_log_location = config.get('TOMCAT','LOG_LOCATION')
+    tomcat_log_location = config.get('TOMCAT', 'LOG_LOCATION')
     output_info("Using {0} as Apache Tomcat's persistant storage. ".format(tomcat_storage))
     catalogue_storage = config.get('CATALOGUE', 'DATA_STORAGE')
     output_info("Using {0} as Catalogue's persistant storage. ".format(catalogue_storage))
+    ldapd_storage = config.get('LDAP', 'DATA_STORAGE')
+    output_info("Using {0} as Ldap's persistant storage. ".format(ldapd_storage))
 
     subprocess_with_print("docker build --no-cache -t ansible/ubuntu-ssh -f images/Dockerfile.ubuntu .",
                           success_msg="Created ansible/ubuntu-ssh docker image. ",
@@ -228,6 +236,7 @@ def docker_setup(log_file, config_path="middleware.conf"):
                           failure_msg="Building ubuntu image from images/Dockerfile.ubuntu.certified.rabbitmq failed.",
                           log_file=log_file,
                           exit_on_fail=True)
+
     failure_msg = "Building ansible/pushpin image from images/Dockerfile.ubuntu.certified.pushpin failed."
     subprocess_with_print("docker build -t ansible/pushpin -f images/Dockerfile.ubuntu.certified.pushpin .",
                           success_msg="Created ansible/pushpin docker image. ",
@@ -245,6 +254,13 @@ def docker_setup(log_file, config_path="middleware.conf"):
     subprocess_with_print(cmd,
                           success_msg="Created ansible/ubuntu-certified-elk:1.0 docker image. ",
                           failure_msg="Building ubuntu image from images/Dockerfile.ubuntu.certified.elk failed.",
+                          log_file=log_file,
+                          exit_on_fail=True)
+
+    cmd = "docker build -t ansible/ubuntu-certified-ldapd:1.0 -f images/Dockerfile.ubuntu.certified.ldapd ."
+    subprocess_with_print(cmd,
+                          success_msg="Created ansible/ubuntu-certified-ldapd:1.0 docker image. ",
+                          failure_msg="Building ubuntu image from images/Dockerfile.ubuntu.certified.ldapd failed.",
                           log_file=log_file,
                           exit_on_fail=True)
 
@@ -285,6 +301,13 @@ def docker_setup(log_file, config_path="middleware.conf"):
     instance_details["tomcat"] = [ip, port]
     output_ok("Created Tomcat docker instance. \n " + details)
 
+    ip, port, details = create_instance("ldapd", "ansible/ubuntu-certified-ldapd:1.0",
+                                        storage_host=ldapd_storage,
+                                        storage_guest="/var/db/ldap",
+                                        log_file=log_file)
+    instance_details["ldapd"] = [ip, port]
+    output_ok("Created LDAP docker instance. \n " + details)
+
     if config.get('SYSTEM_CONFIG', 'OS') == "linux":
         cmd = "cp config/tomcat/RegisterAPILinux.war " + tomcat_storage + "/RegisterAPI.war"
         subprocess_popen(cmd, log_file, "Copying RegisterAPILinux.war file to {0} failed.".format(tomcat_storage))
@@ -317,11 +340,6 @@ def docker_setup(log_file, config_path="middleware.conf"):
                           log_file=log_file,
                           exit_on_fail=True)
     create_ansible_host_file(instance_details)
-    subprocess_with_print("vagrant up --provision",
-                          success_msg="Created vagrant machine",
-                          failure_msg="Creation of vagrant machine failed. SKIPPING THIS ERROR.",
-                          log_file=log_file,
-                          exit_on_fail=False)
 
 
 def create_instance(server, image, log_file, storage_host="", storage_guest=""):
@@ -337,7 +355,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest=""):
     port = ""
     container_id = ""
 
-    if server == "kong":  # separate storage needed cases
+    if server == "kong":  # separate kong log storage needed
         cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/kong:/tmp --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest)
 
@@ -352,7 +370,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest=""):
                          error_message=traceback.format_exc())
             exit()
 
-    elif server == "rabbitmq":  # separate storage needed cases
+    elif server == "rabbitmq":  # separate rabbitmq log storage needed
         cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/rabbitmq:/var/log/rabbitmq -v /data/logs/rabbitmq:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest)
 
@@ -367,8 +385,8 @@ def create_instance(server, image, log_file, storage_host="", storage_guest=""):
                          error_message=traceback.format_exc())
             exit()
 
-    elif server == "hypercat":  # separate storage needed cases
-        cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
+    elif server == "tomcat":  # separate tomcat log storage needed
+        cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/tomcat:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest)
 
         try:
@@ -382,8 +400,8 @@ def create_instance(server, image, log_file, storage_host="", storage_guest=""):
                          error_message=traceback.format_exc())
             exit()
 
-    elif server == "tomcat":  # separate storage needed cases
-        cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/tomcat:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
+    elif server == "hypercat" or server == "ldapd":  # separate data storage needed
+        cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest)
 
         try:
@@ -447,7 +465,7 @@ def create_ansible_host_file(instances):
     IP address, port and ssh_username of the all the hosts (docker containers) mentioned in instances parameter.
 
     Args:
-        instances (dict): instances is a dict of the form { 'server' : [IPAddress, Port]}.
+        instances (dict): instances is a dict of the form { 'server' : [IPAddress, Port] }.
     """
     hosts_list = []
     for key, value in instances.iteritems():
@@ -471,20 +489,8 @@ def check_dependencies(log_file):
                           log_file=log_file,
                           exit_on_fail=True)
 
-    subprocess_with_print("vagrant -v",
-                          success_msg="Vagrant is installed. ",
-                          failure_msg="Vagrant is not installed. Please install Vagrant",
-                          log_file=log_file,
-                          exit_on_fail=True)
 
-    subprocess_with_print("virtualbox -h",
-                          success_msg="Virtualbox is installed. ",
-                          failure_msg="Virtualbox is not installed. Please install Virtualbox",
-                          log_file=log_file,
-                          exit_on_fail=True)
-
-
-def ansible_setup(limit=""):
+def ansible_installation(limit=""):
     """ Creates all the plays/installation from ansible install.yaml file.
 
     Args:
@@ -503,7 +509,7 @@ def subprocess_with_print(cmd, success_msg, failure_msg, log_file, exit_on_fail=
         success_msg  (string): success message to be displayed in [OK] format.
         failure_msg  (string): failure text to be displayed with [FAILED] format.
         log_file     (string): log file path
-        exit_on_fail (bool): exit program if failed
+        exit_on_fail   (bool): exit program if failed
     """
     try:
         process = subprocess.Popen(cmd.split(" "), stdout=subprocess.PIPE, stderr=subprocess.PIPE)

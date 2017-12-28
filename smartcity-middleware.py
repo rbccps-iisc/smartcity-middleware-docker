@@ -18,7 +18,7 @@ class MyParser(argparse.ArgumentParser):
 def install(arguments):
     """ Installs docker images and containers."""
     if args.limit:
-        container_setup.ansible_setup(arguments.limit)
+        container_setup.ansible_installation(arguments.limit)
     else:
         setup_logging(log_file=arguments.log_file)
         container_setup.check_dependencies(log_file=arguments.log_file)
@@ -26,16 +26,13 @@ def install(arguments):
         container_setup.remove_containers(log_file=arguments.log_file)
         download_packages.download(arguments.log_file)
         container_setup.docker_setup(log_file=arguments.log_file, config_path=arguments.config_file)
-        # TODO: RabbitMQ, Catalogue fails due to network issues. Temporary fix is to run the setup again
-        #       limiting the installation only to RabbitMQ and catalogue
-        #       python smartcity-middleware.py -l hypercat,rabbitmq -f middleware.conf
-        container_setup.ansible_setup("kong, rabbitmq, elasticsearch, apt_repo, tomcat")
+        container_setup.ansible_installation("kong, rabbitmq, elasticsearch, apt_repo, tomcat, ldapd")
 
 
 def start(arguments):
     """ Starts all docker containers. """
     if arguments.limit:
-        container_start.ansible_setup(arguments.limit)
+        container_start.ansible_start(arguments.limit)
     else:
         container_start.start_all()
 
@@ -43,7 +40,8 @@ def start(arguments):
 def restart(arguments):
     """ Stops and starts all docker containers. """
     if arguments.limit:
-        container_start.ansible_setup(arguments.limit)
+        container_setup.stop_containers(log_file=arguments.log_file)
+        container_start.ansible_start(arguments.limit)
     else:
         container_setup.stop_containers(log_file=arguments.log_file)  # Stops all containers
         container_start.start_all()

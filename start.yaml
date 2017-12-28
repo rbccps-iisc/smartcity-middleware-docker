@@ -28,3 +28,8 @@
   remote_user: ansible
   tasks:
   - include: tasks/elasticsearch/start_elasticsearch.yml
+
+- hosts: ldapd
+  remote_user: ansible
+  tasks:
+  - include: tasks/ldapd/start_ldapd.yml

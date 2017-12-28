@@ -9,8 +9,7 @@
 # later), or the GNU General Public License, version 2 (GPLv2), in all
 # cases as published by the Free Software Foundation.
 #
-#  Updated to systemd print format
-# 2017 by Harish Anand (harishanand 95 at gmail com)
+#  Updated to systemd print format Copyright (c) 2017 2017 by Harish Anand (harishanand 95 at gmail com)
 #
 
 import logging
