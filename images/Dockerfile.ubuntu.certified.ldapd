@@ -4,6 +4,7 @@ MAINTAINER Harish Anand "https://github.com/harishanand95"
 RUN echo "TrustedUserCAKeys /etc/ssh/ca-user-certificate-key.pub" >> /etc/ssh/sshd_config
 
 EXPOSE 22
+EXPOSE 8389
 ARG CACHEBUST=1
 COPY config/certificate_authority/keys/ca-user-certificate-key.pub /etc/ssh/ca-user-certificate-key.pub
 CMD    ["/usr/sbin/sshd", "-D"]

@@ -434,28 +434,30 @@
     args:
       chdir: /home/ansible/libevent-release-1.4.13-stable
 
-  - name: openbsd-ldapd-portable bootstrap
+  - name: Openbsd-ldapd-portable bootstrap
     command: ./bootstrap
     args:
       chdir: /home/ansible/openbsd-ldapd-portable
 
-  - name: openbsd-ldapd-portable bootstrap configure
+  - name: Openbsd-ldapd-portable configure
     command: ./configure
     args:
       chdir: /home/ansible/openbsd-ldapd-portable
 
-  - name: openbsd-ldapd-portable bootstrap make
+  - name: Openbsd-ldapd-portable make
     command: make
     args:
       chdir: /home/ansible/openbsd-ldapd-portable
 
-  - name: openbsd-ldapd-portable bootstrap make install
+  - name: Openbsd-ldapd-portable make install
     command: make install
     args:
       chdir: /home/ansible/openbsd-ldapd-portable
+    become: true
 
   - name: Link libevent-1.4.so.2
     file: src=/usr/local/lib/libevent-1.4.so.2 dest=/usr/lib/libevent-1.4.so.2 state=link
+    become: true
 
   - name: Create ldapd.conf file
     copy:
@@ -476,6 +478,12 @@
   - name: Create /etc/ldap directory
     file: path=/etc/ldap state=directory
 
+  - name: Create LDAP /var/db directory
+    file: path=/var/db state=directory
+
+  - name: Create MongoDB /var/db/ldap directory
+    file: path=/var/db/ldap state=directory
+
   - name: Create core.schema file
     copy:
       src: config/ldapd/core.schema
@@ -487,23 +495,20 @@
       comment: "LDAP daemon"
       home: /var/db/ldap
       shell: /sbin/nologin
-
-  - name: Create /var/db directory
-    file: path=/var/db state=directory group=_ldapd owner=_ldapd
-
-  - name: Create /var/db/ldap directory
-    file: path=/var/db/ldap state=directory group=_ldapd owner=_ldapd
+      group: root
+    become: true
 
   - name: Start ldapd
-    command: ldapd
+    shell: ldapd
+    become: true
 
   - name: Add smartcity.ldif
-    command: ldapmodify -h 127.0.0.1 -p 389 -x -D cn=admin,dc=smartcity -w {{ ldapd_password }} -f smartcity.ldif
+    command: ldapmodify -h 127.0.0.1 -p 8389 -x -D cn=admin,dc=smartcity -w {{ ldapd_password }} -f smartcity.ldif
     args:
       chdir: /home/ansible/
 
   - name: Add devices.ldif
-    command: ldapmodify -h 127.0.0.1 -p 389 -x -D cn=admin,dc=smartcity -w {{ ldapd_password }} -f devices.ldif
+    command: ldapmodify -h 127.0.0.1 -p 8389 -x -D cn=admin,dc=smartcity -w {{ ldapd_password }} -f devices.ldif
     args:
       chdir: /home/ansible/
 

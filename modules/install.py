@@ -303,7 +303,7 @@ def docker_setup(log_file, config_path="middleware.conf"):
 
     ip, port, details = create_instance("ldapd", "ansible/ubuntu-certified-ldapd:1.0",
                                         storage_host=ldapd_storage,
-                                        storage_guest="/var/db/ldap",
+                                        storage_guest="/var/db",
                                         log_file=log_file)
     instance_details["ldapd"] = [ip, port]
     output_ok("Created LDAP docker instance. \n " + details)
@@ -400,7 +400,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest=""):
                          error_message=traceback.format_exc())
             exit()
 
-    elif server == "hypercat" or server == "ldapd":  # separate data storage needed
+    elif server == "hypercat":  # separate data storage needed
         cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest)
 
@@ -414,7 +414,20 @@ def create_instance(server, image, log_file, storage_host="", storage_guest=""):
                          "\n           Check logs {0} for more details.".format(log_file),
                          error_message=traceback.format_exc())
             exit()
+    elif server == "ldapd":  # separate data storage needed
+        cmd = "docker run -d -P --net=mynet --hostname={0} --volumes-from datacontainer --cap-add=NET_ADMIN --name={0} {1}".\
+            format(server, image, storage_host, storage_guest)
 
+        try:
+            out, err = subprocess_popen(cmd,
+                                        log_file,
+                                        failure_msg="Creation of {0} docker instance failed.".format(server))
+            container_id = out
+        except OSError:
+            output_error("Creation of {0} docker instance failed.".format(server) +
+                         "\n           Check logs {0} for more details.".format(log_file),
+                         error_message=traceback.format_exc())
+            exit()
     else:
         cmd = "docker run -d -P --net=mynet --hostname={0} --cap-add=NET_ADMIN --name={0} {1}".format(server, image)
         try:

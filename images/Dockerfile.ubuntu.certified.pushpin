@@ -1,19 +1,5 @@
-FROM ubuntu:16.04
+FROM harishanand95/pushpin
 MAINTAINER Harish Anand "https://github.com/harishanand95"
-
-RUN apt-get update --fix-missing
-RUN apt-get install -y git
-RUN apt-get install -y pkg-config qtbase5-dev libzmq3-dev mongrel2-core zurl
-RUN git clone git://github.com/fanout/pushpin.git && \
-cd pushpin  && \
-git checkout develop  && \
-git submodule init && git submodule update  && \
-./configure --qtselect=5 && \
-make && \
-make install && \
-mkdir /root/pushpin && \
-mkdir /root/pushpin/runner && \
-mkdir /root/pushpin/runner/certs
 
 COPY config/kong/pushpin.conf /root/pushpin/pushpin.conf
 COPY config/kong/pushpin_routes /root/pushpin/routes
