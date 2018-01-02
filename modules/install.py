@@ -425,7 +425,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest=""):
                          error_message=traceback.format_exc())
             exit()
     elif server == "ldapd":  # separate data storage needed
-        cmd = "docker run -d -P --net=mynet --hostname={0}  -v {2}:{3}  --cap-add=NET_ADMIN --name={0} {1}".\
+        cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest)
 
         try:
