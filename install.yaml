@@ -35,12 +35,16 @@
   - name: Add RabbitMQ repository key
     apt_key: url=https://www.rabbitmq.com/rabbitmq-release-signing-key.asc state=present
 
-  - name: Add RabbitMQ repository
-    apt_repository:
-      repo: deb [trusted=yes] http://www.rabbitmq.com/debian/ testing main
-      state: present
-      filename: 'rabbitmq'
-    retries: 5
+  - name: Add rabbitmq official apt repository
+    apt_repository: repo='deb http://www.rabbitmq.com/debian/ testing main' state=present
+
+  - name: ensure python-software-properties is installed
+    apt: pkg=python-software-properties state=installed
+
+  - name: install package
+    apt: name={{ item }} update_cache=yes state=installed
+    with_items:
+      - rabbitmq-server
 
   - include: tasks/update_repos.yml
 
