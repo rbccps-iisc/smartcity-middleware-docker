@@ -14,3 +14,11 @@
 
   - name: Add  apt repository public key
     shell: apt-key add /root/ansible.pub
+
+  - name: clean apt repos
+    shell: apt-get -y clean
+    become: true
+
+  - name: auto clean apt repos
+    apt: autoclean=yes
+    become: true
