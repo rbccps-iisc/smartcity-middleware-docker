@@ -71,6 +71,12 @@ def remove_containers(log_file):
                           log_file=log_file,
                           exit_on_fail=False)
 
+    subprocess_with_print("docker volume rm ldapd-data",
+                          success_msg="Removed ldapd-data volume",
+                          failure_msg="Ldapd-data volume doesn't exist. SKIPPING THIS ERROR.",
+                          log_file=log_file,
+                          exit_on_fail=False)
+
 
 def stop_containers(log_file):
     """ Stops all existing docker containers like kong, rabbitmq, tomcat et cetera.
@@ -171,10 +177,14 @@ def docker_setup(log_file, config_path="middleware.conf"):
     output_info("Using {0} as Apache Tomcat's persistant storage. ".format(tomcat_storage))
     catalogue_storage = config.get('CATALOGUE', 'DATA_STORAGE')
     output_info("Using {0} as Catalogue's persistant storage. ".format(catalogue_storage))
-    ldapd_storage = config.get('LDAP', 'DATA_STORAGE')
-    output_info("Using {0} as Ldap's persistant storage. ".format(ldapd_storage))
 
-    subprocess_with_print("docker build --no-cache -t ansible/ubuntu-ssh -f images/Dockerfile.ubuntu .",
+    subprocess_with_print("docker volume create --name ldapd-data",
+                          success_msg="Created ldapd-data data container ",
+                          failure_msg="Creation of ldapd-data data container failed.",
+                          log_file=log_file,
+                          exit_on_fail=True)
+
+    subprocess_with_print("docker build -t ansible/ubuntu-ssh -f images/Dockerfile.ubuntu .",
                           success_msg="Created ansible/ubuntu-ssh docker image. ",
                           failure_msg="Building ubuntu image from images/Dockerfile.ubuntu failed.",
                           log_file=log_file,
