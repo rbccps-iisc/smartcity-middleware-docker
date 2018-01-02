@@ -10,8 +10,6 @@
 
 ### Requirements:
   * `Docker`: [Installation steps for Docker in Ubuntu/Debian](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#os-requirements)
-  * `Vagrant`: [Installation steps for Vagrant in Ubuntu/Debian](https://www.vagrantup.com/downloads.html)
-  * `VirtualBox`: [Installation steps for VirtualBox in Ubuntu/Debian](https://www.virtualbox.org/wiki/Linux_Downloads)
   * `Ansible`: [Installation steps for Ansible](http://docs.ansible.com/ansible/latest/intro_installation.html)
   * `Python-pip`: Installation dependency on Pathlib2. Use the command `python -m pip install pathlib2`
 

@@ -5,3 +5,7 @@
 
   - name: Set Bash for ansible ssh session
     command: usermod -s /bin/bash ansible
+
+  - name: Make permissions to 666 in /tmp # Avoid the issue: "Couldn't create tempfiles for splitting up"
+    command: chmod 666 /tmp
+    become: yes

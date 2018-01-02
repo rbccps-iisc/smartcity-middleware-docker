@@ -41,15 +41,12 @@
   - name: ensure python-software-properties is installed
     apt: pkg=python-software-properties state=installed
 
-  - name: install package
+  - name: Install rabbitmq-server
     apt: name={{ item }} update_cache=yes state=installed
     with_items:
       - rabbitmq-server
 
   - include: tasks/update_repos.yml
-
-  - name: Install rabbitmq-server
-    apt: pkg=rabbitmq-server state=present
 
   - name: Download Golang v1.9.2
     copy:
