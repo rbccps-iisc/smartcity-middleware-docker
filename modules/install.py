@@ -312,7 +312,7 @@ def docker_setup(log_file, config_path="middleware.conf"):
     output_ok("Created Tomcat docker instance. \n " + details)
 
     ip, port, details = create_instance("ldapd", "ansible/ubuntu-certified-ldapd:1.0",
-                                        storage_host=ldapd_storage,
+                                        storage_host="ldapd-data",
                                         storage_guest="/var/db",
                                         log_file=log_file)
     instance_details["ldapd"] = [ip, port]
@@ -425,7 +425,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest=""):
                          error_message=traceback.format_exc())
             exit()
     elif server == "ldapd":  # separate data storage needed
-        cmd = "docker run -d -P --net=mynet --hostname={0} --volumes-from datacontainer --cap-add=NET_ADMIN --name={0} {1}".\
+        cmd = "docker run -d -P --net=mynet --hostname={0}  -v {2}:{3}  --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest)
 
         try:
