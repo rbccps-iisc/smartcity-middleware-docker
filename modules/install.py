@@ -248,7 +248,7 @@ def docker_setup(log_file, config_path="middleware.conf"):
                           exit_on_fail=True)
 
     failure_msg = "Building ansible/pushpin image from images/Dockerfile.ubuntu.certified.pushpin failed."
-    subprocess_with_print("docker build -t ansible/pushpin -f images/Dockerfile.ubuntu.certified.pushpin .",
+    subprocess_with_print("docker build --no-cache -t ansible/pushpin -f images/Dockerfile.ubuntu.certified.pushpin .",
                           success_msg="Created ansible/pushpin docker image. ",
                           failure_msg=failure_msg,
                           log_file=log_file,
@@ -318,22 +318,13 @@ def docker_setup(log_file, config_path="middleware.conf"):
     instance_details["ldapd"] = [ip, port]
     output_ok("Created LDAP docker instance. \n " + details)
 
-    if config.get('SYSTEM_CONFIG', 'OS') == "linux":
-        cmd = "cp config/tomcat/RegisterAPILinux.war " + tomcat_storage + "/RegisterAPI.war"
-        subprocess_popen(cmd, log_file, "Copying RegisterAPILinux.war file to {0} failed.".format(tomcat_storage))
-        output_ok("Copied  RegisterAPILinux.war file to {0}. ".format(tomcat_storage))
-    elif config.get('SYSTEM_CONFIG', 'OS') == "macOS":
-        cmd = "cp config/tomcat/RegisterAPIMAC.war " + tomcat_storage + "/RegisterAPI.war"
-        subprocess_popen(cmd, log_file, "Copying RegisterAPIMAC.war file to {0} failed.".format(tomcat_storage))
-        output_ok("Copied  RegisterAPIMAC.war file to {0}. ".format(tomcat_storage))
+    ip, port, details = create_instance("pushpin", "ansible/pushpin", log_file=log_file)
+    instance_details["pushpin"] = [ip, port]
+    output_ok("Created Pushpin docker instance. \n " + details)
 
-    cmd = "docker run -d -p 8443:443 --net mynet --hostname={0} --cap-add=NET_ADMIN --name {0} {1}".\
-        format("pushpin", "ansible/pushpin")
-    subprocess_with_print(cmd,
-                          success_msg="Created Pushpin docker instance. ",
-                          failure_msg="Creation of Pushpin docker instance failed.",
-                          log_file=log_file,
-                          exit_on_fail=True)
+    cmd = "cp config/tomcat/RegisterAPI.war " + tomcat_storage + "/RegisterAPI.war"
+    subprocess_popen(cmd, log_file, "Copying RegisterAPI.war file to {0} failed.".format(tomcat_storage))
+    output_ok("Copied  RegisterAPI.war file to {0}. ".format(tomcat_storage))
 
     cmd = 'docker run -d ' \
           '-p 31337:1337 ' \
@@ -366,7 +357,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest=""):
     container_id = ""
 
     if server == "kong":  # separate kong log storage needed
-        cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/kong:/tmp --cap-add=NET_ADMIN --name={0} {1}".\
+        cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/kong:/home/ansible --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest)
 
         try:
@@ -381,7 +372,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest=""):
             exit()
 
     elif server == "rabbitmq":  # separate rabbitmq log storage needed
-        cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/rabbitmq:/var/log/rabbitmq -v /data/logs/rabbitmq:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
+        cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/rabbitmq/logs:/var/log/rabbitmq -v /data/logs/rabbitmq/supervisor:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest)
 
         try:
@@ -427,6 +418,20 @@ def create_instance(server, image, log_file, storage_host="", storage_guest=""):
     elif server == "ldapd":  # separate data storage needed
         cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest)
+
+        try:
+            out, err = subprocess_popen(cmd,
+                                        log_file,
+                                        failure_msg="Creation of {0} docker instance failed.".format(server))
+            container_id = out
+        except OSError:
+            output_error("Creation of {0} docker instance failed.".format(server) +
+                         "\n           Check logs {0} for more details.".format(log_file),
+                         error_message=traceback.format_exc())
+            exit()
+    elif server == "pushpin":
+        cmd = "docker run -d -P -p 8443:443 --net mynet --hostname={0} --cap-add=NET_ADMIN --name {0} {1}". \
+            format(server, image)
 
         try:
             out, err = subprocess_popen(cmd,

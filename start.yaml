@@ -33,3 +33,8 @@
   remote_user: ansible
   tasks:
   - include: tasks/ldapd/start_ldapd.yml
+
+- hosts: pushpin
+  remote_user: root
+  tasks:
+  - include: tasks/pushpin/start_pushpin.yml

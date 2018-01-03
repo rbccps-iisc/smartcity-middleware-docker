@@ -1,10 +1,12 @@
 import subprocess
 
+
 def get_port(server):
     return subprocess.check_output(['docker',
                                     'inspect',
                                     """--format='{{(index (index .NetworkSettings.Ports "22/tcp") 0).HostPort}}'""",
                                     server])
+
 
 def create_hosts():
     hosts = ""
@@ -25,6 +27,9 @@ def create_hosts():
     subprocess.call("docker start rabbitmq", shell=True)
     hosts += "rabbitmq ansible_host=localhost ansible_port={0} ansible_user=root\n".format(
         get_port("rabbitmq").rstrip())
+    subprocess.call("docker start pushpin", shell=True)
+    hosts += "pushpin ansible_host=localhost ansible_port={0} ansible_user=root\n".format(
+        get_port("pushpin").rstrip())
     subprocess.call("docker start tomcat", shell=True)
     hosts += "tomcat ansible_host=localhost ansible_port={0} ansible_user=root\n".format(get_port("tomcat").rstrip())
     print hosts

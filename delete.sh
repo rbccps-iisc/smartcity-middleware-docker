@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-cd /data/kong && sudo rm -rf *
-cd /data/tomcat && sudo rm -rf *
-cd /data/rabbitmq && sudo rm -rf *
-cd /data/logs/kong && sudo rm -rf *
-cd /data/logs/rabbitmq && sudo rm -rf *
-cd /data/logs/tomcat && sudo rm -rf *
+cd /data/kong && rm -rf *
+cd /data/tomcat && rm -rf *
+cd /data/rabbitmq && rm -rf *
+cd /data/logs/kong && rm -rf *
+cd /data/logs/rabbitmq && rm -rf *
+cd /data/logs/tomcat && rm -rf *

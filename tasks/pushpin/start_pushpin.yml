@@ -1,0 +1,3 @@
+---
+  - name: Start pushpin
+    command: screen -dm pushpin --config /root/pushpin/pushpin.conf --logfile pushpin_log_file

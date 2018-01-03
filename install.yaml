@@ -28,6 +28,7 @@
   vars_files:
     - host_vars/all
   tasks:
+
   - include: tasks/create_user.yml
   - include: tasks/add_local_repository.yml
   - include: tasks/update_repos.yml
@@ -38,15 +39,15 @@
   - name: Add rabbitmq official apt repository
     apt_repository: repo='deb http://www.rabbitmq.com/debian/ testing main' state=present
 
+  - include: tasks/update_repos.yml
+
   - name: ensure python-software-properties is installed
-    apt: pkg=python-software-properties state=installed
+    apt: name=python-software-properties state=present
 
   - name: Install rabbitmq-server
-    apt: name={{ item }} update_cache=yes state=installed
+    apt: name={{ item }} state=present
     with_items:
       - rabbitmq-server
-
-  - include: tasks/update_repos.yml
 
   - name: Download Golang v1.9.2
     copy:
