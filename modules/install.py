@@ -357,7 +357,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest=""):
     container_id = ""
 
     if server == "kong":  # separate kong log storage needed
-        cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/kong:/home/ansible --cap-add=NET_ADMIN --name={0} {1}".\
+        cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/kong:/tmp --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest)
 
         try:
