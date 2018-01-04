@@ -372,7 +372,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest=""):
             exit()
 
     elif server == "rabbitmq":  # separate rabbitmq log storage needed
-        cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/rabbitmq/logs:/var/log/rabbitmq -v /data/logs/rabbitmq/supervisor:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
+        cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/rabbitmq:/var/log/rabbitmq -v /data/logs/rabbitmq:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest)
 
         try:
