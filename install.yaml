@@ -160,6 +160,9 @@
   - name: Install supervisor
     apt: name=supervisor state=present
 
+  - name: Install screen
+    apt: name=screen state=present
+
   - name: Copy supervisor-cat-server.conf
     copy:
       src: config/hypercat/supervisor-cat-server.conf

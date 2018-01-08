@@ -338,7 +338,39 @@
     until: (request.status == 201) or (request.status == 409)
     retries: 5
 
-# TODO: Fix mac specific and linux specific docker issue and change to /register api at tomcat
+  - name: Creating "historicData" API at kong
+    uri:
+      url: http://localhost:8001/apis/
+      method: POST
+      body: 'name=historicData&methods=GET&upstream_url=http://elasticsearch:9200/sensor_data*/_search&uris='
+      status_code: [201, 409]
+      return_content: yes
+    register: request
+    until: (request.status == 409) or (request.status == 201)
+    retries: 5
+
+  - name: Adding key-auth to "/api/0.1.0/historicData" to historicData API
+    uri:
+      url: http://localhost:8001/apis/historicData/plugins
+      method: POST
+      body: 'name=key-auth'
+      status_code: [201, 409]
+      return_content: yes
+    register: request
+    until: (request.status == 409) or (request.status == 201)
+    retries: 5
+
+  - name: Adding acl "historicData" group to "/api/0.1.0/historicData" historicData API
+    uri:
+      url: http://localhost:8001/apis/historicData/plugins
+      method: POST
+      body: 'name=acl&config.whitelist=historicData'
+      status_code: [201, 409]
+      return_content: yes
+    register: request
+    until: (request.status == 201) or (request.status == 409)
+    retries: 5
+
   - name: Creating "/" at kong (http://tomcat:8080/)
     uri:
       url: http://localhost:8001/apis/

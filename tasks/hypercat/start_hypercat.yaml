@@ -4,12 +4,7 @@
     become: yes
     become_user: root
 
-  - name: Start supervisor
-    service: name=supervisor state=started
-    become: yes
-    become_user: root
-
-  - name: Reload supervisorctl
-    shell: supervisorctl reload
+  - name: Start catalogue server
+    shell: cd /home/ansible/cat-json-schema-server && screen -dm npm start
     become: yes
     become_user: root
