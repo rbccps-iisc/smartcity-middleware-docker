@@ -26,7 +26,7 @@ def install(arguments):
         container_setup.remove_containers(log_file=arguments.log_file)
         download_packages.download(arguments.log_file)
         container_setup.docker_setup(log_file=arguments.log_file, config_path=arguments.config_file)
-        container_setup.ansible_installation("kong, rabbitmq, elasticsearch, apt_repo, tomcat, ldapd")
+        container_setup.ansible_installation("kong, rabbitmq, elasticsearch, apt_repo, tomcat, ldapd, hypercat")
 
 
 def start(arguments):

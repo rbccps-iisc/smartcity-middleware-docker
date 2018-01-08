@@ -187,7 +187,7 @@
 
 # TODO: A permanent fix to the ldap port is required here
   - name: Change cat-json-schema-server ldap IP port
-    command: sed -i 's/10.156.14.20:389/192.168.65.1:8389/g' config.js
+    command: sed -i 's/10.156.14.20:389/ldapd:8389/g' config.js
     args:
       chdir: /home/ansible/cat-json-schema-server/lib
 

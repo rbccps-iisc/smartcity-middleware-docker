@@ -1,5 +1,5 @@
 ---
-- hosts: catalogue
+- hosts: hypercat
   remote_user: ansible
   tasks:
   - include: tasks/hypercat/start_hypercat.yaml
