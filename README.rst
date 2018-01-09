@@ -62,26 +62,23 @@ Steps to Install
 
 After configuring the ``middleware.conf`` file, do the following steps.
 
-:Installation:
-
-   Please satisfy the requirements mentioned in middleware.conf file.
-   Password of the root user in docker containers for the alpha release is rbccps@123456.
-   This will be removed in the later release.
-
-     $ python smartcity-middleware.py install --config-file middleware.conf
-
-   If the setup fails at any stage for reasons like for example internet connection issues, you can continue the failed installation using the following command.
++---------------------------------------+-----------------------------------------------------------------------------+
+| Installation                          | ``python smartcity-middleware.py install --config-file middleware.conf``    |
++---------------------------------------+-----------------------------------------------------------------------------+
+| Start Middleware                      | ``python smartcity-middleware.py start``                                    |
++---------------------------------------+-----------------------------------------------------------------------------+
+| Serving Middleware at                 | ``https://localhost:8443``                                                  |
++---------------------------------------+-----------------------------------------------------------------------------+
 
 
-:Start Middleware:
 
-  $ python smartcity-middleware.py start
-
-:Middleware Available: 
-
-  https://localhost:8443
-  
-  The application will be serving with a self-signed certificate. If you want to use your certificate, have your .crt and .key file as config/kong/default_443.crt and config/kong/default_443.key respectively and do a fresh installation.
+Comment
+=======
+- Please satisfy the requirements mentioned in ``middleware.conf`` file.
+- Password of the root user in docker containers for the alpha release is rbccps@123456. This will be removed in the later release.
+- If the setup fails at any stage for reasons like internet connection issues, you can continue the failed installation using the following command. 
+     ``python smartcity-middleware.py install --config-file middleware.conf -l kong,tomcat,hypercat,ldapd,elasticsearch,rabbitmq,apt_repo,pushpin``
+- The application will be serving with a self-signed certificate. If you want to use your certificate, have your .crt and .key file as config/kong/default_443.crt and config/kong/default_443.key respectively and do a fresh installation.
 
 +----------------------------------------------------------------+----------------------------------------------------------+
 | RBCCPS MIDDLEWARE API URLs                                     | MIDDLEWARE API URLs                                      |
@@ -102,8 +99,8 @@ After configuring the ``middleware.conf`` file, do the following steps.
 +----------------------------------------------------------------+----------------------------------------------------------+
 
 For example, registration of device to local middleware is as follows.
-:
-  curl -i -X GET "https://localhost:8443/api/0.1.0/register" -H 'apikey: <provider_api_key>' -H 'resourceID: <Your-Resource-ID>' -H 'serviceType: publish,subscribe,historicData' 
+
+``curl -i -X GET "https://localhost:8443/api/0.1.0/register" -H 'apikey: <provider_api_key>' -H 'resourceID: <Your-Resource-ID>' -H 'serviceType: publish,subscribe,historicData'`` 
 
 
 NOTE
