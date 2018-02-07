@@ -163,6 +163,9 @@
   - name: Install screen
     apt: name=screen state=present
 
+  - name: Install unzip
+    apt: name=unzip state=present
+
   - name: Copy supervisor-cat-server.conf
     copy:
       src: config/hypercat/supervisor-cat-server.conf
@@ -198,6 +201,11 @@
     shell: mongo < create_db.js
     args:
       chdir: /home/ansible/
+
+  - name: Extract schemas.zip into schemas dir
+    unarchive:
+      src: /home/ansible/cat-json-schema-server/schemas.zip
+      dest: /home/ansible/cat-json-schema-server/schemas
 
   - name: Change cat-json-schema-server ldap IP port
     command: sed -i 's/10.156.14.20:389/ldapd:8389/g' config.js
