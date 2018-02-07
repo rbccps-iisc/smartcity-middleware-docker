@@ -188,7 +188,17 @@
     args:
       chdir: /home/ansible/cat-json-schema-server/lib
 
-# TODO: A permanent fix to the ldap port is required here
+  - name: Copy create_db.js
+    copy:
+      src: config/hypercat/create_db.js
+      dest: /home/ansible/create_db.js
+      mode: 0644
+
+  - name: Create catdemo table
+    shell: mongo < create_db.js
+    args:
+      chdir: /home/ansible/
+
   - name: Change cat-json-schema-server ldap IP port
     command: sed -i 's/10.156.14.20:389/ldapd:8389/g' config.js
     args:
