@@ -205,7 +205,8 @@
   - name: Extract schemas.zip into schemas dir
     unarchive:
       src: /home/ansible/cat-json-schema-server/schemas.zip
-      dest: /home/ansible/cat-json-schema-server/schemas
+      dest: /home/ansible/cat-json-schema-server
+      remote_src: yes
 
   - name: Change cat-json-schema-server ldap IP port
     command: sed -i 's/10.156.14.20:389/ldapd:8389/g' config.js
