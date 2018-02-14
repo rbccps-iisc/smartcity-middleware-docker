@@ -383,7 +383,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
         mqtt = config.get('RABBITMQ', 'MQTT')
         management = config.get('RABBITMQ', 'MANAGEMENT')
 
-        cmd = "docker run -d -p {4}:22 -p {5}:8000 -p {6}:5672 -p {7}: 1883 -p {8}:15672 --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/rabbitmq:/var/log/rabbitmq -v /data/logs/rabbitmq:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
+        cmd = "docker run -d -p {4}:22 -p {5}:8000 -p {6}:5672 -p {7}:1883 -p {8}:15672 --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/rabbitmq:/var/log/rabbitmq -v /data/logs/rabbitmq:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest, ssh, http, amqp, mqtt, management)
 
         try:
