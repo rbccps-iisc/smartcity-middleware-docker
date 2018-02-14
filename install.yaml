@@ -15,6 +15,11 @@
       dest: 'config/apt_repo/keys/ansible.pub'
       flat: yes
 
+  - name: Setting up supervisor.conf
+    copy:
+      src: config/apt_repo/supervisor.conf
+      dest: /etc/supervisor/supervisor.conf
+
   - name: Start supervisor
     shell: service supervisor start
 
@@ -92,6 +97,11 @@
   - name: Install supervisor
     apt: name=supervisor state=present
 
+  - name: Setting up supervisor.conf
+    copy:
+      src: config/apt_repo/supervisor.conf
+      dest: /etc/supervisor/supervisor.conf
+
   - name: Setting up RabbitMQ configuration
     copy:
       src: config/rabbitmq/rabbitmq.config
@@ -159,6 +169,11 @@
 
   - name: Install supervisor
     apt: name=supervisor state=present
+
+  - name: Setting up supervisor.conf
+    copy:
+      src: config/apt_repo/supervisor.conf
+      dest: /etc/supervisor/supervisor.conf
 
   - name: Install screen
     apt: name=screen state=present
@@ -294,6 +309,11 @@
 
   - name: Install supervisor
     apt: name=supervisor state=present
+
+  - name: Setting up supervisor.conf
+    copy:
+      src: config/apt_repo/supervisor.conf
+      dest: /etc/supervisor/supervisor.conf
 
   - name: Copy supervisor-kong.conf
     copy:
@@ -642,6 +662,11 @@
 
   - name: Install supervisor
     apt: name=supervisor state=present
+
+  - name: Setting up supervisor.conf
+    copy:
+      src: config/apt_repo/supervisor.conf
+      dest: /etc/supervisor/supervisor.conf
 
   - name: Copy tomcat.conf
     copy:
