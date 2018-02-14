@@ -465,7 +465,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     elif server == "elasticsearch":
         ssh = config.get('ELASTICSEARCH', 'SSH')
         kibana = config.get('ELASTICSEARCH', 'KIBANA')
-        cmd = "docker run -d -p {2}:22 -p {3}: --net=mynet --hostname={0} --cap-add=NET_ADMIN --name={0} {1}".format(server, image, ssh, kibana)
+        cmd = "docker run -d -p {2}:22 -p {3}:5601 --net=mynet --hostname={0} --cap-add=NET_ADMIN --name={0} {1}".format(server, image, ssh, kibana)
         try:
             out, err = subprocess_popen(cmd,
                                         log_file,
