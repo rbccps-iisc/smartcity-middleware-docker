@@ -272,6 +272,12 @@
       src: ./config/kong/handler.lua
       dest: /usr/local/share/lua/5.1/kong/plugins/key-auth/handler.lua
       mode: 0644
+  
+  - name: Copy Badrequest plugin rock file
+    copy: 
+      src: ./pkg/kong-plugin-badrequest-0.1.0-1.all.rock
+      dest: /root
+      mode: 0644
 
   - name: Install supervisor
     apt: name=supervisor state=present

@@ -10,12 +10,11 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"time"
+	//"time"
 )
 
 var (
-	address = flag.String("address", "0.0.0.0:8000", "bind host:port")ls
-
+	address = flag.String("address", "0.0.0.0:8000", "bind host:port")
 	amqpUri = flag.String("amqp", "amqp://rbccps:rbccps@123@localhost:5672/", "amqp uri")
 )
 
@@ -346,16 +345,28 @@ func PublishHandler(w http.ResponseWriter, r *http.Request) {
 
 		rabbit.channel.NotifyReturn(cFail)
 
+		//select
+		//{
+		//case ch:=<-cFail:
+		//	log.Printf(r.Header.Get("X-Real-Ip")+" "+r.Header.Get("X-Consumer-Id")+" "+r.Header.Get("X-Consumer-Username")+" "+r.Header.Get("Apikey")+" Incorrect exchange or queue name")
+		//	http.Error(w,"Incorrect exchange or queue name "+ch.ReplyText,http.StatusNotFound)
+		//	return
+		//
+		//case <- time.After(100*time.Millisecond):
+		//	w.Write([]byte("Publish message OK\n"))
+		//	return
+		//}
+
 		select
 		{
-			case ch:=<-cFail:
-				log.Printf(r.Header.Get("X-Real-Ip")+" "+r.Header.Get("X-Consumer-Id")+" "+r.Header.Get("X-Consumer-Username")+" "+r.Header.Get("Apikey")+" Incorrect exchange or queue name")
-				http.Error(w,"Incorrect exchange or queue name "+ch.ReplyText,http.StatusNotFound)
-				return
+		case ch:=<-cFail:
+			log.Printf(r.Header.Get("X-Real-Ip")+" "+r.Header.Get("X-Consumer-Id")+" "+r.Header.Get("X-Consumer-Username")+" "+r.Header.Get("Apikey")+" Incorrect exchange or queue name")
+			http.Error(w,"Incorrect exchange or queue name "+ch.ReplyText,http.StatusNotFound)
+			return
 
-			case <- time.After(100*time.Millisecond):
-				w.Write([]byte("Publish message OK\n"))
-				return
+		default:
+			w.Write([]byte("Publish message OK\n"))
+			return
 		}
 
 

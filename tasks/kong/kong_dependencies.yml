@@ -20,3 +20,9 @@
 
   - name: Kong dependency:- python-pip
     apt: name=python-pip state=present
+ 
+  - name: Kong dependency:- Lua
+    apt: name=lua5.2 state=present
+
+  - name: Kong dependency:- Luarocks
+    apt: name=luarocks state=present

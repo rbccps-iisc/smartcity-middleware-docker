@@ -526,6 +526,7 @@ def ansible_installation(limit=""):
                           A comma separated list of servers like --limit kong, rabbitmq
     """
     output_info("Starting Ansible setup. ")
+    # subprocess.call('ansible-playbook -i \'localhost\' -s install_idps.yml --ask-sudo-pass')
     subprocess.call('ansible-playbook -i hosts install.yaml --limit "' + limit + '"', shell=True)
 
 

@@ -1,0 +1,22 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  
+  tasks:
+   - name: Install Fail2ban
+     apt: pkg=fail2ban state=installed update_cache=true
+     
+   - name: Copy configuration files   
+     copy: src={{ item.src }} dest={{ item.dest }}
+     with_items:
+       - { src: './config/idps/jail.local', dest: '/etc/fail2ban/' }
+       - { src: './config/idps/middleware.conf', dest: '/etc/fail2ban/filter.d/' }
+       - { src: './config/idps/iptables-middleware.conf', dest: '/etc/fail2ban/action.d/' }
+     
+     become: yes
+  
+   - name: Restart Fail2ban
+     service: name=fail2ban state=restarted
+     become: yes
+  
+

@@ -1,0 +1,12 @@
+[sshd]
+enabled = true
+
+[middleware]
+enabled  = true
+filter   = middleware
+logpath  = /data/logs/kong/kong.log
+port     = all
+action   = iptables-middleware
+maxretry = 5
+bantime  = 30
+

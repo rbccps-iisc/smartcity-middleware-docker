@@ -1,5 +1,5 @@
 ---
-  # fix: LC_ALL and LANG misssing occurs when computer shutdowns
+  # fix: LC_ALL and LANG misssing occurs when computer shuts down
   - name: Copy environment file
     copy:
       src: ./config/kong/environment
@@ -19,6 +19,11 @@
       src: ./config/kong/kong.conf
       dest: /etc/kong/kong.conf
       mode: 0644
+  
+  - name: Install Badrequest plugin
+    shell: luarocks install kong-plugin-badrequest-0.1.0-1.all.rock
+    args:
+      chdir: /root
 
   - name: Kong migrations on postgresql db
     command: kong migrations up -c /etc/kong/kong.conf
