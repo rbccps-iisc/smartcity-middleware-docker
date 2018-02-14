@@ -41,19 +41,19 @@ middleware.conf::
 
       KONG, RABBITMQ, TOMCAT, CATALOGUE, LDAP docker containers requires a persistent data, config storage locations.
 
-      DATA_STORAGE: Specify an empty directory in the system that docker could use
-      for keeping data files. Here, providing separate directories for kong, rabbitmq,
+      DATA_STORAGE: Specify an empty directory in the system that docker can use
+      for storing data files. Providing separate directories for kong, rabbitmq,
       tomcat, catalogue is recommended. Give all user rwx permission to these directories.
 
-      CONFIG_STORAGE: Specify an empty directory in the system that docker could use
-      for keeping config files.
+      CONFIG_STORAGE: Specify an empty directory in the system that docker can use
+      for storing config files.
 
       LOG_LOCATION: Specify an empty directory in the system that docker could use
-      for keeping log files.
+      for storing log files.
 
       SYSTEM_CONFIG specify system specific configurations for the installation steps.
 
-      SSH_PUBLIC_KEY: Specify a ssh public key which will be used in ssh authentication of the user to
+      SSH_PUBLIC_KEY: Specify an ssh public key which will be used in ssh authentication of the user to
       docker containers.
 
 
@@ -67,16 +67,16 @@ After configuring the ``middleware.conf`` file, do the following steps.
 +---------------------------------------+-----------------------------------------------------------------------------+
 | Start Middleware                      | ``python smartcity-middleware.py start``                                    |
 +---------------------------------------+-----------------------------------------------------------------------------+
-| Serving Middleware at                 | ``https://localhost:8443``                                                  |
+| Middleware served at                 | ``https://localhost:8443``                                                  |
 +---------------------------------------+-----------------------------------------------------------------------------+
 
 
 
 Comment
 =======
-- Please satisfy the requirements mentioned in ``middleware.conf`` file.
-- Password of the root user in docker containers for the alpha release is rbccps@123456. This will be removed in the later release.
-- If the setup fails at any stage for reasons like internet connection issues, you can continue the failed installation using the following command. 
+- Please ensure that the requirements mentioned in ``middleware.conf`` file are satisfied.
+- Password of the root user in docker containers in the alpha release is rbccps@123456. This will be removed in later releases.
+- If the setup fails at any stage for reasons like network connection issues, you can continue the failed installation using the following command. 
      ``python smartcity-middleware.py install --config-file middleware.conf -l kong,tomcat,hypercat,ldapd,elasticsearch,rabbitmq,apt_repo,pushpin``
 - The application will be serving with a self-signed certificate. If you want to use your certificate, have your .crt and .key file as config/kong/default_443.crt and config/kong/default_443.key respectively and do a fresh installation.
 
