@@ -343,7 +343,7 @@ def docker_setup(log_file, config_path="middleware.conf"):
     create_ansible_host_file(instance_details)
 
 
-def create_instance(server, image, log_file, storage_host="", storage_guest=""):
+def create_instance(server, image, log_file, storage_host="", storage_guest="", config_path="middleware.conf"):
     """ Create a docker instance from the image provided with persistent storages.
 
     Args:
@@ -352,13 +352,18 @@ def create_instance(server, image, log_file, storage_host="", storage_guest=""):
         log_file      (string): log file path
         storage_host  (string): mount point created in the server for persistent storage
         storage_guest (string): location inside docker where the persistent storage occurs
+        config_path   (string): location of config file
     """
     port = ""
     container_id = ""
+    config = ConfigParser.ConfigParser()
+    config.readfp(open(config_path))
 
     if server == "kong":  # separate kong log storage needed
-        cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/kong:/tmp --cap-add=NET_ADMIN --name={0} {1}".\
-            format(server, image, storage_host, storage_guest)
+        ssh = config.get('KONG', 'SSH')
+
+        cmd = "docker run -d -p {4}:22 --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/kong:/tmp --cap-add=NET_ADMIN --name={0} {1}".\
+            format(server, image, storage_host, storage_guest, ssh)
 
         try:
             out, err = subprocess_popen(cmd,
@@ -372,8 +377,14 @@ def create_instance(server, image, log_file, storage_host="", storage_guest=""):
             exit()
 
     elif server == "rabbitmq":  # separate rabbitmq log storage needed
-        cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/rabbitmq:/var/log/rabbitmq -v /data/logs/rabbitmq:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
-            format(server, image, storage_host, storage_guest)
+        ssh = config.get('RABBITMQ', 'SSH')
+        http = config.get('RABBITMQ', 'HTTP')
+        amqp = config.get('RABBITMQ', 'AMQP')
+        mqtt = config.get('RABBITMQ', 'MQTT')
+        management = config.get('RABBITMQ', 'MANAGEMENT')
+
+        cmd = "docker run -d -p {4}:22 -p {5}:8000 -p {6}:5672 -p {7}: 1883 -p {8}:15672 --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/rabbitmq:/var/log/rabbitmq -v /data/logs/rabbitmq:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
+            format(server, image, storage_host, storage_guest, ssh, http, amqp, mqtt, management)
 
         try:
             out, err = subprocess_popen(cmd,
@@ -387,8 +398,10 @@ def create_instance(server, image, log_file, storage_host="", storage_guest=""):
             exit()
 
     elif server == "tomcat":  # separate tomcat log storage needed
-        cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/tomcat:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
-            format(server, image, storage_host, storage_guest)
+        ssh = config.get('TOMCAT', 'SSH')
+        http = config.get('TOMCAT', 'HTTP')
+        cmd = "docker run -d -p {4}:22 -p {5}:8000 --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/tomcat:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
+            format(server, image, storage_host, storage_guest, ssh, http)
 
         try:
             out, err = subprocess_popen(cmd,
@@ -402,8 +415,10 @@ def create_instance(server, image, log_file, storage_host="", storage_guest=""):
             exit()
 
     elif server == "hypercat":  # separate data storage needed
-        cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
-            format(server, image, storage_host, storage_guest)
+        ssh = config.get('CATALOGUE', 'SSH')
+        http = config.get('CATALOGUE', 'HTTP')
+        cmd = "docker run -d -p {4}:22 -p {5}:8000 --net=mynet --hostname={0} -v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
+            format(server, image, storage_host, storage_guest, ssh, http)
 
         try:
             out, err = subprocess_popen(cmd,
@@ -416,8 +431,10 @@ def create_instance(server, image, log_file, storage_host="", storage_guest=""):
                          error_message=traceback.format_exc())
             exit()
     elif server == "ldapd":  # separate data storage needed
-        cmd = "docker run -d -P --net=mynet --hostname={0} -v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
-            format(server, image, storage_host, storage_guest)
+        ssh = config.get('LDAP', 'SSH')
+        ldap = config.get('LDAP', 'LDAP')
+        cmd = "docker run -d -p {4}:22 -p {5}:8389 --net=mynet --hostname={0} -v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
+            format(server, image, storage_host, storage_guest, ssh, ldap)
 
         try:
             out, err = subprocess_popen(cmd,
@@ -430,9 +447,25 @@ def create_instance(server, image, log_file, storage_host="", storage_guest=""):
                          error_message=traceback.format_exc())
             exit()
     elif server == "pushpin":
-        cmd = "docker run -d -P -p 8443:443 --net mynet --hostname={0} --cap-add=NET_ADMIN --name {0} {1}". \
-            format(server, image)
+        ssh = config.get('PUSHPIN', 'SSH')
+        https = config.get('PUSHPIN', 'HTTPS')
+        cmd = "docker run -d -p {2}:22 -p {3}:443 --net mynet --hostname={0} --cap-add=NET_ADMIN --name {0} {1}". \
+            format(server, image, ssh, https)
 
+        try:
+            out, err = subprocess_popen(cmd,
+                                        log_file,
+                                        failure_msg="Creation of {0} docker instance failed.".format(server))
+            container_id = out
+        except OSError:
+            output_error("Creation of {0} docker instance failed.".format(server) +
+                         "\n           Check logs {0} for more details.".format(log_file),
+                         error_message=traceback.format_exc())
+            exit()
+    elif server == "elasticsearch":
+        ssh = config.get('ELASTICSEARCH', 'SSH')
+        kibana = config.get('ELASTICSEARCH', 'KIBANA')
+        cmd = "docker run -d -p {2}:22 -p {3}: --net=mynet --hostname={0} --cap-add=NET_ADMIN --name={0} {1}".format(server, image, ssh, kibana)
         try:
             out, err = subprocess_popen(cmd,
                                         log_file,
@@ -455,7 +488,6 @@ def create_instance(server, image, log_file, storage_host="", storage_guest=""):
                          "\n           Check logs {0} for more details.".format(log_file),
                          error_message=traceback.format_exc())
             exit()
-
     # Code to figure out port of the docker container
     # docker inspect --format='{{(index (index .NetworkSettings.Ports "22/tcp") 0).HostPort}}'
     # (index .NetworkSettings.Ports "22/tcp") gives an array whose 0th element has .HostPort value

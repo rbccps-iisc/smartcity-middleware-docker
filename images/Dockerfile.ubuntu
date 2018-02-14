@@ -6,6 +6,7 @@ RUN apt-get install locales
 RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LC_CTYPE en_US.UTF-8
+ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get install -y openssh-server sudo
 RUN mkdir /var/run/sshd
