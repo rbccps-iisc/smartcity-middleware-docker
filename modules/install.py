@@ -326,14 +326,9 @@ def docker_setup(log_file, config_path="middleware.conf"):
     subprocess_popen(cmd, log_file, "Copying RegisterAPI.war file to {0} failed.".format(tomcat_storage))
     output_ok("Copied  RegisterAPI.war file to {0}. ".format(tomcat_storage))
 
-    cmd = 'docker run -d ' \
-          '-p 31337:1337 ' \
-          '--net mynet ' \
-          '--hostname=konga ' \
-          '--link kong:kong ' \
-          '--name konga ' \
-          '-e "NODE_ENV=production" ' \
-          'pantsel/konga'
+    konga = config.get('KONGA', 'HTTP')
+
+    cmd = 'docker run -d -p {0}:1337 --net mynet --link kong:kong --name konga -e "NODE_ENV=production" pantsel/konga'.format(konga)
 
     subprocess_with_print(cmd,
                           success_msg="Created KONGA docker instance. ",
@@ -400,7 +395,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     elif server == "tomcat":  # separate tomcat log storage needed
         ssh = config.get('TOMCAT', 'SSH')
         http = config.get('TOMCAT', 'HTTP')
-        cmd = "docker run -d -p {4}:22 -p {5}:8000 --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/tomcat:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
+        cmd = "docker run -d -p {4}:22 -p {5}:8080 --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/tomcat:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest, ssh, http)
 
         try:
