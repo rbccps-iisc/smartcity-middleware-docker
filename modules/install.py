@@ -370,7 +370,6 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
                          "\n           Check logs {0} for more details.".format(log_file),
                          error_message=traceback.format_exc())
             exit()
-
     elif server == "rabbitmq":  # separate rabbitmq log storage needed
         ssh = config.get('RABBITMQ', 'SSH')
         http = config.get('RABBITMQ', 'HTTP')
@@ -391,7 +390,6 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
                          "\n           Check logs {0} for more details.".format(log_file),
                          error_message=traceback.format_exc())
             exit()
-
     elif server == "tomcat":  # separate tomcat log storage needed
         ssh = config.get('TOMCAT', 'SSH')
         http = config.get('TOMCAT', 'HTTP')
@@ -408,7 +406,6 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
                          "\n           Check logs {0} for more details.".format(log_file),
                          error_message=traceback.format_exc())
             exit()
-
     elif server == "hypercat":  # separate data storage needed
         ssh = config.get('CATALOGUE', 'SSH')
         http = config.get('CATALOGUE', 'HTTP')

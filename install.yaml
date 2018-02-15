@@ -18,7 +18,7 @@
   - name: Setting up supervisor.conf
     copy:
       src: config/apt_repo/supervisor.conf
-      dest: /etc/supervisor/supervisor.conf
+      dest: /etc/supervisor/supervisord.conf
 
   - name: Start supervisor
     shell: service supervisor start
@@ -100,7 +100,7 @@
   - name: Setting up supervisor.conf
     copy:
       src: config/apt_repo/supervisor.conf
-      dest: /etc/supervisor/supervisor.conf
+      dest: /etc/supervisor/supervisord.conf
 
   - name: Setting up RabbitMQ configuration
     copy:
@@ -173,7 +173,7 @@
   - name: Setting up supervisor.conf
     copy:
       src: config/apt_repo/supervisor.conf
-      dest: /etc/supervisor/supervisor.conf
+      dest: /etc/supervisor/supervisord.conf
 
   - name: Install screen
     apt: name=screen state=present
@@ -313,7 +313,7 @@
   - name: Setting up supervisor.conf
     copy:
       src: config/apt_repo/supervisor.conf
-      dest: /etc/supervisor/supervisor.conf
+      dest: /etc/supervisor/supervisord.conf
 
   - name: Copy supervisor-kong.conf
     copy:
@@ -666,7 +666,7 @@
   - name: Setting up supervisor.conf
     copy:
       src: config/apt_repo/supervisor.conf
-      dest: /etc/supervisor/supervisor.conf
+      dest: /etc/supervisor/supervisord.conf
 
   - name: Copy tomcat.conf
     copy:
