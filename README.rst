@@ -10,7 +10,7 @@ Web Page
 - Tools and SDK's: https://github.com/rbccps-iisc/ideam-python-sdk
 
 Architecture
-=============
+============
 .. image:: https://rbccps.org/smartcity/lib/exe/fetch.php?media=mw_architecture.png
 
 Requirements
@@ -23,18 +23,19 @@ Requirements
 Release
 =======
 
-smartcity-middleware v0.1.0_
+smartcity-middleware v1.0.0_
 
 
-.. _v0.1.0: https://github.com/rbccps-iisc/ideam/releases/latest
+.. _v1.0.0: https://github.com/rbccps-iisc/ideam/releases/latest
 
 Configuration
 =============
 
-``middleware.conf v0.1.0``
+middleware.conf_ v0.1.0
 
+.. _middleware.conf: https://github.com/rbccps-iisc/ideam/blob/master/middleware.conf
 middleware.conf::
-      
+
       DESCRIPTION
 
       middleware.conf is the configuration file for the smartcity-middleware application.
@@ -52,7 +53,7 @@ middleware.conf::
       for keeping log files.
 
       SSH and other service ports can be mapped to host machine ports.
-      
+
       SYSTEM_CONFIG specify system specific configurations for the installation steps.
 
       SSH_PUBLIC_KEY: Specify a ssh public key which will be used in ssh authentication of the user to
@@ -77,27 +78,27 @@ After configuring the ``middleware.conf`` file, do the following steps.
 Comment
 =======
 - Please satisfy the requirements mentioned in ``middleware.conf`` file.
-- Password of the root user in docker containers for the 0.1.0 release is rbccps@123456. This will be removed in the later release.
-- If the setup fails at any stage for reasons like internet connection issues, you can continue the failed installation using the following command. 
+- Password of the root user in docker containers for the 1.0.0 release is rbccps@123456. This will be removed in the later release.
+- If the setup fails at any stage for reasons like internet connection issues, you can continue the failed installation using the following command.
      ``python smartcity-middleware.py install --config-file middleware.conf -l kong,tomcat,hypercat,ldapd,elasticsearch,rabbitmq,apt_repo,pushpin``
-- The application will be serving with a self-signed certificate. If you want to use your certificate, have your .crt and .key file as config/kong/default_443.crt and config/kong/default_443.key respectively and do a fresh installation.
+- The application will be serving with a self-signed certificate. If you want to use your certificate, have your .crt and .key file as ``config/kong/default_443.crt`` and ``config/kong/default_443.key`` respectively and do a fresh installation.
 
 +----------------------------------------------------------------+----------------------------------------------------------+
 | RBCCPS MIDDLEWARE API URLs                                     | MIDDLEWARE API URLs                                      |
 +================================================================+==========================================================+
-| https://smartcity.rbccps.org/api/0.1.0/register                | https://localhost:10443/api/0.1.0/register               |
+| https://smartcity.rbccps.org/api/1.0.0/register                | https://localhost:10443/api/1.0.0/register               |
 +----------------------------------------------------------------+----------------------------------------------------------+
-| https://smartcity.rbccps.org/api/0.1.0/publish                 | https://localhost:10443/api/0.1.0/publish                |
+| https://smartcity.rbccps.org/api/1.0.0/publish                 | https://localhost:10443/api/1.0.0/publish                |
 +----------------------------------------------------------------+----------------------------------------------------------+
-| https://smartcity.rbccps.org/api/0.1.0/subscribe?name=testDemo | https://localhost:10443/api/0.1.0/subscribe?name=testDemo|
+| https://smartcity.rbccps.org/api/1.0.0/subscribe?name=testDemo | https://localhost:10443/api/1.0.0/subscribe?name=testDemo|
 +----------------------------------------------------------------+----------------------------------------------------------+
-| https://smartcity.rbccps.org/api/0.1.0/subscribe/bind          | https://localhost:10443/api/0.1.0/subscribe/bind         |
+| https://smartcity.rbccps.org/api/1.0.0/subscribe/bind          | https://localhost:10443/api/1.0.0/subscribe/bind         |
 +----------------------------------------------------------------+----------------------------------------------------------+
-| https://smartcity.rbccps.org/api/0.1.0/subscribe/unbind        | https://localhost:10443/api/0.1.0/subscribe/unbind       |
+| https://smartcity.rbccps.org/api/1.0.0/subscribe/unbind        | https://localhost:10443/api/1.0.0/subscribe/unbind       |
 +----------------------------------------------------------------+----------------------------------------------------------+
-| https://smartcity.rbccps.org/api/0.1.0/cat                     | https://localhost:10443/api/0.1.0/cat                    |
+| https://smartcity.rbccps.org/api/1.0.0/cat                     | https://localhost:10443/api/1.0.0/cat                    |
 +----------------------------------------------------------------+----------------------------------------------------------+
-| https://smartcity.rbccps.org/api/0.1.0/historicData            | https://localhost:10443/api/0.1.0/historicData           |
+| https://smartcity.rbccps.org/api/1.0.0/historicData            | https://localhost:10443/api/1.0.0/historicData           |
 +----------------------------------------------------------------+----------------------------------------------------------+
 
 For example, registration of device to local middleware is as follows.

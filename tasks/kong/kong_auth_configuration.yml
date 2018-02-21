@@ -49,7 +49,7 @@
     uri:
       url: http://localhost:8001/consumers/guest/key-auth/
       method: POST
-      body: 'key=d1fd0ddee6b94d048f4bbb4a854ce56b'
+      body: 'key=guest'
       status_code: [201, 409]
       return_content: yes
     register: request
