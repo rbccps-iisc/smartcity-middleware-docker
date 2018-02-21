@@ -1,38 +1,5 @@
 ---
 ## Kong Auth Configuration
-  - name: (WILL BE REMOVED)  Add test-api to kong
-    uri:
-      url: http://localhost:8001/apis/
-      method: POST
-      body: 'name={{ kong_api_name }}&hosts=example.com&upstream_url=http://httpbin.org'
-      status_code: [201, 409]
-      return_content: yes
-    register: request
-    until: (request.status == 409) or (request.status == 201)
-    retries: 5
-
-  - name: (WILL BE REMOVED)  GET test-api from kong
-    uri:
-      url: http://127.0.0.1:8000/
-      method: GET
-      headers:
-        Host: 'example.com'
-      status_code: [200, 401]
-      return_content: yes
-    register: request
-    until: (request.status == 200) or (request.status == 401)
-    retries: 2
-
-  - name: (WILL BE REMOVED)  Add key-auth plugin to kong
-    uri:
-      url: http://localhost:8001/apis/test-api/plugins/
-      method: POST
-      body: 'name=key-auth'
-      status_code: [201, 409]
-      return_content: yes
-    register: request
-    until: (request.status == 201) or (request.status == 409)
-    retries: 5
 
   - name:  Add file-log plugin to kong
     uri:
@@ -67,32 +34,20 @@
     until: (request.status == 201) or (request.status == 409)
     retries: 5
 
-  - name: (WILL BE REMOVED)  GET test-api from kong without key [401 error case]
-    uri:
-      url: http://localhost:8000/
-      method: GET
-      headers:
-        Host: 'example.com'
-      status_code: [200,401]
-      return_content: yes
-    register: request
-    until: (request.status == 200) or (request.status == 401)
-    retries: 5
-
-  - name: (WILL BE REMOVED)  Add consumer ansible to kong
+  - name: (WILL BE REMOVED)  Add consumer guest to kong
     uri:
       url: http://localhost:8001/consumers/
       method: POST
-      body: 'username=ansible&custom_id=ansible'
+      body: 'username=guest&custom_id=guest'
       status_code: [201, 409]
       return_content: yes
     register: request
     until: (request.status == 201) or (request.status == 409)
     retries: 5
 
-  - name: (WILL BE REMOVED)  Add consumer ansible's apikey
+  - name: (WILL BE REMOVED)  Add consumer guest's apikey
     uri:
-      url: http://localhost:8001/consumers/ansible/key-auth/
+      url: http://localhost:8001/consumers/guest/key-auth/
       method: POST
       body: 'key=d1fd0ddee6b94d048f4bbb4a854ce56b'
       status_code: [201, 409]
@@ -101,9 +56,9 @@
     until: (request.status == 201) or (request.status == 409)
     retries: 5
 
-  - name: (WILL BE REMOVED)  Add consumer ansible to provider
+  - name: (WILL BE REMOVED)  Add consumer guest to provider
     uri:
-      url: http://localhost:8001/consumers/ansible/acls
+      url: http://localhost:8001/consumers/guest/acls
       method: POST
       body: 'group=provider'
       status_code: [201, 409, 400]
@@ -112,32 +67,18 @@
     until: (request.status == 201) or (request.status == 409) or (request.status == 400)
     retries: 5
 
-  - name: (WILL BE REMOVED)  GET test-api from kong with api-key [200 success]
-    uri:
-      url: http://localhost:8000/
-      method: GET
-      headers:
-        Host: 'example.com'
-        apikey: 'd1fd0ddee6b94d048f4bbb4a854ce56b'
-      status_code: [200]
-      return_content: yes
-    tags: getapikey
-    register: request
-    until: request.status == 200
-    retries: 5
-
-  - name: Creating "/api/0.1.0/register" at kong (http://tomcat:8080)
+  - name: Creating "/api/1.0.0/register" at kong (http://tomcat:8080)
     uri:
       url: http://localhost:8001/apis/
       method: POST
-      body: 'name=register&upstream_url=http://tomcat:8080/RegisterAPI/rest/register&uris=/api/0.1.0/register&methods=GET'
+      body: 'name=register&upstream_url=http://tomcat:8080/RegisterAPI/rest/newregister&uris=/api/1.0.0/register&methods=POST'
       status_code: [201, 409]
       return_content: yes
     register: request
     until: (request.status == 409) or (request.status == 201)
     retries: 5
 
-  - name: Adding key-auth to "/api/0.1.0/register"
+  - name: Adding key-auth to "/api/1.0.0/register"
     uri:
         url: http://localhost:8001/apis/register/plugins
         method: POST
@@ -148,7 +89,7 @@
     until: (request.status == 409) or (request.status == 201)
     retries: 5
 
-  - name: Adding acl "provider" group to "/api/0.1.0/register"
+  - name: Adding acl "provider" group to "/api/1.0.0/register"
     uri:
       url: http://localhost:8001/apis/register/plugins
       method: POST
@@ -159,30 +100,18 @@
     until: (request.status == 201) or (request.status == 409)
     retries: 5
 
-  - name: (TESTING) "/api/0.1.0/register" with a new device "test" and provider "ansible"
-    uri:
-      url: http://127.0.0.1:8000/api/0.1.0/register
-      method: GET
-      headers:
-        apikey: 'd1fd0ddee6b94d048f4bbb4a854ce56b'
-        resourceID: "test"
-        serviceType: "publish,subscribe,historicData"
-      status_code: [200]
-    tags: api
-    retries: 1
-
-  - name: Creating "/api/0.1.0/publish" at kong (http://rabbitmq:8000/publish)
+  - name: Creating "/api/1.0.0/publish" at kong (http://rabbitmq:8000/publish)
     uri:
       url: http://localhost:8001/apis/
       method: POST
-      body: 'name=publish&upstream_url=http://rabbitmq:8000/publish&uris=/api/0.1.0/publish&methods=POST'
+      body: 'name=publish&upstream_url=http://rabbitmq:8000/publish&uris=/api/1.0.0/publish&methods=POST'
       status_code: [201, 409]
       return_content: yes
     register: request
     until: (request.status == 409) or (request.status == 201)
     retries: 5
 
-  - name: Adding key-auth to "/api/0.1.0/publish"
+  - name: Adding key-auth to "/api/1.0.0/publish"
     uri:
         url: http://localhost:8001/apis/publish/plugins
         method: POST
@@ -193,7 +122,7 @@
     until: (request.status == 409) or (request.status == 201)
     retries: 5
 
-  - name: Adding acl "publish" group to "/api/0.1.0/publish"
+  - name: Adding acl "publish" group to "/api/1.0.0/publish"
     uri:
       url: http://localhost:8001/apis/publish/plugins
       method: POST
@@ -204,31 +133,18 @@
     until: (request.status == 201) or (request.status == 409)
     retries: 5
 
-  - name: (TESTING) Posting to "/api/0.1.0/publish" via kong
-    uri:
-      url: http://127.0.0.1:8000/api/0.1.0/publish
-      method: POST
-      body: >
-        { "exchange": "amq.topic", "key": "test" ,"priority": 99 ,"body": "hahaha" }
-      status_code: [200, 401]
-      return_content: yes
-      body_format: json
-    register: request
-    until: (request.status == 200) or (request.status == 401)
-    retries: 2
-
-  - name: Creating "/api/0.1.0/subscribe/bind" at kong (http://rabbitmq:8000/queue/bind)
+  - name: Creating "/api/1.0.0/subscribe/bind" at kong (http://rabbitmq:8000/queue/bind)
     uri:
       url: http://localhost:8001/apis/
       method: POST
-      body: 'name=bind&methods=POST&upstream_url=http://rabbitmq:8000/queue/bind&uris=/api/0.1.0/subscribe/bind'
+      body: 'name=bind&methods=POST&upstream_url=http://rabbitmq:8000/queue/bind&uris=/api/1.0.0/subscribe/bind'
       status_code: [201, 409]
       return_content: yes
     register: request
     until: (request.status == 409) or (request.status == 201)
     retries: 5
 
-  - name: Adding key-auth to "/api/0.1.0/subscribe/bind"
+  - name: Adding key-auth to "/api/1.0.0/subscribe/bind"
     uri:
         url: http://localhost:8001/apis/bind/plugins
         method: POST
@@ -239,7 +155,7 @@
     until: (request.status == 409) or (request.status == 201)
     retries: 5
 
-  - name: Adding acl "subscribe" group to "/api/0.1.0/subscribe/bind"
+  - name: Adding acl "subscribe" group to "/api/1.0.0/subscribe/bind"
     uri:
       url: http://localhost:8001/apis/bind/plugins
       method: POST
@@ -250,18 +166,18 @@
     until: (request.status == 201) or (request.status == 409)
     retries: 5
 
-  - name: Creating "/api/0.1.0/subscribe/unbind" at kong (http://rabbitmq:8000/queue/bind)
+  - name: Creating "/api/1.0.0/subscribe/unbind" at kong (http://rabbitmq:8000/queue/bind)
     uri:
       url: http://localhost:8001/apis/
       method: POST
-      body: 'name=unbind&methods=DELETE&upstream_url=http://rabbitmq:8000/queue/bind&uris=/api/0.1.0/subscribe/unbind'
+      body: 'name=unbind&methods=DELETE&upstream_url=http://rabbitmq:8000/queue/bind&uris=/api/1.0.0/subscribe/unbind'
       status_code: [201, 409]
       return_content: yes
     register: request
     until: (request.status == 409) or (request.status == 201)
     retries: 5
 
-  - name: Adding key-auth to "/api/0.1.0/subscribe/unbind"
+  - name: Adding key-auth to "/api/1.0.0/subscribe/unbind"
     uri:
         url: http://localhost:8001/apis/unbind/plugins
         method: POST
@@ -272,7 +188,7 @@
     until: (request.status == 409) or (request.status == 201)
     retries: 5
 
-  - name: Adding acl "subscribe" group to "/api/0.1.0/subscribe/unbind"
+  - name: Adding acl "subscribe" group to "/api/1.0.0/subscribe/unbind"
     uri:
       url: http://localhost:8001/apis/unbind/plugins
       method: POST
@@ -283,18 +199,18 @@
     until: (request.status == 201) or (request.status == 409)
     retries: 5
 
-  - name: Creating "/api/0.1.0/subscribe?name=q1" at kong (http://rabbitmq:8000/queue?name=q1)
+  - name: Creating "/api/1.0.0/subscribe?name=q1" at kong (http://rabbitmq:8000/queue?name=q1)
     uri:
       url: http://localhost:8001/apis/
       method: POST
-      body: 'name=subscribe&methods=GET&upstream_url=http://rabbitmq:8000/queue&uris=/api/0.1.0/subscribe'
+      body: 'name=subscribe&methods=GET&upstream_url=http://rabbitmq:8000/queue&uris=/api/1.0.0/subscribe'
       status_code: [201, 409]
       return_content: yes
     register: request
     until: (request.status == 409) or (request.status == 201)
     retries: 5
 
-  - name: Adding key-auth to "/api/0.1.0/subscribe?name=q1"
+  - name: Adding key-auth to "/api/1.0.0/subscribe?name=q1"
     uri:
         url: http://localhost:8001/apis/subscribe/plugins
         method: POST
@@ -305,7 +221,7 @@
     until: (request.status == 409) or (request.status == 201)
     retries: 5
 
-  - name: Adding acl "subscribe" group to "/api/0.1.0/subscribe?name=q1"
+  - name: Adding acl "subscribe" group to "/api/1.0.0/subscribe?name=q1"
     uri:
       url: http://localhost:8001/apis/subscribe/plugins
       method: POST
@@ -316,29 +232,29 @@
     until: (request.status == 201) or (request.status == 409)
     retries: 5
 
-  - name: Creating "/api/0.1.0/cat" at kong (http://hypercat:8000/cat)
+  - name: Creating "/api/1.0.0/cat" at kong (http://hypercat:8000/cat)
     uri:
       url: http://localhost:8001/apis/
       method: POST
-      body: 'name=catGET&methods=GET&upstream_url=http://hypercat:8000/cat&uris=/api/0.1.0/cat'
+      body: 'name=catGET&methods=GET&upstream_url=http://hypercat:8000/cat&uris=/api/1.0.0/cat'
       status_code: [201, 409]
       return_content: yes
     register: request
     until: (request.status == 409) or (request.status == 201)
     retries: 5
 
-  - name: Creating Catalog-POST API "/api/0.1.0/cat" at kong (http://hypercat:8000/cat)
+  - name: Creating Catalog-POST API "/api/1.0.0/cat" at kong (http://hypercat:8000/cat)
     uri:
       url: http://localhost:8001/apis/
       method: POST
-      body: 'name=catPOST&methods=POST&upstream_url=http://hypercat:8000/cat&uris=/api/0.1.0/cat'
+      body: 'name=catPOST&methods=POST&upstream_url=http://hypercat:8000/cat&uris=/api/1.0.0/cat'
       status_code: [201, 409]
       return_content: yes
     register: request
     until: (request.status == 409) or (request.status == 201)
     retries: 5
 
-  - name: Adding key-auth to "/api/0.1.0/cat" Catalog-POST API
+  - name: Adding key-auth to "/api/1.0.0/cat" Catalog-POST API
     uri:
       url: http://localhost:8001/apis/catPOST/plugins
       method: POST
@@ -349,7 +265,7 @@
     until: (request.status == 409) or (request.status == 201)
     retries: 5
 
-  - name: Adding acl "provider" group to "/api/0.1.0/cat" Catalog-POST API
+  - name: Adding acl "provider" group to "/api/1.0.0/cat" Catalog-POST API
     uri:
       url: http://localhost:8001/apis/catPOST/plugins
       method: POST
@@ -360,20 +276,20 @@
     until: (request.status == 201) or (request.status == 409)
     retries: 5
 
-  - name: Creating "historicData" API at kong
+  - name: Creating "database" API at kong
     uri:
       url: http://localhost:8001/apis/
       method: POST
-      body: 'name=historicData&methods=GET&upstream_url=http://elasticsearch:9200/sensor_data*/_search&uris='
+      body: 'name=database&methods=GET&upstream_url=http://elasticsearch:9200/sensor_data*/_search&uris=/api/1.0.0/db'
       status_code: [201, 409]
       return_content: yes
     register: request
     until: (request.status == 409) or (request.status == 201)
     retries: 5
 
-  - name: Adding key-auth to "/api/0.1.0/historicData" to historicData API
+  - name: Adding key-auth to "/api/1.0.0/db" to database API
     uri:
-      url: http://localhost:8001/apis/historicData/plugins
+      url: http://localhost:8001/apis/database/plugins
       method: POST
       body: 'name=key-auth'
       status_code: [201, 409]
@@ -382,9 +298,9 @@
     until: (request.status == 409) or (request.status == 201)
     retries: 5
 
-  - name: Adding acl "historicData" group to "/api/0.1.0/historicData" historicData API
+  - name: Adding acl "database" group to "/api/1.0.0/db" database API
     uri:
-      url: http://localhost:8001/apis/historicData/plugins
+      url: http://localhost:8001/apis/database/plugins
       method: POST
       body: 'name=acl&config.whitelist=historicData'
       status_code: [201, 409]
