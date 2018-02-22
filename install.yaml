@@ -223,11 +223,6 @@
       dest: /home/ansible/cat-json-schema-server
       remote_src: yes
 
-  - name: Create pwd test
-    shell: node pwd_script.js local123
-    args:
-      chdir: /home/ansible/cat-json-schema-server/
-
   - name: Change cat-json-schema-server ldap IP port
     command: sed -i 's/10.156.14.20:389/ldapd:8389/g' config.js
     args:
@@ -238,6 +233,10 @@
     args:
       chdir: /home/ansible/cat-json-schema-server
 
+  - name: Create pwd test
+    shell: node pwd_script.js local123
+    args:
+      chdir: /home/ansible/cat-json-schema-server/
 ### Set up kong environment
 #   This playbook play will install Kong, iptables and api-auth plugin of Kong. Ansible will install and verify
 #   the working of the API at user and admin ports. But this verification will fail in any subsequent runs of
