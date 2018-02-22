@@ -19,4 +19,4 @@ sudo mkdir -p /data/logs/tomcat
 sudo usermod -aG docker $USER
 ssh-keygen
 sudo chmod -R 777 /data/*
-sudo csysctl -w vm.max_map_count=662144
+sudo sysctl -w vm.max_map_count=662144
