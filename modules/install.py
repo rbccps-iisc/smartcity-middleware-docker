@@ -184,11 +184,18 @@ def docker_setup(log_file, config_path="middleware.conf"):
                           log_file=log_file,
                           exit_on_fail=True)
 
-    subprocess_with_print("docker build --build-arg CACHEBUST={0} -t ansible/ubuntu-ssh -f images/Dockerfile.ubuntu .".format(unique_value()),
+    subprocess_with_print("docker build -t ansible/ubuntu-ssh -f images/Dockerfile.ubuntu .",
                           success_msg="Created ansible/ubuntu-ssh docker image. ",
                           failure_msg="Building ubuntu image from images/Dockerfile.ubuntu failed.",
                           log_file=log_file,
                           exit_on_fail=True)
+
+    ca_ip, ca_port, details = create_instance("certificate_authority", "ansible/ubuntu-ssh", log_file)
+    output_ok("Created Certificate Authority docker instance. \n " + details)
+
+    instance_details["certificate_authority"] = [ca_ip, ca_port]
+    create_ansible_host_file(instance_details)
+    output_ok("Created Ansible hosts file with CA instance. ")
 
     key = config.get('SYSTEM_CONFIG', 'SSH_PUBLIC_KEY')
     output_info("Using {0} as your ssh key for certification. ".format(key))
@@ -199,13 +206,6 @@ def docker_setup(log_file, config_path="middleware.conf"):
     key = key.replace("~", home)
     cmd = 'cp -r ' + key + ' ' + os.getcwd() + '/config/certificate_authority/keys/id_rsa.pub'
     subprocess_popen(cmd, log_file, "Copying to /config/certificate_authority/keys/ failed.")
-
-    ca_ip, ca_port, details = create_instance("certificate_authority", "ansible/ubuntu-ssh", log_file)
-    output_ok("Created Certificate Authority docker instance. \n " + details)
-
-    instance_details["certificate_authority"] = [ca_ip, ca_port]
-    create_ansible_host_file(instance_details)
-    output_ok("Created Ansible hosts file with CA instance. ")
 
     cmd = 'ssh-copy-id -i {0} root@{1} -p {2}'.format(key, ca_ip, ca_port[1:-1])
     subprocess_popen(cmd, log_file, "Copying SSH Public-key to Certificate Authority failed.")

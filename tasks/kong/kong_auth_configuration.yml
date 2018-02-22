@@ -302,7 +302,7 @@
     uri:
       url: http://localhost:8001/apis/database/plugins
       method: POST
-      body: 'name=acl&config.whitelist=historicData'
+      body: 'name=acl&config.whitelist=db'
       status_code: [201, 409]
       return_content: yes
     register: request
