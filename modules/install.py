@@ -184,7 +184,7 @@ def docker_setup(log_file, config_path="middleware.conf"):
                           log_file=log_file,
                           exit_on_fail=True)
 
-    subprocess_with_print("docker build -t ansible/ubuntu-ssh -f images/Dockerfile.ubuntu .",
+    subprocess_with_print("docker build --no-cache -t ansible/ubuntu-ssh -f images/Dockerfile.ubuntu .",
                           success_msg="Created ansible/ubuntu-ssh docker image. ",
                           failure_msg="Building ubuntu image from images/Dockerfile.ubuntu failed.",
                           log_file=log_file,

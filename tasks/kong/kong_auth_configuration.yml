@@ -133,20 +133,20 @@
     until: (request.status == 201) or (request.status == 409)
     retries: 5
 
-  - name: Creating "/api/1.0.0/subscribe/bind" at kong (http://rabbitmq:8000/queue/bind)
+  - name: Creating "/api/1.0.0/follow" at kong (http://rabbitmq:8000/queue/bind)
     uri:
       url: http://localhost:8001/apis/
       method: POST
-      body: 'name=bind&methods=POST&upstream_url=http://rabbitmq:8000/queue/bind&uris=/api/1.0.0/subscribe/bind'
+      body: 'name=follow&methods=POST&upstream_url=http://rabbitmq:8000/queue/bind&uris=/api/1.0.0/follow'
       status_code: [201, 409]
       return_content: yes
     register: request
     until: (request.status == 409) or (request.status == 201)
     retries: 5
 
-  - name: Adding key-auth to "/api/1.0.0/subscribe/bind"
+  - name: Adding key-auth to "/api/1.0.0/follow"
     uri:
-        url: http://localhost:8001/apis/bind/plugins
+        url: http://localhost:8001/apis/follow/plugins
         method: POST
         body: 'name=key-auth'
         status_code: [201, 409]
@@ -155,9 +155,9 @@
     until: (request.status == 409) or (request.status == 201)
     retries: 5
 
-  - name: Adding acl "subscribe" group to "/api/1.0.0/subscribe/bind"
+  - name: Adding acl "subscribe" group to "/api/1.0.0/follow"
     uri:
-      url: http://localhost:8001/apis/bind/plugins
+      url: http://localhost:8001/apis/follow/plugins
       method: POST
       body: 'name=acl&config.whitelist=subscribe'
       status_code: [201, 409]
@@ -166,20 +166,20 @@
     until: (request.status == 201) or (request.status == 409)
     retries: 5
 
-  - name: Creating "/api/1.0.0/subscribe/unbind" at kong (http://rabbitmq:8000/queue/bind)
+  - name: Creating "/api/1.0.0/follow" DELETE at kong (http://rabbitmq:8000/queue/bind)
     uri:
       url: http://localhost:8001/apis/
       method: POST
-      body: 'name=unbind&methods=DELETE&upstream_url=http://rabbitmq:8000/queue/bind&uris=/api/1.0.0/subscribe/unbind'
+      body: 'name=unfollow&methods=DELETE&upstream_url=http://rabbitmq:8000/queue/bind&uris=/api/1.0.0/follow'
       status_code: [201, 409]
       return_content: yes
     register: request
     until: (request.status == 409) or (request.status == 201)
     retries: 5
 
-  - name: Adding key-auth to "/api/1.0.0/subscribe/unbind"
+  - name: Adding key-auth to "/api/1.0.0/follow"
     uri:
-        url: http://localhost:8001/apis/unbind/plugins
+        url: http://localhost:8001/apis/unfollow/plugins
         method: POST
         body: 'name=key-auth'
         status_code: [201, 409]
@@ -188,9 +188,9 @@
     until: (request.status == 409) or (request.status == 201)
     retries: 5
 
-  - name: Adding acl "subscribe" group to "/api/1.0.0/subscribe/unbind"
+  - name: Adding acl "subscribe" group to "/api/1.0.0/follow"
     uri:
-      url: http://localhost:8001/apis/unbind/plugins
+      url: http://localhost:8001/apis/unfollow/plugins
       method: POST
       body: 'name=acl&config.whitelist=subscribe'
       status_code: [201, 409]
