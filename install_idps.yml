@@ -1,7 +1,7 @@
 ---
 - hosts: 127.0.0.1
   connection: local
-  
+
   tasks:
    - name: Install Fail2ban
      apt: pkg=fail2ban state=installed update_cache=true
@@ -29,11 +29,60 @@
         - libpq-dev
         - python-psycopg2
    
-   - name: Copy Postgresql configuration file
+   - name: Delete default Postgresql configuration file
      shell: sudo rm /etc/postgresql/9.3/main/pg_hba.conf
+     ignore_errors: yes
+   
+   - name: Copy postgresql config file
      copy: src={{item.src}} dest={{item.dest}}
      with_items:
        - {src: './config/idps/pg_hba.conf', dest: '/etc/postgresql/9.3/main/'}
+   
+  vars_prompt:
+    
+    - name: "db_password"
+      prompt: "Enter password for database"
+      private: yes
+
+    - name: "hmac_key"
+      prompt: "Enter HMAC key for securing logs"
+      private: yes
+
+  vars:
+     dbname: rbccps
+     dbuser: idps
+     dbpassword: "{{db_password}}"
+
+  tasks:  
+   - name: Create file for IDPS
+     file:
+        path: ./key.conf
+        state: touch
+        mode: "u+rwx,g+rwx,o+rwx"
+   
+   - name: Change owner of file
+     shell: sudo chown $(whoami) key.conf
+    
+   - name: Copy keys (1/2)
+     blockinfile:
+       path: ./key.conf
+       insertafter: EOF
+       content: "{{db_password}}"
+    
+   - name: Copy keys (2/2)
+     blockinfile:
+       path: ./key.conf
+       insertafter: EOF
+       content: "{{hmac_key}}"
+  
+   - name: Encrypt the file
+     shell: ansible-vault encrypt key.conf 
+
+   - name: Make vars persistant
+     set_fact:
+       dbname: "{{dbname}}"
+       dbuser: "{{dbuser}}"
+       dbpassword: "{{dbpassword}}
 
 - hosts: 127.0.0.1
   connection: local
@@ -41,46 +90,15 @@
   become_user: postgres
   gather_facts: no
 
-  vars_prompt:
-
-  - name: "db_password"
-    prompt: "Enter database password"
-    private: yes
-
-  - name: "hmac_key"
-    prompt: "Enter HMAC key to be used for securing logs"
-    private: yes
-
-  vars:
-    dbname: rbccps
-    dbuser: idps
-    dbpassword: {{db_password}}
-
   tasks:
+   - name: Ensure database is created
+     postgresql_db: name={{hostvars.localhost.dbname}}
 
-  - name: Create vault file for IDPS
-    shell: touch keys.yml
-    blockinfile:
-      path: ./keys.yml
-      insertafter: EOF
-      content: "db_password" + "{{db_password}}"
-    
-    blockinfile:
-      path: ./keys.yml
-      insertafter: EOF
-      content: "hmac_key" |
-       {{hmac_key}}
-    shell: ansible-vault encrypt keys.yml
+   - name: Ensure user has access to database
+     postgresql_user: db={{hostvars.localhost.dbname}} name={{hostvars.localhost.dbuser}} password={{hostvars.localhost.dbpassword}} priv=ALL
 
-  - name: Ensure database is created
-    postgresql_db: name={{dbname}}
-
-  - name: Ensure user has access to database
-    postgresql_user: db={{dbname}} name={{dbuser}} password={{dbpassword}} priv=ALL
-
-  - name: Ensure user does not have unnecessary privilege
-    postgresql_user: name={{dbuser}} role_attr_flags=NOSUPERUSER,NOCREATEDB
+   - name: Ensure user does not have unnecessary privilege 
+     postgresql_user: name={{hostvars.localhost.dbuser}} role_attr_flags=NOSUPERUSER,NOCREATEDB
   
-  - name: Ensure no other user can access the database
-    postgresql_privs: db={{dbname}} role=PUBLIC type=database priv=ALL state=absent
-  
+   - name: Ensure no other user can access the database
+     postgresql_privs: db={{hostvars.localhost.dbname}} role=PUBLIC type=database priv=ALL state=absent
