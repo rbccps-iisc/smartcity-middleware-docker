@@ -21,10 +21,10 @@
   - name: Enable management plugin
     shell: rabbitmq-plugins enable rabbitmq_management
 
-  - name: Enable management plugin
+  - name: Enable mqtt plugin
     shell: rabbitmq-plugins enable rabbitmq_mqtt
 
-  - name: Enable management plugin
+  - name: Enable ldap plugin
     shell: rabbitmq-plugins enable rabbitmq_auth_backend_ldap
 
   - name: Creating "rbccps" user at RabbitMQ
