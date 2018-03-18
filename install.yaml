@@ -88,8 +88,8 @@
     environment:
       GOPATH: /home/ansible
 
-  - name: go get github.com/pct960/rabbitmq-http-client
-    shell: /usr/local/go/bin/go get github.com/pct960/rabbitmq-http-client creates=/home/ansible/src/github.com/pct960/rabbitmq-http-client
+  - name: go get github.com/harishanand95/rabbitmq-http
+    shell: /usr/local/go/bin/go get github.com/harishanand95/rabbitmq-http creates=/home/ansible/src/github.com/pct960/rabbitmq-http-client
     environment:
       GOPATH: /home/ansible
     ignore_errors: True
@@ -345,6 +345,42 @@
 
   - name: Install software-properties-common
     apt: name=software-properties-common state=present
+
+  - name: Install python 3.6
+    apt: "pkg={{ item }} state=present"
+    with_items:
+      - python3
+      - python3-dev
+      - python3-pip
+
+  - name: Copy pip requirements
+    copy:
+      src: config/kong/share_python_requirements.txt
+      dest: /home/ansible/requirements.txt
+
+  - name: Pip install share API requirements.txt
+    pip:
+      requirements: /home/ansible/requirements.txt
+      executable: pip3
+
+  - name: Copy share.py
+    copy:
+      src: config/kong/share.py
+      dest: /home/ansible/share.py
+      mode: 0644
+
+  - name: Copy hack.py
+    copy:
+      src: config/kong/hack.py
+      dest: /home/ansible/hack.py
+      mode: 0644
+
+  - name: Copy supervisor-share.conf
+    copy:
+      src: config/kong/supervisor-share.conf
+      dest: /etc/supervisor/conf.d/supervisor-share.conf
+      mode: 0644
+
 
 ## Set up CA openssl environment
 - hosts: certificate_authority
@@ -683,3 +719,12 @@
       src: config/tomcat/tomcat.conf
       dest: /etc/supervisor/conf.d/tomcat.conf
       mode: 0644
+
+- hosts: pushpin
+  remote_user: root
+  vars_files:
+    - host_vars/all
+  tasks:
+  - include: tasks/create_user.yml
+  - include: tasks/add_local_repository.yml
+  - include: tasks/update_repos.yml

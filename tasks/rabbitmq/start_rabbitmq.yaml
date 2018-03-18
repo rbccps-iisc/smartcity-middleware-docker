@@ -21,6 +21,12 @@
   - name: Enable management plugin
     shell: rabbitmq-plugins enable rabbitmq_management
 
+  - name: Enable management plugin
+    shell: rabbitmq-plugins enable rabbitmq_mqtt
+
+  - name: Enable management plugin
+    shell: rabbitmq-plugins enable rabbitmq_auth_backend_ldap
+
   - name: Creating "rbccps" user at RabbitMQ
     uri:
       url: http://localhost:15672/api/users/rbccps
@@ -34,3 +40,4 @@
     register: request
     until: (request.status == 204) or (request.status == 201)
     retries: 5
+
