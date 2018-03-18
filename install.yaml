@@ -369,12 +369,6 @@
       dest: /home/ansible/share.py
       mode: 0644
 
-  - name: Copy hack.py
-    copy:
-      src: config/kong/hack.py
-      dest: /home/ansible/hack.py
-      mode: 0644
-
   - name: Copy supervisor-share.conf
     copy:
       src: config/kong/supervisor-share.conf
