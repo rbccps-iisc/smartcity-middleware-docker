@@ -98,8 +98,8 @@ def publish(body, exchange, key, consumer_id, apikey):
 
 
 def ldap_add_share_entry(device, consumer_id, read="false", write="false"):
-    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w secret0 -f share.ldif -H ldap://ldapd:8389'
-    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w secret0 -f share.ldif -H ldap://ldapd:8389'
+    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w secret0 -f /tmp/share.ldif -H ldap://ldapd:8389'
+    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w secret0 -f /tmp/share.ldif -H ldap://ldapd:8389'
     ldif = """dn: description={0},description=share,description=broker,uid={1},cn=devices,dc=smartcity
 objectClass: broker
 objectClass: exchange
@@ -108,7 +108,7 @@ objectClass: share
 description: {0}
 read: {2}
 write: {3}""".format(device, consumer_id, read, write)
-    f = open('share.ldif', 'w')
+    f = open('/tmp/share.ldif', 'w')
     f.write(ldif)
     f.close()
     try:
@@ -123,7 +123,7 @@ read: {2}
 -
 replace: write
 write: {3}""".format(device, consumer_id, read, write)
-            f = open('share.ldif', 'w')
+            f = open('/tmp/share.ldif', 'w')
             f.write(ldif)
             f.close()
             resp = subprocess.check_output(modify, shell=True)
@@ -131,8 +131,8 @@ write: {3}""".format(device, consumer_id, read, write)
 
 
 def ldap_add_exchange_entry(device, consumer_id, read="false", write="false"):
-    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w secret0 -f exchange.ldif -H ldap://ldapd:8389'
-    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w secret0 -f exchange.ldif -H ldap://ldapd:8389'
+    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w secret0 -f /tmp/exchange.ldif -H ldap://ldapd:8389'
+    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w secret0 -f /tmp/exchange.ldif -H ldap://ldapd:8389'
     ldif = """dn: description={0},description=exchange,description=broker,uid={1},cn=devices,dc=smartcity
 objectClass: broker
 objectClass: exchange
@@ -141,7 +141,7 @@ objectClass: share
 description: {0}
 read: {2}
 write: {3}""".format(device, consumer_id, read, write)
-    f = open('exchange.ldif', 'w')
+    f = open('/tmp/exchange.ldif', 'w')
     f.write(ldif)
     f.close()
     try:
@@ -156,7 +156,7 @@ read: {2}
 -
 replace: write
 write: {3}""".format(device, consumer_id, read, write)
-            f = open('exchange.ldif', 'w')
+            f = open('/tmp/exchange.ldif', 'w')
             f.write(ldif)
             f.close()
             resp = subprocess.check_output(modify, shell=True)
