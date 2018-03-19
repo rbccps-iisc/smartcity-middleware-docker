@@ -325,12 +325,6 @@
       src: config/apt_repo/supervisor.conf
       dest: /etc/supervisor/supervisord.conf
 
-  - name: Copy supervisor-kong.conf
-    copy:
-      src: config/kong/supervisor-kong.conf
-      dest: /etc/supervisor/conf.d/supervisor-kong.conf
-      mode: 0644
-
   - name: Kong migration on postgresql db
     command: kong migrations up -c /etc/kong/kong.conf
 
