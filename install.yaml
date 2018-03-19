@@ -346,13 +346,6 @@
       executable: pip3
     become_user: ansible
 
-  - name: Copy share.py
-    copy:
-      src: config/kong/share.py
-      dest: /home/ansible/share.py
-      mode: 0644
-    become_user: ansible
-
   - name: Copy supervisor-share.conf
     copy:
       src: config/kong/supervisor-share.conf

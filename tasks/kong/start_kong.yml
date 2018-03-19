@@ -14,6 +14,13 @@
   - name: Start postgresql service
     service: name=postgresql state=restarted
 
+  - name: Copy share.py
+    copy:
+      src: config/kong/share.py
+      dest: /home/ansible/share.py
+      mode: 0644
+    become_user: ansible
+
   - name: Setting up Kong.conf file
     copy:
       src: ./config/kong/kong.conf
