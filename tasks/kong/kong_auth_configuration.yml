@@ -103,11 +103,11 @@
 
   - name: Adding key-auth to "/api/1.0.0/publish"
     uri:
-        url: http://localhost:8001/apis/publish/plugins
-        method: POST
-        body: 'name=key-auth'
-        status_code: [201, 409]
-        return_content: yes
+      url: http://localhost:8001/apis/publish/plugins
+      method: POST
+      body: 'name=key-auth'
+      status_code: [201, 409]
+      return_content: yes
     register: request
     until: (request.status == 409) or (request.status == 201)
     retries: 5
@@ -136,11 +136,11 @@
 
   - name: Adding key-auth to "/api/1.0.0/follow"
     uri:
-        url: http://localhost:8001/apis/follow/plugins
-        method: POST
-        body: 'name=key-auth'
-        status_code: [201, 409]
-        return_content: yes
+      url: http://localhost:8001/apis/follow/plugins
+      method: POST
+      body: 'name=key-auth'
+      status_code: [201, 409]
+      return_content: yes
     register: request
     until: (request.status == 409) or (request.status == 201)
     retries: 5
@@ -169,11 +169,11 @@
 
   - name: Adding key-auth to "/api/1.0.0/follow"
     uri:
-        url: http://localhost:8001/apis/unfollow/plugins
-        method: POST
-        body: 'name=key-auth'
-        status_code: [201, 409]
-        return_content: yes
+      url: http://localhost:8001/apis/unfollow/plugins
+      method: POST
+      body: 'name=key-auth'
+      status_code: [201, 409]
+      return_content: yes
     register: request
     until: (request.status == 409) or (request.status == 201)
     retries: 5
@@ -202,11 +202,11 @@
 
   - name: Adding key-auth to "/api/1.0.0/share"
     uri:
-        url: http://localhost:8001/apis/share/plugins
-        method: POST
-        body: 'name=key-auth'
-        status_code: [201, 409]
-        return_content: yes
+      url: http://localhost:8001/apis/share/plugins
+      method: POST
+      body: 'name=key-auth'
+      status_code: [201, 409]
+      return_content: yes
     register: request
     until: (request.status == 409) or (request.status == 201)
     retries: 5
@@ -225,7 +225,7 @@
   - name: Creating "/api/1.0.0/share" DELETE at kong (http://kong:8080/share)
     uri:
       url: http://localhost:8001/apis/
-      method: DELETE
+      method: POST
       body: 'name=unshare&methods=DELETE&upstream_url=http://kong:8080/share&uris=/api/1.0.0/share'
       status_code: [201, 409]
       return_content: yes
