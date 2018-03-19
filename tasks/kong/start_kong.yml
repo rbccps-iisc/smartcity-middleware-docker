@@ -18,8 +18,6 @@
     copy:
       src: config/kong/share.py
       dest: /home/ansible/share.py
-      mode: 0644
-    become_user: ansible
 
   - name: Setting up Kong.conf file
     copy:

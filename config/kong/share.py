@@ -37,12 +37,16 @@ def follow(request):
         bind(consumer_id, entity, "#", consumer_id, apikey)
         return request.Response(text=" A follow request was approved to exchange " + entity + " with " + permission +
                                      " access at " + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + " GMT.\n")
+    elif entity == consumer_id + ".configure":
+        bind(consumer_id, entity, "#", consumer_id, apikey)
+        return request.Response(text=" A follow request was approved to exchange " + entity + " with " + permission +
+                                     " access at " + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + " GMT.\n")
     elif entity == consumer_id + ".private":
         bind(consumer_id, entity, "#", consumer_id, apikey)
         return request.Response(text=" A follow request was approved to exchange " + entity + " with " + permission +
                                      " access at " + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + " GMT.\n")
     else:
-        create_queue(entity + ".follow", consumer_id, apikey)  # TODO it should be as part of RegisterAPI
+        create_queue(entity + ".follow", consumer_id, apikey)  # TODO it should be as part of RegisterAPI, must remove
         create_exchange("public", consumer_id, apikey)  # TODO it should be part of RegisterAPI
         bind(entity + ".follow", "public", entity + ".follow", consumer_id, apikey)
         print(strftime("%Y-%m-%d %H:%M:%S", gmtime()) + " Entity " + consumer_id +
@@ -98,8 +102,8 @@ def publish(body, exchange, key, consumer_id, apikey):
 
 
 def ldap_add_share_entry(device, consumer_id, read="false", write="false"):
-    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w secret0 -f share.ldif -H ldap://ldapd:8389'
-    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w secret0 -f share.ldif -H ldap://ldapd:8389'
+    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w secret0 -f /tmp/share.ldif -H ldap://ldapd:8389'
+    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w secret0 -f /tmp/share.ldif -H ldap://ldapd:8389'
     ldif = """dn: description={0},description=share,description=broker,uid={1},cn=devices,dc=smartcity
 objectClass: broker
 objectClass: exchange
@@ -108,14 +112,14 @@ objectClass: share
 description: {0}
 read: {2}
 write: {3}""".format(device, consumer_id, read, write)
-    f = open('share.ldif', 'w')
+    f = open('/tmp/share.ldif', 'w')
     f.write(ldif)
     f.close()
     try:
         resp = subprocess.check_output(add, shell=True)
         print(resp)
     except subprocess.CalledProcessError as e:
-        if str(e)[-2:] == "80": # already exists
+        if str(e)[-2:] == "80" or str(e)[-2:] == "68":# already exists
             ldif = """dn: description={0},description=share,description=broker,uid={1},cn=devices,dc=smartcity
 changetype: modify
 replace: read
@@ -123,7 +127,7 @@ read: {2}
 -
 replace: write
 write: {3}""".format(device, consumer_id, read, write)
-            f = open('share.ldif', 'w')
+            f = open('/tmp/share.ldif', 'w')
             f.write(ldif)
             f.close()
             resp = subprocess.check_output(modify, shell=True)
@@ -131,8 +135,8 @@ write: {3}""".format(device, consumer_id, read, write)
 
 
 def ldap_add_exchange_entry(device, consumer_id, read="false", write="false"):
-    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w secret0 -f exchange.ldif -H ldap://ldapd:8389'
-    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w secret0 -f exchange.ldif -H ldap://ldapd:8389'
+    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w secret0 -f /tmp/exchange.ldif -H ldap://ldapd:8389'
+    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w secret0 -f /tmp/exchange.ldif -H ldap://ldapd:8389'
     ldif = """dn: description={0},description=exchange,description=broker,uid={1},cn=devices,dc=smartcity
 objectClass: broker
 objectClass: exchange
@@ -141,14 +145,14 @@ objectClass: share
 description: {0}
 read: {2}
 write: {3}""".format(device, consumer_id, read, write)
-    f = open('exchange.ldif', 'w')
+    f = open('/tmp/exchange.ldif', 'w')
     f.write(ldif)
     f.close()
     try:
         resp = subprocess.check_output(add, shell=True)
         print(resp)
     except subprocess.CalledProcessError as e:
-        if str(e)[-2:] == "80": # already exists
+        if str(e)[-2:] == "80" or str(e)[-2:] == "68": # already exists
             ldif = """dn: description={0},description=exchange,description=broker,uid={1},cn=devices,dc=smartcity
 changetype: modify
 replace: read
@@ -156,7 +160,7 @@ read: {2}
 -
 replace: write
 write: {3}""".format(device, consumer_id, read, write)
-            f = open('exchange.ldif', 'w')
+            f = open('/tmp/exchange.ldif', 'w')
             f.write(ldif)
             f.close()
             resp = subprocess.check_output(modify, shell=True)
@@ -199,12 +203,18 @@ def share(request):
                                       'response': 'permission field not in correct format.'}, code=400)
     if permission == "read":
         # This ldap_add_share_entry provides a list of people who subscribed.
-        ldap_add_share_entry(entity, consumer_id, read="true", write="false")
+        if check_ldap_entry(entity, consumer_id, "write", "true"):
+            ldap_add_share_entry(entity, consumer_id, read="true", write="true")
+        else:
+            ldap_add_share_entry(entity, consumer_id, read="true", write="false")
         bind(entity, consumer_id + ".protected", "#", consumer_id, apikey)
         text="Read access given to " + entity + " at " + consumer_id + " exchange.\n"
         return request.Response(text=text)
     elif permission == "write":
-        ldap_add_share_entry(entity, consumer_id, read="false", write="true")
+        if check_ldap_entry(entity, consumer_id, "read", "true"):
+            ldap_add_share_entry(entity, consumer_id, read="true", write="true")
+        else:
+            ldap_add_share_entry(entity, consumer_id, read="false", write="true")
         ldap_add_exchange_entry(exchange, entity, read="false", write="true")
         text="Write access given to " + entity + " at " + exchange + " exchange.\n"
         return request.Response(text=text)
