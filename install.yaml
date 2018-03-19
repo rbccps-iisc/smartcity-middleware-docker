@@ -237,19 +237,6 @@
     shell: node pwd_script.js local123
     args:
       chdir: /home/ansible/cat-json-schema-server/
-### Set up kong environment
-#   This playbook play will install Kong, iptables and api-auth plugin of Kong. Ansible will install and verify
-#   the working of the API at user and admin ports. But this verification will fail in any subsequent runs of
-#   the same ansible playbook due to Firewall configuration to deny all UDP packets at kong server.
-#   If you want to use ansible playbook installation more than once, run the following commands
-#     (at each run, ansible will set up the kong server's iptable to deny all incoming and outgoing UDP packets)
-#
-#         ansible-playbook tasks/kong/allow_udp.yml -i hosts --ask-vault-pass
-#         ansible-playbook tasks/kong/allow_outgoing.yml -i hosts --ask-vault-pass
-#
-#   Now run the ansible playbook file
-#         ansible-playbook -i hosts --ask-vault-pass playbook.yaml
-###
 
 - hosts: kong
   remote_user: root
@@ -351,17 +338,20 @@
     copy:
       src: config/kong/share_python_requirements.txt
       dest: /home/ansible/requirements.txt
+    become_user: ansible
 
   - name: Pip install share API requirements.txt
     pip:
       requirements: /home/ansible/requirements.txt
       executable: pip3
+    become_user: ansible
 
   - name: Copy share.py
     copy:
       src: config/kong/share.py
       dest: /home/ansible/share.py
       mode: 0644
+    become_user: ansible
 
   - name: Copy supervisor-share.conf
     copy:
