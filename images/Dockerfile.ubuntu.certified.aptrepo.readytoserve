@@ -7,6 +7,5 @@ RUN apt-get install -y openssh-server sudo
 RUN rm /etc/ssh/ca-user-certificate-key.pub
 EXPOSE 22
 EXPOSE 8000
-ARG CACHEBUST=1
 COPY config/certificate_authority/keys/ca-user-certificate-key.pub /etc/ssh/ca-user-certificate-key.pub
 CMD    ["/usr/sbin/sshd", "-D"]
