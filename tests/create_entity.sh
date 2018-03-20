@@ -143,6 +143,6 @@ curl -X POST \
         "link": "https://raw.githubusercontent.com/rbccps-iisc/applications-streetlight/master/proto_stm/rxmsg/actuated.proto"
       }
     },
-    "id": "streetlight"
+    "id": "$1"
   }
 }'

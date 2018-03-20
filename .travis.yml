@@ -7,4 +7,4 @@ install:
   - python smartcity-middleware.py install -f middleware.conf
   - python smartcity-middleware.py start
 script:
-  - ./tests/create_entity.sh
+  - python ./tests/pytest.py
