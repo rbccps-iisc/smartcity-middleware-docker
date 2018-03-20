@@ -208,10 +208,6 @@ def docker_setup(log_file, config_path="middleware.conf"):
     create_ansible_host_file(instance_details)
     output_ok("Created Ansible hosts file with CA instance. ")
 
-    cmd = 'ssh-copy-id -i {0} root@{1} -p {2}'.format(key, ca_ip, ca_port[1:-1])
-    subprocess_popen(cmd, log_file, "Copying SSH Public-key to Certificate Authority failed.")
-    output_ok("Copied SSH Public-key to Certificate Authority. ")
-
     output_info("Starting Ansible Certificate Authority Setup. ")
     subprocess.call('ansible-playbook -i hosts install.yaml --limit "certificate_authority"',
                     shell=True)
