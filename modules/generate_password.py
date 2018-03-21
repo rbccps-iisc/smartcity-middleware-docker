@@ -33,7 +33,7 @@ def kong_pass(config):
     password = config.get('PASSWORDS', 'KONG')
     if password == "??????":
         password = id_generator()
-    write("host_vars/kong", "kong_password: " + password + "\n postgresql_password: "+password)
+    write("host_vars/kong", "kong_password: " + password + "\npostgresql_password: "+password)
     passwords["kong"] = password
     config.set('PASSWORDS', 'KONG', password)
 
