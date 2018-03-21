@@ -1,3 +1,2 @@
 postgresql_password: ansible
 kong_password: ansible
-kong_api_name: test-api

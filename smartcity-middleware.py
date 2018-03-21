@@ -3,7 +3,7 @@ import modules.start as container_start
 import modules.install as container_setup
 from datetime import datetime
 from modules.utils import setup_logging
-from modules.generate_password import ansible_user_account
+from modules.generate_password import set_passwords
 import sys
 import argparse
 
@@ -26,7 +26,7 @@ def install(arguments):
         container_setup.stop_containers(log_file=arguments.log_file)
         container_setup.remove_containers(log_file=arguments.log_file)
         download_packages.download(arguments.log_file)
-        ansible_user_account(arguments.config_file)
+        set_passwords(arguments.config_file)
         container_setup.docker_setup(log_file=arguments.log_file, config_path=arguments.config_file)
         container_setup.ansible_installation("kong, rabbitmq, elasticsearch, apt_repo, tomcat, ldapd, hypercat")
 
