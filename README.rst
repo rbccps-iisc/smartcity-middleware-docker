@@ -2,6 +2,9 @@
 IoT Data Exchange & Analytics Middleware (IDEAM) for Smart Cities
 =================================================================
 
+.. image:: https://travis-ci.org/rbccps-iisc/ideam.svg?branch=master
+    :target: https://travis-ci.org/rbccps-iisc/ideam
+
 Web Page
 ========
 - Main Page: https://smartcity.rbccps.org/
