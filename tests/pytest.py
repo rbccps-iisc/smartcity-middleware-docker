@@ -12,3 +12,5 @@ register = json.loads(register)
 dashboard_key = register["apiKey"]
 print(dashboard_key)
 publish = subprocess.check_output("./tests/publish.sh "+streetlight_key, shell=True)
+print(publish)
+sshtest = subprocess.check_output("./tests/ssh_test.sh "+streetlight_key, shell=True)

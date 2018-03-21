@@ -20,7 +20,7 @@ def ansible_user_account(conf):
     sha_hash = passlib.hash.sha512_crypt.encrypt(password)
     write("host_vars/all", "password: " + sha_hash)
     passwords["ansible"] = password
-    config.set('PASSWORDS', 'USER_ANSIBLE', 'ansible')
+    config.set('PASSWORDS', 'USER_ANSIBLE', password)
     with open('middleware.conf', 'w') as configfile:
         config.write(configfile)
 
