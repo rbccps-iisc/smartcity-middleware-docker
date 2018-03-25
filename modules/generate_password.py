@@ -2,7 +2,6 @@ import passlib.hash
 import string
 import random
 import ConfigParser
-
 passwords = dict()
 
 
