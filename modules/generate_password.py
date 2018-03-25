@@ -34,6 +34,8 @@ def kong_pass(config):
         password = id_generator()
     write("host_vars/kong", "kong_password: " + password + "\npostgresql_password: "+password)
     passwords["kong"] = password
+    with open('config/kong/kong.conf', 'a') as f:
+        f.write("pg_password = " + password["kong"])
     config.set('PASSWORDS', 'KONG', password)
 
 
