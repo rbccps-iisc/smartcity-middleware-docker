@@ -38,7 +38,7 @@ def kong_pass(config):
     config.set('PASSWORDS', 'KONG', password)
 
 
-def hypercat_pass(config):
+def catalogue_pass(config):
     password = config.get('PASSWORDS', 'HYPERCAT')
     if password == "??????":
         password = id_generator()
@@ -47,8 +47,8 @@ def hypercat_pass(config):
     config.set('PASSWORDS', 'HYPERCAT', password)
 
 
-def write(file, contents):
-    with open(file, 'w') as f:
+def write(path, contents):
+    with open(path, 'w+') as f:
         f.write(contents)
 
 
@@ -58,6 +58,6 @@ def set_passwords(conf):
     ansible_user_pass(config)
     ldap_pass(config)
     kong_pass(config)
-    hypercat_pass(config)
-    with open('middleware.conf', 'w') as configfile:
+    catalogue_pass(config)
+    with open('middleware.conf', 'w+') as configfile:
         config.write(configfile)
