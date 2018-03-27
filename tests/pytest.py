@@ -14,6 +14,6 @@ dashboard_key = register["apiKey"]
 print(dashboard_key)
 # register = subprocess.check_output("./tests/catalogue.sh", shell=True)
 start = time.time()
-publish = subprocess.check_output("./tests/publish.sh "+streetlight_key, shell=True)
+publish = subprocess.call("./tests/publish.sh "+streetlight_key, shell=True)
 end = time.time()
 print(end - start)
