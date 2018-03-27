@@ -702,3 +702,6 @@
   - include: tasks/create_user.yml
   - include: tasks/add_local_repository.yml
   - include: tasks/update_repos.yml
+
+  - name: Install tmux
+    apt: name=tmux state=present
