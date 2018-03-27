@@ -1,5 +1,6 @@
 import subprocess
 import json
+import time
 
 register = subprocess.check_output("./tests/create_entity.sh streetlight", shell=True)
 print(register)
@@ -11,4 +12,8 @@ print(register)
 register = json.loads(register)
 dashboard_key = register["apiKey"]
 print(dashboard_key)
+
+start = time.time()
 publish = subprocess.check_output("./tests/publish.sh "+streetlight_key, shell=True)
+end = time.time()
+print(end - start)
