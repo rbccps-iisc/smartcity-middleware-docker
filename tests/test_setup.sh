@@ -20,8 +20,7 @@ sudo usermod -aG docker $USER
 ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -N ''
 sudo chmod -R 777 /data/*
 sudo sysctl -w vm.max_map_count=662144
-echo "travis" | sudo mkdir /home/ideam
-echo "travis" | sudo useradd -u 12345 -g users -d /home/ideam -s /bin/bash -p $(echo ideam | openssl passwd -1 -stdin) ideam
-echo "travis" | sudo usermod -aG sudo ideam
+sudo useradd -m --disabled-password -s /bin/bash ideam
+sudo usermod -aG sudo ideam
 su - ideam
 whoami
