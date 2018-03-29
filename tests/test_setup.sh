@@ -37,3 +37,4 @@ sudo usermod -aG docker $USER
 ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -N ''
 sudo sysctl -w vm.max_map_count=662144
 sudo dpkg -i ideam_0.0-1.deb
+ls -al /usr/share/ideam/
