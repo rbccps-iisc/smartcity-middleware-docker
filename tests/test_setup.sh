@@ -19,4 +19,9 @@ sudo mkdir -p /data/logs/tomcat
 sudo usermod -aG docker $USER
 ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -N ''
 sudo chmod -R 777 /data/*
-sudo sysctl -w vm.max_map_count=662144
+sudo sysctl -w vm.max_map_count662144
+sudo mkdir /home/ideam
+sudo useradd -u 12345 -g users -d /home/ideam -s /bin/bash -p $(echo ideam | openssl passwd -1 -stdin) ideam
+usermod -aG sudo ideam
+su - ideam
+whoami
