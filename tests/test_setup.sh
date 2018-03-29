@@ -22,9 +22,9 @@ cd ../
 tar --exclude='./build' --exclude='./.git' --exclude='./.idea' --exclude='*.retry' --exclude='*.tar.gz' --exclude='./ideam.tgz' --exclude='*.DS_Store' --exclude='./.gitignore' -zcvf ideam.tgz ./
 tar -xvzf ideam.tgz -C build/ideam_0.0-1/usr/share/ideam/
 cd build/
-dpkg-deb --build ideam_0.0-1/
-dpkg -i ideam_0.0-1.deb
-dpkg --remove ideam
+sudo dpkg-deb --build ideam_0.0-1/
+sudo dpkg -i ideam_0.0-1.deb
+sudo dpkg --remove ideam
 sudo apt-get -y update && sudo apt-get install -y software-properties-common && sudo apt-add-repository ppa:ansible/ansible -y && sudo apt-get -y update && sudo apt-get install -y ansible
 sudo apt-get install -y apt-transport-https  ca-certificates curl software-properties-common
 sudo apt install python-pip python -y
@@ -36,4 +36,4 @@ sudo apt-get install docker-ce -y
 sudo usermod -aG docker $USER
 ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -N ''
 sudo sysctl -w vm.max_map_count=662144
-dpkg -i ideam_0.0-1.deb
+sudo dpkg -i ideam_0.0-1.deb
