@@ -1,9 +1,15 @@
+#!/usr/bin/env python2
+import sys
+import os
+VERSION = '0.0-1'
+if not os.path.exists("modules"):
+    sys.path.append("/usr/share/ideam")
+    os.chdir("/usr/share/ideam")
 import modules.download_packages as download_packages
 import modules.start as container_start
 import modules.install as container_setup
 from datetime import datetime
 from modules.utils import setup_logging
-import sys
 import argparse
 
 
@@ -17,7 +23,7 @@ class MyParser(argparse.ArgumentParser):
 
 def install(arguments):
     """ Installs docker images and containers."""
-    if args.limit:
+    if arguments.limit:
         container_setup.ansible_installation(arguments.limit)
     else:
         setup_logging(log_file=arguments.log_file)
@@ -65,8 +71,10 @@ if __name__ == '__main__':
                                 default=default_log_file)
     install_parser.add_argument("-f", "--config-file",
                                 help="Path to the conf file. See middleware.conf for an example.",
-                                required=True)
-
+                                default="/etc/ideam/middleware.conf")
+    install_parser.add_argument("-d", "--dir",
+                                help="Path to the conf file. See middleware.conf for an example.",
+                                default="/etc/ideam/middleware.conf")
     # start command
     start_parser = subparsers.add_parser('start', help='Start all the docker containers in the middleware')
     start_parser.add_argument("-l",

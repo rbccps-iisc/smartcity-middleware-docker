@@ -186,11 +186,13 @@ def docker_setup(log_file, config_path="middleware.conf"):
 
     key = config.get('SYSTEM_CONFIG', 'SSH_PUBLIC_KEY')
     output_info("Using {0} as your ssh key for certification. ".format(key))
-
     home = os.path.expanduser('~')
     with open(home + "/.ssh/configs", 'w+') as f:
         f.write("IdentityFile {0}\n".format(key))
     key = key.replace("~", home)
+
+    subprocess_popen("find "+key, log_file, "Missing ssh public key file in {}. Create one using command ssh-keygen.".
+                     format(key))
     cmd = 'cp -r ' + key + ' ' + os.getcwd() + '/config/certificate_authority/keys/id_rsa.pub'
     subprocess_popen(cmd, log_file, "Copying to /config/certificate_authority/keys/ failed.")
 

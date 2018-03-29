@@ -4,7 +4,7 @@ before_install:
   - ./tests/test_setup.sh
 language: python
 install:
-  - python smartcity-middleware.py install -f middleware.conf
-  - python smartcity-middleware.py start
+  - ideam install
+  - ideam start
 script:
   - python ./tests/pytest.py

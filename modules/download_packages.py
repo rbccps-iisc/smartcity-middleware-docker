@@ -1,7 +1,7 @@
 import urllib
 from utils import output_error, output_info, output_ok
 import traceback
-from pathlib2 import Path
+import os
 
 
 def download_file(url, filename, success_msg, failure_msg, log_file):
@@ -14,8 +14,7 @@ def download_file(url, filename, success_msg, failure_msg, log_file):
         failure_msg (string): failure message to be displayed when download fails
         log_file    (string): log file path
     """
-    my_file = Path(filename)
-    if my_file.is_file():
+    if os.path.exists(filename):
         output_ok(success_msg)
     else:
         try:
