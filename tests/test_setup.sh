@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 pwd
-cd ../build/
+cd ./build/
 echo "inside build"
 pwd
 mkdir ideam_0.0-1
@@ -25,11 +25,10 @@ pwd
 cd ../
 echo "inside ../"
 pwd
-
 tar --exclude='./build' --exclude='./.git' --exclude='./.idea' --exclude='*.retry' --exclude='*.tar.gz' --exclude='./ideam.tgz' --exclude='*.DS_Store' --exclude='./.gitignore' -zcvf ideam.tgz ./
 tar -xvzf ideam.tgz -C build/ideam_0.0-1/usr/share/ideam/
 pwd
-cd ../
+cd build/
 echo "inside ./build/"
 pwd
 sudo dpkg-deb --build ideam_0.0-1/
