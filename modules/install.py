@@ -4,9 +4,6 @@ import traceback
 import ConfigParser
 import os
 from time import time
-kong_log_location=""
-rabbitmq_log_location=""
-tomcat_log_location=""
 
 
 def remove_containers(log_file):
@@ -170,10 +167,8 @@ def docker_setup(log_file, config_path="middleware.conf"):
     kong_config_storage = config.get('KONG', 'CONFIG_STORAGE')
     output_info("Using {0} as Kong's config persistant storage. ".format(kong_config_storage))
     rabbitmq_storage = config.get('RABBITMQ', 'DATA_STORAGE')
-    rabbitmq_log_location = config.get('RABBITMQ', 'LOG_LOCATION')
     output_info("Using {0} as RabbitMQ's persistant storage. ".format(rabbitmq_storage))
     tomcat_storage = config.get('TOMCAT', 'DATA_STORAGE')
-    tomcat_log_location = config.get('TOMCAT', 'LOG_LOCATION')
     output_info("Using {0} as Apache Tomcat's persistant storage. ".format(tomcat_storage))
     catalogue_storage = config.get('CATALOGUE', 'DATA_STORAGE')
     output_info("Using {0} as Catalogue's persistant storage. ".format(catalogue_storage))
@@ -218,7 +213,8 @@ def docker_setup(log_file, config_path="middleware.conf"):
     subprocess_popen(cmd, log_file, "Copying Certificate Authority's cert file to ansible's .ssh/ failed.")
     output_ok("Copied Certificate Authority's cert file to Ansible's .ssh. ")
 
-    cmd = "docker build -t ansible/ubuntu-certified-aptrepo:1.0 --build-arg CACHEBUST={0} -f images/Dockerfile.ubuntu.certified.aptrepo.readytoserve .".format(unique_value())
+    cmd = "docker build -t ansible/ubuntu-certified-aptrepo:1.0 --build-arg CACHEBUST={0} " \
+          "-f images/Dockerfile.ubuntu.certified.aptrepo.readytoserve .".format(unique_value())
     subprocess_with_print(cmd,
                           success_msg="Created ansible/ubuntu-certified-aptrepo:1.0 docker image. ",
                           failure_msg="Building ubuntu image from "
@@ -226,20 +222,23 @@ def docker_setup(log_file, config_path="middleware.conf"):
                           log_file=log_file,
                           exit_on_fail=True)
 
-    cmd = "docker build -t ansible/ubuntu-certified-catalogue:1.0 --build-arg CACHEBUST={0} -f images/Dockerfile.ubuntu.certified.catalogue .".format(unique_value())
+    cmd = "docker build -t ansible/ubuntu-certified-catalogue:1.0 --build-arg CACHEBUST={0} " \
+          "-f images/Dockerfile.ubuntu.certified.catalogue .".format(unique_value())
     subprocess_with_print(cmd,
                           success_msg="Created ansible/ubuntu-certified-catalogue:1.0 docker image. ",
                           failure_msg="Building ubuntu image from images/Dockerfile.ubuntu.certified.catalogue failed.",
                           log_file=log_file,
                           exit_on_fail=True)
 
-    cmd = "docker build -t ansible/ubuntu-certified-kong:1.0 --build-arg CACHEBUST={0} -f images/Dockerfile.ubuntu.certified.kong .".format(unique_value())
+    cmd = "docker build -t ansible/ubuntu-certified-kong:1.0 --build-arg CACHEBUST={0} " \
+          "-f images/Dockerfile.ubuntu.certified.kong .".format(unique_value())
     subprocess_with_print(cmd,
                           success_msg="Created ansible/ubuntu-certified-kong:1.0 docker image. ",
                           failure_msg="Building ubuntu image from images/Dockerfile.ubuntu.certified.kong failed.",
                           log_file=log_file,
                           exit_on_fail=True)
-    cmd = "docker build -t ansible/ubuntu-certified-rabbitmq:1.0 --build-arg CACHEBUST={0} -f images/Dockerfile.ubuntu.certified.rabbitmq .".format(unique_value())
+    cmd = "docker build -t ansible/ubuntu-certified-rabbitmq:1.0 --build-arg CACHEBUST={0} " \
+          "-f images/Dockerfile.ubuntu.certified.rabbitmq .".format(unique_value())
     subprocess_with_print(cmd,
                           success_msg="Created ansible/ubuntu-certified-rabbitmq:1.0 docker image. ",
                           failure_msg="Building ubuntu image from images/Dockerfile.ubuntu.certified.rabbitmq failed.",
@@ -253,7 +252,8 @@ def docker_setup(log_file, config_path="middleware.conf"):
                           log_file=log_file,
                           exit_on_fail=True)
 
-    subprocess_with_print("docker build -t ansible/tomcat --build-arg CACHEBUST={0} -f images/Dockerfile.tomcat .".format(unique_value()),
+    subprocess_with_print("docker build -t ansible/tomcat --build-arg CACHEBUST={0} "
+                          "-f images/Dockerfile.tomcat .".format(unique_value()),
                           success_msg="Created ansible/tomcat docker image. ",
                           failure_msg="Building ansible/tomcat image from images/Dockerfile.tomcat failed.",
                           log_file=log_file,
@@ -280,7 +280,8 @@ def docker_setup(log_file, config_path="middleware.conf"):
     ip, port, details = create_instance("kong", "ansible/ubuntu-certified-kong:1.0",
                                         storage_host=kong_storage,
                                         storage_guest="/var/lib/postgresql",
-                                        log_file=log_file)
+                                        log_file=log_file,
+                                        log_storage=kong_log_location)
 
     instance_details["kong"] = [ip, port]
     output_ok("Created Kong docker instance. \n " + details)
@@ -327,7 +328,8 @@ def docker_setup(log_file, config_path="middleware.conf"):
 
     konga = config.get('KONGA', 'HTTP')
 
-    cmd = 'docker run -d -p {0}:1337 --net mynet --link kong:kong --name konga -e "NODE_ENV=production" pantsel/konga'.format(konga)
+    cmd = 'docker run -d -p {0}:1337 --net mynet --link kong:kong --name konga -e "NODE_ENV=production" pantsel/konga'.\
+        format(konga)
 
     subprocess_with_print(cmd,
                           success_msg="Created KONGA docker instance. ",
@@ -337,7 +339,8 @@ def docker_setup(log_file, config_path="middleware.conf"):
     create_ansible_host_file(instance_details)
 
 
-def create_instance(server, image, log_file, storage_host="", storage_guest="", config_path="middleware.conf"):
+def create_instance(server, image, log_file, storage_host="", storage_guest="", config_path="middleware.conf",
+                    log_storage=""):
     """ Create a docker instance from the image provided with persistent storages.
 
     Args:
@@ -347,6 +350,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
         storage_host  (string): mount point created in the server for persistent storage
         storage_guest (string): location inside docker where the persistent storage occurs
         config_path   (string): location of config file
+        log_storage   (string): storage space for logs
     """
     port = ""
     container_id = ""
@@ -356,8 +360,9 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     if server == "kong":  # separate kong log storage needed
         ssh = config.get('KONG', 'SSH')
 
-        cmd = "docker run -d -p {4}:22 --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/kong:/tmp --cap-add=NET_ADMIN --name={0} {1}".\
-            format(server, image, storage_host, storage_guest, ssh)
+        cmd = "docker run -d -p {4}:22 --net=mynet --hostname={0} " \
+              "-v {2}:{3} -v {5}:/tmp --cap-add=NET_ADMIN --name={0} {1}".\
+            format(server, image, storage_host, storage_guest, ssh, log_storage)
 
         try:
             out, err = subprocess_popen(cmd,
@@ -374,10 +379,12 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
         http = config.get('RABBITMQ', 'HTTP')
         amqp = config.get('RABBITMQ', 'AMQP')
         mqtt = config.get('RABBITMQ', 'MQTT')
+        log_storage = config.get('RABBITMQ', 'LOG_LOCATION')
         management = config.get('RABBITMQ', 'MANAGEMENT')
 
-        cmd = "docker run -d -p {4}:22 -p {5}:8000 -p {6}:5672 -p {7}:1883 -p {8}:15672 --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/rabbitmq:/var/log/rabbitmq -v /data/logs/rabbitmq:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
-            format(server, image, storage_host, storage_guest, ssh, http, amqp, mqtt, management)
+        cmd = "docker run -d -p {4}:22 -p {5}:8000 -p {6}:5672 -p {7}:1883 -p {8}:15672 --net=mynet --hostname={0}" \
+              " -v {2}:{3} -v {9}:/var/log/rabbitmq -v {9}:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
+            format(server, image, storage_host, storage_guest, ssh, http, amqp, mqtt, management, log_storage)
 
         try:
             out, err = subprocess_popen(cmd,
@@ -392,8 +399,10 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     elif server == "tomcat":  # separate tomcat log storage needed
         ssh = config.get('TOMCAT', 'SSH')
         http = config.get('TOMCAT', 'HTTP')
-        cmd = "docker run -d -p {4}:22 -p {5}:8080 --net=mynet --hostname={0} -v {2}:{3} -v /data/logs/tomcat:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
-            format(server, image, storage_host, storage_guest, ssh, http)
+        log_storage = config.get('TOMCAT', 'LOG_LOCATION')
+        cmd = "docker run -d -p {4}:22 -p {5}:8080 --net=mynet --hostname={0} -v {2}:{3} -v {6}:/var/log/supervisor" \
+              " --cap-add=NET_ADMIN --name={0} {1}".\
+            format(server, image, storage_host, storage_guest, ssh, http, log_storage)
 
         try:
             out, err = subprocess_popen(cmd,
@@ -408,7 +417,8 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     elif server == "hypercat":  # separate data storage needed
         ssh = config.get('CATALOGUE', 'SSH')
         http = config.get('CATALOGUE', 'HTTP')
-        cmd = "docker run -d -p {4}:22 -p {5}:8000 --net=mynet --hostname={0} -v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
+        cmd = "docker run -d -p {4}:22 -p {5}:8000 --net=mynet --hostname={0} " \
+              "-v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest, ssh, http)
 
         try:
@@ -424,7 +434,8 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     elif server == "ldapd":  # separate data storage needed
         ssh = config.get('LDAP', 'SSH')
         ldap = config.get('LDAP', 'LDAP')
-        cmd = "docker run -d -p {4}:22 -p {5}:8389 --net=mynet --hostname={0} -v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
+        cmd = "docker run -d -p {4}:22 -p {5}:8389 --net=mynet --hostname={0} " \
+              "-v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest, ssh, ldap)
 
         try:
@@ -456,7 +467,8 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     elif server == "elasticsearch":
         ssh = config.get('ELASTICSEARCH', 'SSH')
         kibana = config.get('ELASTICSEARCH', 'KIBANA')
-        cmd = "docker run -d -p {2}:22 -p {3}:5601 --net=mynet --hostname={0} --cap-add=NET_ADMIN --name={0} {1}".format(server, image, ssh, kibana)
+        cmd = "docker run -d -p {2}:22 -p {3}:5601 --net=mynet " \
+              "--hostname={0} --cap-add=NET_ADMIN --name={0} {1}".format(server, image, ssh, kibana)
         try:
             out, err = subprocess_popen(cmd,
                                         log_file,

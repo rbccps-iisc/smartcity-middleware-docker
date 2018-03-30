@@ -45,15 +45,5 @@ sudo apt-get install docker-ce -y
 sudo usermod -aG docker $USER
 ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -N ''
 sudo sysctl -w vm.max_map_count=662144
-sudo mkdir -p /data/kong
-sudo mkdir -p /data/kong-config
-sudo mkdir -p /data/catalogue
-sudo mkdir -p /data/rabbitmq
-sudo mkdir -p /data/ldap
-sudo mkdir -p /data/tomcat
-sudo mkdir -p /data/logs/kong
-sudo mkdir -p /data/logs/rabbitmq
-sudo mkdir -p /data/logs/tomcat
-sudo chmod -R 777 /data/*
 sudo chmod -R 777 ideam_0.0-1/var/ideam/data/*
 sudo dpkg -i ideam_0.0-1.deb
