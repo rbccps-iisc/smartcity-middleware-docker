@@ -45,5 +45,5 @@ sudo apt-get install docker-ce -y
 sudo usermod -aG docker $USER
 ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -N ''
 sudo sysctl -w vm.max_map_count=662144
-pwd
+chmod -R 777 ideam_0.0-1/var/ideam/*
 sudo dpkg -i ideam_0.0-1.deb
