@@ -72,9 +72,7 @@ if __name__ == '__main__':
     install_parser.add_argument("-f", "--config-file",
                                 help="Path to the conf file. See middleware.conf for an example.",
                                 default="/etc/ideam/middleware.conf")
-    install_parser.add_argument("-d", "--dir",
-                                help="Path to the conf file. See middleware.conf for an example.",
-                                default="/etc/ideam/middleware.conf")
+
     # start command
     start_parser = subparsers.add_parser('start', help='Start all the docker containers in the middleware')
     start_parser.add_argument("-l",
@@ -101,4 +99,4 @@ if __name__ == '__main__':
     elif args.command == "start":
         start(args)
     elif args.command == "restart":
-        restart(args)
+        start(args)
