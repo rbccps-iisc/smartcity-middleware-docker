@@ -2,7 +2,7 @@
 import sys
 import os
 VERSION = '0.0-1'
-if not os.path.exists("modules"):
+if os.path.exists("/etc/ideam/middleware.conf"):
     sys.path.append("/usr/share/ideam")
     os.chdir("/usr/share/ideam")
 import modules.download_packages as download_packages
