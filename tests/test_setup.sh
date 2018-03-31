@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
-cd build/
-pwd
-sudo dpkg -i ideam_0.0-1.deb
-sudo dpkg --remove ideam
+# The following are the packages to be installed in a new vm machine for test purposes.
+# Ansible, docker and python.
 sudo apt-get -y update && sudo apt-get install -y software-properties-common && sudo apt-add-repository ppa:ansible/ansible -y && sudo apt-get -y update && sudo apt-get install -y ansible
 sudo apt-get install -y apt-transport-https  ca-certificates curl software-properties-common
 sudo apt install python -y
@@ -11,6 +9,7 @@ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubun
 sudo apt-get update -y
 sudo apt-get install docker-ce -y
 sudo usermod -aG docker $USER
+# create ssh keys
 ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -N ''
+# vm.max_map_count must be set to higher value for elasticsearch.
 sudo sysctl -w vm.max_map_count=662144
-sudo dpkg -i ideam_0.0-1.deb

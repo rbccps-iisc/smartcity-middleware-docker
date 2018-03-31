@@ -140,7 +140,7 @@ def unique_value():
     return str(int(time()))
 
 
-def docker_setup(log_file, config_path="middleware.conf"):
+def docker_setup(log_file, config_path="ideam.conf"):
     """ Creates docker instances for kong, ca, hypercat, rabbitmq, elastic search, apache storm, ldap, ntp and bind
     server from an ubuntu-ssh image. First, docker creates certificate authority (CA) instance and then have the CA
     certify Ansible user's public key. A new docker image with this CA's public key in TrustedUserCAKeys is created to
@@ -339,7 +339,7 @@ def docker_setup(log_file, config_path="middleware.conf"):
     create_ansible_host_file(instance_details)
 
 
-def create_instance(server, image, log_file, storage_host="", storage_guest="", config_path="middleware.conf",
+def create_instance(server, image, log_file, storage_host="", storage_guest="", config_path="ideam.conf",
                     log_storage=""):
     """ Create a docker instance from the image provided with persistent storages.
 
