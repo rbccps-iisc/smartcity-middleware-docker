@@ -16,7 +16,7 @@ mkdir -p ideam_0.0-1/var/ideam/data/logs/rabbitmq
 mkdir -p ideam_0.0-1/var/ideam/data/logs/tomcat
 cp ../ideam.py ideam_0.0-1/usr/local/bin/ideam
 cp debian/control ideam_0.0-1/DEBIAN/control
-cp ../middleware.conf ideam_0.0-1/etc/ideam/
+cp ../ideam.conf ideam_0.0-1/etc/ideam/
 chmod +x ideam_0.0-1/usr/local/bin/ideam
 cd ../
 tar --exclude='./build' --exclude='./.git' --exclude='./.idea' --exclude='*.retry' --exclude='*.tar.gz' --exclude='./ideam.tgz' --exclude='*.DS_Store' --exclude='./.gitignore' -zcvf ideam.tgz ./
