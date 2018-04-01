@@ -5,6 +5,7 @@
 **/.DS_Store
 .vagrant/
 **/*.tar.gz
+**/*.tgz
 config/apt_repo/keys/ansible.pub
 config/certificate_authority/keys/id_rsa-cert.pub
 hosts

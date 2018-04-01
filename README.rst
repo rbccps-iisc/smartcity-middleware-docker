@@ -28,7 +28,8 @@ Release
 
 ideam v1.0.0_
 
-
+Use the ideam deb file to install in Linux machines after satisfying the requirements. ``dpkg -i ideam.deb``
+.
 .. _v1.0.0: https://github.com/rbccps-iisc/ideam/releases/latest
 
 Configuration
@@ -42,7 +43,7 @@ ideam.conf_ v1.0.0
 
 - The persistent storage can be changed by modifying the ``ideam.conf`` before installation.
 
-.. _ideam.conf: https://github.com/rbccps-iisc/ideam/blob/master/middleware.conf
+.. _ideam.conf: https://github.com/rbccps-iisc/ideam/blob/master/ideam.conf
 
 
 Steps to Install
