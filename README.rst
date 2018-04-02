@@ -28,8 +28,9 @@ Release
 
 ideam v1.0.0_
 
-Use the ideam deb file to install in Linux machines after satisfying the requirements. ``dpkg -i ideam.deb``
-.
+Use the ideam deb file to install in Linux machines after satisfying the requirements. ``dpkg -i ideam.deb`` .
+
+
 .. _v1.0.0: https://github.com/rbccps-iisc/ideam/releases/latest
 
 Configuration

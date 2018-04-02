@@ -191,7 +191,7 @@ def docker_setup(log_file, config_path="ideam.conf"):
     cmd = 'cp -r ' + key + ' ' + os.getcwd() + '/config/certificate_authority/keys/id_rsa.pub'
     subprocess_popen(cmd, log_file, "Copying to /config/certificate_authority/keys/ failed.")
 
-    subprocess_with_print("docker build -t ansible/ubuntu-ssh --build-arg CACHEBUST={0} -f images/Dockerfile.ubuntu .".
+    subprocess_with_print("docker build -t ansible/ubuntu-ssh --no-cache -f images/Dockerfile.ubuntu .".
                           format(unique_value()),
                           success_msg="Created ansible/ubuntu-ssh docker image. ",
                           failure_msg="Building ubuntu image from images/Dockerfile.ubuntu failed.",
