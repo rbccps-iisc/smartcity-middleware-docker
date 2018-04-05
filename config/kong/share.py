@@ -5,6 +5,109 @@ from time import gmtime, strftime
 import subprocess
 
 
+# provider acl
+def deregister(request):
+    consumer_id = ""
+    apikey = ""
+    for name, value in request.headers.items():
+        if name == "X-Consumer-Username":
+            consumer_id = value
+        elif name == "Apikey":
+            apikey = value
+    print(request.text)
+    print("consumer_id     : " + str(consumer_id))
+    e = json.loads(request.text)
+    if "entityID" in e:
+        entity = str(e["entityID"])
+    print("entityID        : " + str(entity))
+    if check_entity_exists(entity) is False:
+        return request.Response(json={'status': 'failure',
+                                      'response': "Entity doesn't exist."}, code=400)
+    if check_owner(consumer_id,entity) is False:
+        return request.Response(json={'status': 'failure',
+                                      'response': "Only owner can remove an entity."}, code=400)
+    # TODO: remove rbccps user to provider and his apikey ( which cant be used now, as its not there in ldap)
+    rabbitmq_queue_delete(entity, "rbccps", "rbccps@123")
+    rabbitmq_queue_delete(entity+".follow", "rbccps", "rbccps@123")
+    rabbitmq_exchange_delete(entity, "rbccps", "rbccps@123")
+    rabbitmq_exchange_delete(entity+".configure", "rbccps", "rbccps@123")
+    rabbitmq_exchange_delete(entity+".follow", "rbccps", "rbccps@123")
+    rabbitmq_exchange_delete(entity+".public", "rbccps", "rbccps@123")
+    rabbitmq_exchange_delete(entity+".protected", "rbccps", "rbccps@123")
+    rabbitmq_exchange_delete(entity+".public", "rbccps", "rbccps@123")
+    ldap_entity_delete(entity)
+    kong_consumer_delete(entity)
+    # catalogue_delete()
+    return request.Response(json={'status': 'success',
+                                  'response': entity + " entity removed. "}, code=200)
+
+
+def rabbitmq_queue_delete(qname, consumer_id, apikey):
+    url = 'http://rabbitmq:8000/queue'
+    headers = {'X-Consumer-Username': consumer_id, 'Apikey': apikey, 'Accept': 'application/json'}
+    data = {'name': qname}
+    r = requests.delete(url, data=json.dumps(data), headers=headers)
+    print(r.text)
+
+
+def kong_consumer_delete(name):
+    url = 'http://kong:8001/consumers/' + name
+    r = requests.delete(url)
+    print(r.text)
+
+
+def rabbitmq_exchange_delete(ename, consumer_id, apikey):
+    url = 'http://rabbitmq:8000/exchange'
+    headers = {'X-Consumer-Username': consumer_id, 'Apikey': apikey, 'Accept': 'application/json'}
+    data = {'name': ename}
+    r = requests.delete(url, data=json.dumps(data), headers=headers)
+    print(r.text)
+
+
+def ldap_entity_delete(uid):
+    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w secret0"""
+    cmd2 = """ "uid={0},cn=devices,dc=smartcity" -r""".\
+        format(uid)
+    cmd = cmd1 + cmd2
+    try:
+        resp = subprocess.check_output(cmd, shell=True)
+        print(resp)
+    except subprocess.CalledProcessError as e:
+        print(e)
+
+
+def check_entity_exists(uid):
+    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w secret0 -b"""
+    cmd2 = """ "uid={0},cn=devices,dc=smartcity" """.\
+        format(uid)
+    cmd = cmd1 + cmd2
+    resp = b""
+    try:
+        resp = subprocess.check_output(cmd, shell=True)
+    except subprocess.CalledProcessError as e:
+        print(e)
+    check = "result: 0 Success"
+    a = bytes(check, 'utf8') in resp
+    print("check_entity_exists: " + str(a))
+    return a
+
+
+def check_owner(owner, device):
+    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w secret0 -b"""
+    cmd2 = """ "uid={0},cn=devices,dc=smartcity" {1}""".\
+        format(device, "owner")
+    cmd = cmd1 + cmd2
+    resp = b""
+    try:
+        resp = subprocess.check_output(cmd, shell=True)
+    except subprocess.CalledProcessError as e:
+        print(e)
+    check = "owner: " + owner
+    a = bytes(check, 'utf8') in resp
+    print("check_owner :" + str(a))
+    return a
+
+
 def follow(request):
     consumer_id = ""
     apikey = ""
@@ -388,4 +491,5 @@ app.router.add_route('/follow', follow, methods=['POST'])
 app.router.add_route('/follow', unfollow, methods=['DELETE'])
 app.router.add_route('/share', share, methods=['POST'])
 app.router.add_route('/share', unshare, methods=['DELETE'])
+app.router.add_route('/register', deregister, methods=['DELETE'])
 app.run(debug=True)

@@ -375,3 +375,36 @@
     register: request
     until: (request.status == 409) or (request.status == 201)
     retries: 5
+
+  - name: Creating "/api/1.0.0/register" DELETE at kong (http://kong:8080/register)
+    uri:
+      url: http://localhost:8001/apis/
+      method: POST
+      body: 'name=deregister&upstream_url=http://kong:8080/register&uris=/api/1.0.0/register&methods=DELETE'
+      status_code: [201, 409]
+      return_content: yes
+    register: request
+    until: (request.status == 409) or (request.status == 201)
+    retries: 5
+
+  - name: Adding key-auth to "/api/1.0.0/register"
+    uri:
+        url: http://localhost:8001/apis/register/plugins
+        method: POST
+        body: 'name=key-auth'
+        status_code: [201, 409]
+        return_content: yes
+    register: request
+    until: (request.status == 409) or (request.status == 201)
+    retries: 5
+
+  - name: Adding acl "provider" group to "/api/1.0.0/register"
+    uri:
+      url: http://localhost:8001/apis/register/plugins
+      method: POST
+      body: 'name=acl&config.whitelist=provider'
+      status_code: [201, 409]
+      return_content: yes
+    register: request
+    until: (request.status == 201) or (request.status == 409)
+    retries: 5
