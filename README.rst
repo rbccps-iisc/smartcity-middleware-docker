@@ -68,24 +68,22 @@ After downloading and installing the deb file, do the following steps.
 
 
 
-Comment
-=======
+API ENDPOINTS
+=============
 
-+----------------------------------------------------------------+----------------------------------------------------------+
-| RBCCPS IoT MIDDLEWARE IDEAM API URL                            | INSTALLED IOT MIDDLEWARE IDEAM API URLs                  |
-+================================================================+==========================================================+
-| https://smartcity.rbccps.org/api/1.0.0/register                | https://localhost:10443/api/1.0.0/register               |
-+----------------------------------------------------------------+----------------------------------------------------------+
-| https://smartcity.rbccps.org/api/1.0.0/publish                 | https://localhost:10443/api/1.0.0/publish                |
-+----------------------------------------------------------------+----------------------------------------------------------+
-| https://smartcity.rbccps.org/api/1.0.0/subscribe?name=testDemo | https://localhost:10443/api/1.0.0/subscribe?name=testDemo|
-+----------------------------------------------------------------+----------------------------------------------------------+
-| https://smartcity.rbccps.org/api/1.0.0/follow                  | https://localhost:10443/api/1.0.0/follow                 |
-+----------------------------------------------------------------+----------------------------------------------------------+
-| https://smartcity.rbccps.org/api/1.0.0/cat                     | https://localhost:10443/api/1.0.0/cat                    |
-+----------------------------------------------------------------+----------------------------------------------------------+
-| https://smartcity.rbccps.org/api/1.0.0/db                      | https://localhost:10443/api/1.0.0/db                     |
-+----------------------------------------------------------------+----------------------------------------------------------+
+API Endpoints for working with IDEAM
+
+* [REGISTRATION](docs/apis/1.0.0/register.md) : `POST /api/1.0.0/register`
+* [PUBLISH](docs/apis/1.0.0/publish.md) : `POST /api/1.0.0/publish`
+* [FOLLOW](docs/apis/1.0.0/follow.md) : `POST /api/1.0.0/follow`
+* [SHARE](docs/apis/1.0.0/share.md) : `POST /api/1.0.0/share`
+* [SUBSCRIBE](docs/apis/1.0.0/subscribe.md) : `GET /api/1.0.0/subscribe`
+* [CATALOGUE](docs/apis/1.0.0/catalogue.md) : `GET /api/1.0.0/cat`
+* [DATABASE](docs/apis/1.0.0/db.md) : `GET /api/1.0.0/db`
+* [UNSHARE](docs/apis/1.0.0/unshare.md) : `DELETE /api/1.0.0/unshare`
+* [UNFOLLOW](docs/apis/1.0.0/unfollow.md) : `DELETE /api/1.0.0/unfollow`
+* [DEREGISTRATION](docs/apis/1.0.0/deregister.md) : `DELETE /api/1.0.0/register`
+
 
 NOTE
 ====
