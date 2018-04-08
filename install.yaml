@@ -178,6 +178,9 @@
   - name: Install screen
     apt: name=screen state=present
 
+  - name: Install tmux
+    apt: name=tmux state=present
+
   - name: Install unzip
     apt: name=unzip state=present
 

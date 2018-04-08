@@ -5,6 +5,6 @@
     become_user: root
 
   - name: Start catalogue server
-    shell: cd /home/ansible/cat-json-schema-server && screen -dm npm start
+    shell: cd /home/ansible/cat-json-schema-server && tmux new-session -d 'npm start'
     become: yes
     become_user: root

@@ -68,21 +68,61 @@ After downloading and installing the deb file, do the following steps.
 
 
 
-API ENDPOINTS
-=============
+IDEAM API ENDPOINTS
+===================
 
-API Endpoints for working with IDEAM
++----------------------------------------------------------+------------------------------------------------+
+| ::                                                       |                                                |
+|                                                          |                                                |
+|    **Register**                                          |      ``POST``      `/api/1.0.0/register`_      |
++----------------------------------------------------------+------------------------------------------------+
+| ::                                                       |                                                |
+|                                                          |                                                |
+|    **Publish**                                           |      ``POST``      `/api/1.0.0/publish`_       |
++----------------------------------------------------------+------------------------------------------------+
+| ::                                                       |                                                |
+|                                                          |                                                |
+|    **Follow**                                            |      ``POST``      `/api/1.0.0/follow`_        |
++----------------------------------------------------------+------------------------------------------------+
+| ::                                                       |                                                |
+|                                                          |                                                |
+|    **Share**                                             |      ``POST``      `/api/1.0.0/share`_         |
++----------------------------------------------------------+------------------------------------------------+
+| ::                                                       |                                                |
+|                                                          |                                                |
+|    **Subscribe**                                         |      ``GET``       `/api/1.0.0/subscribe`_     |
++----------------------------------------------------------+------------------------------------------------+
+| ::                                                       |                                                |
+|                                                          |                                                |
+|    **Catalogue**                                         |      ``GET``      `/api/1.0.0/cat`_            |
++----------------------------------------------------------+------------------------------------------------+
+| ::                                                       |                                                |
+|                                                          |                                                |
+|    **Database**                                          |      ``GET``      `/api/1.0.0/db`_             |
++----------------------------------------------------------+------------------------------------------------+
+| ::                                                       |                                                |
+|                                                          |                                                |
+|    **Unshare**                                           |      ``DELETE``   /api/1.0.0/share   `1`_      |
++----------------------------------------------------------+------------------------------------------------+
+| ::                                                       |                                                |
+|                                                          |                                                |
+|    **Unfollow**                                          |      ``DELETE``  /api/1.0.0/follow  `2`_       |
++----------------------------------------------------------+------------------------------------------------+
+| ::                                                       |                                                |
+|                                                          |                                                |
+|    **Deregister**                                        |      ``DELETE``  /api/1.0.0/register `3`_      |
++----------------------------------------------------------+------------------------------------------------+
 
-* [REGISTRATION](docs/apis/1.0.0/register.md) : `POST /api/1.0.0/register`
-* [PUBLISH](docs/apis/1.0.0/publish.md) : `POST /api/1.0.0/publish`
-* [FOLLOW](docs/apis/1.0.0/follow.md) : `POST /api/1.0.0/follow`
-* [SHARE](docs/apis/1.0.0/share.md) : `POST /api/1.0.0/share`
-* [SUBSCRIBE](docs/apis/1.0.0/subscribe.md) : `GET /api/1.0.0/subscribe`
-* [CATALOGUE](docs/apis/1.0.0/catalogue.md) : `GET /api/1.0.0/cat`
-* [DATABASE](docs/apis/1.0.0/db.md) : `GET /api/1.0.0/db`
-* [UNSHARE](docs/apis/1.0.0/unshare.md) : `DELETE /api/1.0.0/unshare`
-* [UNFOLLOW](docs/apis/1.0.0/unfollow.md) : `DELETE /api/1.0.0/unfollow`
-* [DEREGISTRATION](docs/apis/1.0.0/deregister.md) : `DELETE /api/1.0.0/register`
+.. _/api/1.0.0/register: docs/api/1.0.0/register.md
+.. _/api/1.0.0/publish: docs/api/1.0.0/publish.md
+.. _/api/1.0.0/follow: docs/api/1.0.0/follow.md
+.. _/api/1.0.0/share: docs/api/1.0.0/share.md
+.. _/api/1.0.0/subscribe: docs/api/1.0.0/subscribe.md
+.. _/api/1.0.0/cat: docs/api/1.0.0/catalogue.md
+.. _/api/1.0.0/db: docs/api/1.0.0/db.md
+.. _unshare.md : docs/api/1.0.0/unshare.md
+.. _unfollow.md : docs/api/1.0.0/unfollow.md
+.. _deregister.md : docs/api/1.0.0/deregister.md
 
 
 NOTE
