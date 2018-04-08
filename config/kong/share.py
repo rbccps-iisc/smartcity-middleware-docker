@@ -5,15 +5,12 @@ from time import gmtime, strftime
 import subprocess
 
 
-# provider acl
 def deregister(request):
     consumer_id = ""
-    apikey = ""
+    entity = ""
     for name, value in request.headers.items():
         if name == "X-Consumer-Username":
             consumer_id = value
-        elif name == "Apikey":
-            apikey = value
     print(request.text)
     print("consumer_id     : " + str(consumer_id))
     e = json.loads(request.text)
@@ -23,7 +20,7 @@ def deregister(request):
     if check_entity_exists(entity) is False:
         return request.Response(json={'status': 'failure',
                                       'response': "Entity doesn't exist."}, code=400)
-    if check_owner(consumer_id,entity) is False:
+    if check_owner(consumer_id, entity) is False:
         return request.Response(json={'status': 'failure',
                                       'response': "Only owner can remove an entity."}, code=400)
     # TODO: remove rbccps user to provider and his apikey ( which cant be used now, as its not there in ldap)
@@ -222,7 +219,7 @@ write: {3}""".format(device, consumer_id, read, write)
         resp = subprocess.check_output(add, shell=True)
         print(resp)
     except subprocess.CalledProcessError as e:
-        if str(e)[-2:] == "80" or str(e)[-2:] == "68":# already exists
+        if str(e)[-2:] == "80" or str(e)[-2:] == "68":  # already exists
             ldif = """dn: description={0},description=share,description=broker,uid={1},cn=devices,dc=smartcity
 changetype: modify
 replace: read
@@ -255,7 +252,7 @@ write: {3}""".format(device, consumer_id, read, write)
         resp = subprocess.check_output(add, shell=True)
         print(resp)
     except subprocess.CalledProcessError as e:
-        if str(e)[-2:] == "80" or str(e)[-2:] == "68": # already exists
+        if str(e)[-2:] == "80" or str(e)[-2:] == "68":  # already exists
             ldif = """dn: description={0},description=exchange,description=broker,uid={1},cn=devices,dc=smartcity
 changetype: modify
 replace: read
@@ -281,9 +278,8 @@ def share(request):
     print(request.text)
     print("consumer_id  : " + str(consumer_id))
     e = json.loads(request.text)
-    exchange = ""
     if "entityID" in e and "permission" in e:
-        entity = e["entityID"] #TODO: check if entity exists in LDAP
+        entity = e["entityID"]  # TODO: check if entity exists in LDAP
         permission = e["permission"]
     else:
         return request.Response(json={'status': 'failure',
@@ -311,7 +307,7 @@ def share(request):
         else:
             ldap_add_share_entry(entity, consumer_id, read="true", write="false")
         bind(entity, consumer_id + ".protected", "#", consumer_id, apikey)
-        text="Read access given to " + entity + " at " + consumer_id + " exchange.\n"
+        text = "Read access given to " + entity + " at " + consumer_id + " exchange.\n"
         return request.Response(text=text)
     elif permission == "write":
         if check_ldap_entry(entity, consumer_id, "read", "true"):
@@ -319,7 +315,7 @@ def share(request):
         else:
             ldap_add_share_entry(entity, consumer_id, read="false", write="true")
         ldap_add_exchange_entry(exchange, entity, read="false", write="true")
-        text="Write access given to " + entity + " at " + exchange + " exchange.\n"
+        text = "Write access given to " + entity + " at " + exchange + " exchange.\n"
         return request.Response(text=text)
     elif permission == "read-write":
         ldap_add_share_entry(entity, consumer_id, read="true", write="true")
@@ -344,7 +340,7 @@ def unfollow(request):
     print("consumer_id     : " + str(consumer_id))
     e = json.loads(request.text)
     if "entityID" in e and "permission" in e:
-        entity = e["entityID"] #TODO: check if entity exists in LDAP
+        entity = e["entityID"]  # TODO: check if entity exists in LDAP
         permission = e["permission"]
     else:
         return request.Response(json={'status': 'failure',
@@ -371,14 +367,14 @@ def unfollow(request):
         if check_ldap_entry(consumer_id, entity, "write", "true"):
             ldap_add_share_entry(consumer_id, entity, read="false", write="true")
         else:
-            delete_ldap_entry(consumer_id, entity,"share")
+            delete_ldap_entry(consumer_id, entity, "share")
         unbind(consumer_id, entity + ".protected", "#", consumer_id, apikey)
     elif permission == "write":
         if check_ldap_entry(consumer_id, entity, "read", "true"):
             ldap_add_share_entry(consumer_id, entity, read="true", write="false")
         else:
             delete_ldap_entry(consumer_id, entity, "share")
-        if "." not in entity :
+        if "." not in entity:
             delete_ldap_entry(entity+".protected", consumer_id, "exchange")
         else:
             delete_ldap_entry(entity, consumer_id, "exchange")
@@ -418,7 +414,6 @@ def delete_ldap_entry(desc, uid, entry):
         print(resp)
     except subprocess.CalledProcessError as e:
         print(e)
-    print(resp)
 
 
 def unshare(request):
@@ -432,7 +427,6 @@ def unshare(request):
     print(request.text)
     print("consumer_id  : " + str(consumer_id))
     e = json.loads(request.text)
-    exchange = ""
     if "entityID" in e and "permission" in e:
         entity = e["entityID"]  # TODO: check if entity exists in LDAP
         permission = e["permission"]
