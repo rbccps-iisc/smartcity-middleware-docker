@@ -236,10 +236,16 @@
     args:
       chdir: /home/ansible/cat-json-schema-server
 
-  - name: Create pwd test
+  - name: Create pwd
     shell: node pwd_script.js local123
     args:
       chdir: /home/ansible/cat-json-schema-server/
+
+  - name: Copy api.js
+    copy:
+      src: config/hypercat/api.js
+      dest: /home/ansible/cat-json-schema-server/api.js
+      mode: 0644
 
 - hosts: kong
   remote_user: root
