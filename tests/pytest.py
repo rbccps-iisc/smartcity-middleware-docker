@@ -13,5 +13,5 @@ dashboard_key = register["apiKey"]
 print(dashboard_key)
 publish = subprocess.check_output("./tests/publish.sh "+streetlight_key, shell=True)
 print(publish)
-deregister = subprocess.check_output("./tests/deregister.sh dashboard", shell=True)
+deregister = subprocess.check_output("./tests/deregister.sh", shell=True)
 print(deregister)
