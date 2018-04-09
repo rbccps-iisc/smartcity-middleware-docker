@@ -34,9 +34,16 @@ def deregister(request):
     rabbitmq_exchange_delete(entity+".public", "rbccps", "rbccps@123")
     ldap_entity_delete(entity)
     kong_consumer_delete(entity)
-    # catalogue_delete()
+    catalogue_delete(entity)
     return request.Response(json={'status': 'success',
                                   'response': entity + " entity removed. "}, code=200)
+
+
+def catalogue_delete(entity):
+    url = 'http://hypercat:8000/cat?id=' + entity
+    headers = {'pwd': 'local123'}
+    r = requests.delete(url, data=json.dumps({}), headers=headers)
+    print(r.text)
 
 
 def rabbitmq_queue_delete(qname, consumer_id, apikey):
@@ -99,6 +106,8 @@ def check_owner(owner, device):
         resp = subprocess.check_output(cmd, shell=True)
     except subprocess.CalledProcessError as e:
         print(e)
+    if str(owner) == "":
+        return False
     check = "owner: " + owner
     a = bytes(check, 'utf8') in resp
     print("check_owner :" + str(a))

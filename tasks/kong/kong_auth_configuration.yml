@@ -389,7 +389,7 @@
 
   - name: Adding key-auth to "/api/1.0.0/register"
     uri:
-        url: http://localhost:8001/apis/register/plugins
+        url: http://localhost:8001/apis/deregister/plugins
         method: POST
         body: 'name=key-auth'
         status_code: [201, 409]
@@ -400,7 +400,7 @@
 
   - name: Adding acl "provider" group to "/api/1.0.0/register"
     uri:
-      url: http://localhost:8001/apis/register/plugins
+      url: http://localhost:8001/apis/deregister/plugins
       method: POST
       body: 'name=acl&config.whitelist=provider'
       status_code: [201, 409]
