@@ -12,6 +12,16 @@
     until: (request.status == 201) or (request.status == 409)
     retries: 5
 
+  - name:  Add bad-request plugin to kong
+    uri:
+      url: http://localhost:8001/plugins/
+      method: POST
+      body: 'name=badrequest'
+      status_code: [201, 409]
+      return_content: yes
+    register: request
+    until: (request.status == 201) or (request.status == 409)
+    retries: 5
 
   - name:  Add request-size-limiting plugin to kong
     uri:

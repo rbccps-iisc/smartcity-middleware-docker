@@ -21,3 +21,5 @@ COPY config/certificate_authority/keys/id_rsa.pub /root/.ssh/authorized_keys
 RUN sed -i '$ a LANG="en_US.UTF-8"' /etc/profile
 EXPOSE 22
 CMD    ["/usr/sbin/sshd", "-D"]
+
+RUN sed -i '$ a LANG="en_US.UTF-8"' /etc/profile

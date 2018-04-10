@@ -4,7 +4,7 @@ enabled = true
 [middleware]
 enabled  = true
 filter   = middleware
-logpath  = /data/logs/kong/kong.log
+logpath  = /var/ideam/data/logs/kong/kong.log
 port     = all
 action   = iptables-middleware
 maxretry = 5
