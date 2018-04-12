@@ -1,6 +1,8 @@
 ---
 - hosts: 127.0.0.1
   connection: local
+  become: yes
+  become_method: sudo
 
   tasks:
    - name: Install python3
@@ -15,7 +17,7 @@
         - postgresql-contrib
    
    - name: Delete default Postgresql configuration file
-     shell: sudo rm /etc/postgresql/9.3/main/pg_hba.conf
+     shell: rm /etc/postgresql/9.3/main/pg_hba.conf
      ignore_errors: yes
    
    - name: Copy postgresql config file
