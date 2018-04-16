@@ -437,6 +437,11 @@
       src: config/elasticsearch/kibana.yml
       dest: /etc/kibana/kibana.yml
 
+  - name: Copy elasticsearch.yml
+    copy:
+      src: config/elasticsearch/elasticsearch.yml
+      dest: /etc/kibana/elasticsearch.yml
+
 ## Set up ldapd environment
 - hosts: ldapd
   remote_user: root
