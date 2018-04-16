@@ -15,3 +15,5 @@ publish = subprocess.check_output("./tests/publish.sh "+streetlight_key, shell=T
 print(publish)
 deregister = subprocess.check_output("./tests/deregister.sh", shell=True)
 print(deregister)
+db = subprocess.check_output("./tests/database.sh " + streetlight_key, shell=True)
+print(db)
