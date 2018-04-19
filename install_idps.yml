@@ -15,13 +15,13 @@
         - postgresql-contrib
    
    - name: Delete default Postgresql configuration file
-     shell: sudo rm /etc/postgresql/9.3/main/pg_hba.conf
+     shell: sudo rm /etc/postgresql/9.5/main/pg_hba.conf
      ignore_errors: yes
    
    - name: Copy postgresql config file
      copy: src={{item.src}} dest={{item.dest}}
      with_items:
-       - {src: './config/idps/pg_hba.conf', dest: '/etc/postgresql/9.3/main/'}
+       - {src: './config/idps/pg_hba.conf', dest: '/etc/postgresql/9.5/main/'}
 
    - name: Install supervisor
      apt: pkg=supervisor state=installed update_cache=true
@@ -59,8 +59,11 @@
      with_items:
        - { src: './config/idps/jail.local', dest: '/etc/fail2ban/' }
        - { src: './config/idps/middleware.conf', dest: '/etc/fail2ban/filter.d/' }
+       - { src: './config/idps/middleware-badrequest.conf', dest: '/etc/fail2ban/filter.d/' }
        - { src: './config/idps/iptables-middleware.conf', dest: '/etc/fail2ban/action.d/' }
-     
+       - { src: './config/idps/iptables-middleware-90.conf', dest: '/etc/fail2ban/action.d/' }
+       - { src: './config/idps/iptables-middleware-95.conf', dest: '/etc/fail2ban/action.d/' }
+
      become: yes
   
    - name: Restart Fail2ban

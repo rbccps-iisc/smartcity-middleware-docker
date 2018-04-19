@@ -118,13 +118,7 @@ def parse(log_line):
         apikey=""
 
         try:
-            apikey = str(data['request']['headers']['apikey'])
-        except:
-            pass
-
-        try:
             username = str(data['request']['headers']['x-consumer-username'])
-            consumerId = str(data['request']['headers']['x-consumer-id'])
         except Exception as e:
             pass
 
