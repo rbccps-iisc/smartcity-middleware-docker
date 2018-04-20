@@ -88,8 +88,8 @@
     environment:
       GOPATH: /home/ansible
 
-  - name: go get github.com/harishanand95/rabbitmq-http
-    shell: /usr/local/go/bin/go get github.com/harishanand95/rabbitmq-http creates=/home/ansible/src/github.com/pct960/rabbitmq-http-client
+  - name: go get github.com/pct960/rabbitmq-http
+    shell: /usr/local/go/bin/go get github.com/pct960/rabbitmq-http creates=/home/ansible/src/github.com/pct960/rabbitmq-http
     environment:
       GOPATH: /home/ansible
     ignore_errors: True
