@@ -44,7 +44,7 @@
   tasks:
   - name: Create database entity
     uri:
-      url: https://localhost:8000/api/1.0.0/register
+      url: http://localhost:8000/api/1.0.0/register
       method: POST
       status_code: 200
       headers:
