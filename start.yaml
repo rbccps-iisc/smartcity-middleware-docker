@@ -38,3 +38,17 @@
   remote_user: ansible
   tasks:
   - include: tasks/elasticsearch/start_elasticsearch.yml
+
+- hosts: 127.0.0.1
+  connection: local
+  tasks:
+  - name: Create database entity
+    uri:
+      url: https://localhost:10443/api/1.0.0/register
+      method: POST
+      status_code: 200
+      headers:
+        Content-Type: "application/json"
+        apikey: "guest"
+      body: "{{ lookup('file','config/database_register.json') }}"
+      body_format: json
