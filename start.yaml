@@ -52,3 +52,4 @@
         apikey: "guest"
       body: "{{ lookup('file','config/database_register.json') }}"
       body_format: json
+      validate_certs: no
