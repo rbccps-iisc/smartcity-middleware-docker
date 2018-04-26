@@ -10,3 +10,5 @@ install:
   - ideam start
 script:
   - python ./tests/pytest.py
+addons:
+  postgresql: "9.5"
