@@ -12,7 +12,7 @@ print(register)
 register = json.loads(register)
 dashboard_key = register["apiKey"]
 print(dashboard_key)
-publish = subprocess.check_output("./tests/publish.sh " + streetlgight_key, shell=True)
+publish = subprocess.check_output("./tests/publish.sh " + streetlight_key, shell=True)
 print(publish)
 cat = subprocess.check_output("./tests/catalogue.sh", shell=True)
 print(cat)
