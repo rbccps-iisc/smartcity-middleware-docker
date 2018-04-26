@@ -12,7 +12,7 @@ from modules.generate_password import set_passwords
 from datetime import datetime
 from modules.utils import setup_logging
 import argparse
-
+import subprocess
 
 class MyParser(argparse.ArgumentParser):
     """ HACK: Display a help message than just a failure message, if user types wrong arguments. """
@@ -55,6 +55,9 @@ def restart(arguments):
         container_start.start_all()
 
 
+def remove(arguments):
+    subprocess.check_output("find {} -type f -delete".format(arguments.data_path), shell=True)
+
 if __name__ == '__main__':
     default_log_file = "/tmp/" + datetime.now().strftime("ideam-%Y-%m-%d-%H-%M.log")
     parser = MyParser()
@@ -89,10 +92,12 @@ if __name__ == '__main__':
     restart_parser = subparsers.add_parser('restart', help='Restart all the docker containers in the middleware')
     restart_parser.add_argument("--log-file", help="Path to log file",
                                 default=default_log_file)
-    # TODO: test all APIs
-    test_parser = subparsers.add_parser('test', help='Test /register, /publish, /subscribe API\'s ')
-    test_parser.add_argument("--log-file", help="Path to log file",
-                             default=default_log_file)
+    # remove data command
+    test_parser = subparsers.add_parser('rmdata', help='Remove all contents in the data directory')
+    test_parser.add_argument("-f", "--data-path",
+                                help="Path to data directory. Installation using deb file will have /var/ideam/data as"
+                                     "directory. See /etc/ideam/ideam.conf for an details on data directory.",
+                                default="/var/ideam/data")
 
     args = parser.parse_args()
 
@@ -102,3 +107,5 @@ if __name__ == '__main__':
         start(args)
     elif args.command == "restart":
         start(args)
+    elif args.command == "rmdata":
+        remove(args)
