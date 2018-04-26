@@ -8,14 +8,6 @@
    - name: Install python3
      apt: pkg=python3 state=installed update_cache=true
 
-   - name: Ensure packages are installed
-     apt: name={{item}}
-     with_items:
-        - postgresql-9.5
-        - libpq-dev
-        - python3-psycopg2
-        - postgresql-contrib
-
    - name: Delete default Postgresql configuration file
      shell: rm /etc/postgresql/9.3/main/pg_hba.conf
      ignore_errors: yes
