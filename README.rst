@@ -18,10 +18,10 @@ Architecture
 
 Requirements
 ============
-- ``Docker``: `Installation steps for Docker in Ubuntu/Debian <https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#os-requirements>`_ 
+- ``Docker``: `Installation steps for Docker in Ubuntu/Debian <https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#os-requirements>`_
 - ``Ansible``: `Installation steps for Ansible <http://docs.ansible.com/ansible/latest/intro_installation.html>`_
 - ``ssh-keygen``: Generate a RSA Key Pair for the user who will install the script.
-
+- ``passlib``: Install ``python-pip`` package in ubuntu and then do ``pip install passlib``.
 
 Release
 =======
@@ -60,9 +60,12 @@ After downloading and installing the deb file, do the following steps.
 | Serving Ideam at                      | ``https://localhost:10443``                                                 |
 +---------------------------------------+-----------------------------------------------------------------------------+
 
+
 - The application will be serving with a self-signed certificate.
   If you want to use your certificate, have your .crt and .key file as ``/usr/share/ideam/config/kong/default_443.crt`` and
   ``/usr/share/ideam/config/kong/default_443.key`` respectively and do a fresh installation.
+
+- If you want to delete all the data stored as part of ideam, ``ideam rmdata``.
 
 - If installation fails at some instance, all the time-dated logs are available at ``/tmp/ideam-%Y-%m-%d-%H-%M.log``.
 
@@ -139,4 +142,4 @@ NOTE
          { "dns": ["208.67.222.222", "208.67.220.220"] }
 
 - IDEAM has been tested on MacOS as well.
-    
+

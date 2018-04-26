@@ -26,6 +26,13 @@ class MyParser(argparse.ArgumentParser):
 
 def install(arguments):
     """ Installs docker images and containers."""
+    print arguments
+    if arguments.remove:
+        # remove(arguments)
+        print arguments
+        exit()
+    else:
+        exit()
     if arguments.limit:
         container_setup.ansible_installation(arguments.limit)
     else:
@@ -56,9 +63,16 @@ def restart(arguments):
         container_setup.stop_containers(log_file=arguments.log_file)  # Stops all containers
         container_start.start_all()
 
+def str2bool(v):
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
 
 def remove(arguments):
-    subprocess.check_output("find {} -type f -delete".format(arguments.data_path), shell=True)
+    subprocess.check_output("find {} -type f -delete".format(arguments.rm_data_path), shell=True)
     shutil.rmtree('/var/ideam/data/kong')
     shutil.rmtree('/var/ideam/data/rabbitmq')
     shutil.rmtree('/var/ideam/data/tomcat')
@@ -77,12 +91,22 @@ if __name__ == '__main__':
                                      " of servers like --limit kong,rabbitmq",
                                 required=False,
                                 default="")
-    install_parser.add_argument("--log-file", help="Path to log file",
-                                default=default_log_file)
+
+    install_parser.add_argument("-r", "--remove", type=str2bool, nargs='?', const=True,
+                                help="Removes all the previous contents in the data directory. "
+                                     "Passing -r will delete the data directories and if not then"
+                                     " the data wont be deleted. Data directories are mentioned in the"
+                                     " /etc/ideam/ideam.conf file.")
+
+    install_parser.add_argument("-d", "--rm-data-path",
+                                help="Specify data directory in this argument if its not in /var/ideam/data. "
+                                     "Default data directories are mentioned in the /etc/ideam/ideam.conf file.",
+                                default="/var/ideam/data")
     install_parser.add_argument("-f", "--config-file",
                                 help="Path to the conf file. See /etc/ideam/ideam.conf for an example.",
                                 default="/etc/ideam/ideam.conf")
-
+    install_parser.add_argument("--log-file", help="Path to log file",
+                                default=default_log_file)
     # start command
     start_parser = subparsers.add_parser('start', help='Start all the docker containers in the middleware')
     start_parser.add_argument("-l",
@@ -99,7 +123,7 @@ if __name__ == '__main__':
                                 default=default_log_file)
     # remove data command
     test_parser = subparsers.add_parser('rmdata', help='Remove all contents in the data directory')
-    test_parser.add_argument("-f", "--data-path",
+    test_parser.add_argument("-d", "--rm-data-path",
                                 help="Path to data directory. Installation using deb file will have /var/ideam/data as"
                                      "directory. See /etc/ideam/ideam.conf for an details on data directory.",
                                 default="/var/ideam/data")
