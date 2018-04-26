@@ -71,5 +71,5 @@ def set_passwords(conf):
     ldap_pass(config)
     kong_pass(config)
     catalogue_pass(config)
-    with open('ideam.conf', 'w+') as configfile:
+    with open(conf, 'w+') as configfile:
         config.write(configfile)
