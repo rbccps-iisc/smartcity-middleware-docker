@@ -9,7 +9,7 @@
    - name: Ensure packages are installed
      apt: name={{item}}
      with_items:
-        - postgresql-9.5
+        - postgresql
         - libpq-dev
         - python3-psycopg2
         - postgresql-contrib
