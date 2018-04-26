@@ -708,6 +708,12 @@
       dest: /etc/supervisor/conf.d/tomcat.conf
       mode: 0644
 
+  - name: Copy pwd
+    copy:
+      src: config/tomcat/pwd
+      dest: /etc/pwd
+      mode: 0644
+
 - hosts: pushpin
   remote_user: root
   vars_files:

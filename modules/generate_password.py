@@ -24,6 +24,7 @@ def ldap_pass(config):
     if password == "??????":
         password = id_generator()
     write("host_vars/ldapd", "ldapd_password: " + password)
+    write("config/tomcat/pwd", password)
     passwords["ldapd"] = password
     config.set('PASSWORDS', 'LDAP', password)
 
@@ -32,7 +33,7 @@ def kong_pass(config):
     password = config.get('PASSWORDS', 'KONG')
     if password == "??????":
         password = id_generator()
-    write("host_vars/kong", "kong_password: " + password + "\npostgresql_password: "+password)
+    write("host_vars/kong", "kong_password: " + password + "\npostgresql_password: " + password)
     passwords["kong"] = password
     with open('config/kong/kong.conf', 'a') as f:
         f.write("pg_password = " + str(passwords["kong"]))
@@ -60,5 +61,5 @@ def set_passwords(conf):
     ldap_pass(config)
     kong_pass(config)
     catalogue_pass(config)
-    with open('middleware.conf', 'w+') as configfile:
+    with open('ideam.conf', 'w+') as configfile:
         config.write(configfile)
