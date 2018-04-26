@@ -13,6 +13,7 @@ from datetime import datetime
 from modules.utils import setup_logging
 import argparse
 import subprocess
+import shutil
 
 class MyParser(argparse.ArgumentParser):
     """ HACK: Display a help message than just a failure message, if user types wrong arguments. """
@@ -57,6 +58,9 @@ def restart(arguments):
 
 def remove(arguments):
     subprocess.check_output("find {} -type f -delete".format(arguments.data_path), shell=True)
+    shutil.rmtree('/var/ideam/data/kong')
+    shutil.rmtree('/var/ideam/data/rabbitmq')g
+    shutil.rmtree('/var/ideam/data/tomcat')
 
 if __name__ == '__main__':
     default_log_file = "/tmp/" + datetime.now().strftime("ideam-%Y-%m-%d-%H-%M.log")
