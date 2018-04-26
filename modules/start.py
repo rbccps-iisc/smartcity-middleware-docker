@@ -8,7 +8,7 @@ def start_all():
     subprocess.call("docker start konga", shell=True)
     subprocess.call('ansible-playbook -i hosts start.yaml', shell=True)
 
-    if os.getlogin()=='travis':
+    if os.getlogin() == 'travis':
         subprocess.call('ansible-playbook -i \'localhost\' -s install_idps_travis.yml', shell=True)
     else:
         subprocess.call('ansible-playbook -i \'localhost\' -s install_idps.yml --ask-sudo-pass',shell=True)
@@ -17,8 +17,8 @@ def start_all():
 def ansible_start(limit=""):
     create_hosts()
     subprocess.call('ansible-playbook -i hosts start.yaml --limit "' + limit + '"', shell=True)
-    
-    if os.getlogin()=='travis':
+
+    if os.getlogin() == 'travis':
         subprocess.call('ansible-playbook -i \'localhost\' -s install_idps_travis.yml', shell=True)
     else:
         subprocess.call('ansible-playbook -i \'localhost\' -s install_idps.yml --ask-sudo-pass',shell=True)

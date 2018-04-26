@@ -1,12 +1,10 @@
 ---
 - hosts: 127.0.0.1
   connection: local
-  become: yes
-  become_method: sudo
 
   tasks:
    - name: Install python3
-     apt: pkg=python3 state=installed update_cache=true
+     apt: pkg=python3 state=present update_cache=true
 
    - name: Ensure packages are installed
      apt: name={{item}}
@@ -15,18 +13,19 @@
         - libpq-dev
         - python3-psycopg2
         - postgresql-contrib
-   
+     state: present
+
    - name: Delete default Postgresql configuration file
-     shell: rm /etc/postgresql/9.3/main/pg_hba.conf
+     shell: sudo rm /etc/postgresql/9.5/main/pg_hba.conf
      ignore_errors: yes
-   
+
    - name: Copy postgresql config file
      copy: src={{item.src}} dest={{item.dest}}
      with_items:
-       - {src: './config/idps/pg_hba.conf', dest: '/etc/postgresql/9.3/main/'}
+       - {src: './config/idps/pg_hba.conf', dest: '/etc/postgresql/9.5/main/'}
 
    - name: Install supervisor
-     apt: pkg=supervisor state=installed update_cache=true
+     apt: pkg=supervisor state=present update_cache=true
 
    - name: Get current working directory
      shell: "pwd"
@@ -55,30 +54,33 @@
 
    - name: Install Fail2ban
      apt: pkg=fail2ban state=installed update_cache=true
-     
-   - name: Copy configuration files   
+
+   - name: Copy configuration files
      copy: src={{ item.src }} dest={{ item.dest }}
      with_items:
        - { src: './config/idps/jail.local', dest: '/etc/fail2ban/' }
        - { src: './config/idps/middleware.conf', dest: '/etc/fail2ban/filter.d/' }
+       - { src: './config/idps/middleware-badrequest.conf', dest: '/etc/fail2ban/filter.d/' }
        - { src: './config/idps/iptables-middleware.conf', dest: '/etc/fail2ban/action.d/' }
-     
+       - { src: './config/idps/iptables-middleware-90.conf', dest: '/etc/fail2ban/action.d/' }
+       - { src: './config/idps/iptables-middleware-95.conf', dest: '/etc/fail2ban/action.d/' }
+
      become: yes
-  
+
    - name: Restart Fail2ban
      service: name=fail2ban state=restarted
      become: yes
 
    - name: Ensure apt cache is up to date
      apt: update_cache=yes
- 
+
 
 - hosts: 127.0.0.1
   connection: local
   become: yes
   become_user: postgres
   gather_facts: no
-  
+
   vars_files:
     - host_vars/idps
 
@@ -93,13 +95,13 @@
 
    - name: Ensure user has access to database
      postgresql_user: db={{dbname}} name={{dbuser}} password={{db_password}} priv=ALL
-     
+
    - debug:
        msg: "{{db_password}}"
 
-   - name: Ensure user does not have unnecessary privilege 
+   - name: Ensure user does not have unnecessary privilege
      postgresql_user: name={{dbuser}} role_attr_flags=SUPERUSER,CREATEDB
-  
+
    - name: Ensure no other user can access the database
      postgresql_privs: db={{dbname}} role=PUBLIC type=database priv=ALL state=absent
 
@@ -115,6 +117,6 @@
    - name: Create a trigger for insert
      shell: "psql -d {{dbname}} -f ./config/idps/trigger.sql"
 
-   
-     
-     
+
+
+
