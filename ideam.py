@@ -26,13 +26,8 @@ class MyParser(argparse.ArgumentParser):
 
 def install(arguments):
     """ Installs docker images and containers."""
-    print arguments
     if arguments.remove:
-        # remove(arguments)
-        print arguments
-        exit()
-    else:
-        exit()
+        remove(arguments)
     if arguments.limit:
         container_setup.ansible_installation(arguments.limit)
     else:
@@ -63,6 +58,7 @@ def restart(arguments):
         container_setup.stop_containers(log_file=arguments.log_file)  # Stops all containers
         container_start.start_all()
 
+
 def str2bool(v):
     if v.lower() in ('yes', 'true', 't', 'y', '1'):
         return True
@@ -70,6 +66,7 @@ def str2bool(v):
         return False
     else:
         raise argparse.ArgumentTypeError('Boolean value expected.')
+
 
 def remove(arguments):
     subprocess.check_output("find {} -type f -delete".format(arguments.rm_data_path), shell=True)
