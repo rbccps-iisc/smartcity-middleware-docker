@@ -204,11 +204,6 @@
       dest: /home/ansible/cat-json-schema-server
     ignore_errors: True
 
-  - name: Change cat-json-schema-server port to 8000
-    command: sed -i 's/8001/8000/g' config.js
-    args:
-      chdir: /home/ansible/cat-json-schema-server/lib
-
   - name: Copy create_db.js
     copy:
       src: config/hypercat/create_db.js
@@ -226,10 +221,11 @@
       dest: /home/ansible/cat-json-schema-server
       remote_src: yes
 
-  - name: Change cat-json-schema-server ldap IP port
-    command: sed -i 's/10.156.14.20:389/ldapd:8389/g' config.js
-    args:
-      chdir: /home/ansible/cat-json-schema-server/lib
+  - name: Copy config.js
+    copy:
+      src: config/hypercat/config.js
+      dest: /home/ansible/cat-json-schema-server/lib/config.js
+      mode: 0644
 
   - name: Install cat-json-schema-server
     command: npm install
@@ -244,7 +240,7 @@
   - name: Copy api.js
     copy:
       src: config/hypercat/api.js
-      dest: /home/ansible/cat-json-schema-server/api.js
+      dest: /home/ansible/cat-json-schema-server/lib/api.js
       mode: 0644
 
 - hosts: kong

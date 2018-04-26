@@ -25,9 +25,18 @@ def ldap_pass(config):
         password = id_generator()
     write("host_vars/ldapd", "ldapd_password: " + password)
     write("config/tomcat/pwd", password)
+    replace("config/hypercat/config.js", "secret0", password)
+    replace("config/ldapd/ldapd.conf", "secret0", password)
     passwords["ldapd"] = password
     config.set('PASSWORDS', 'LDAP', password)
 
+
+def replace(path, old, new):
+    with open(path, 'r') as f:
+        filedata = f.read()
+    filedata = filedata.replace(old, new)
+    with open(path, 'w') as f:
+        f.write(filedata)
 
 def kong_pass(config):
     password = config.get('PASSWORDS', 'KONG')
