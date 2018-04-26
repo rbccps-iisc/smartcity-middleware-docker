@@ -27,6 +27,7 @@ def ldap_pass(config):
     write("config/tomcat/pwd", password)
     replace("config/hypercat/config.js", "secret0", password)
     replace("config/ldapd/ldapd.conf", "secret0", password)
+    replace("config/kong/share.py", "secret0", password)
     passwords["ldapd"] = password
     config.set('PASSWORDS', 'LDAP', password)
 
