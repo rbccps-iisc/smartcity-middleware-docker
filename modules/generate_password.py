@@ -38,6 +38,7 @@ def replace(path, old, new):
     with open(path, 'w') as f:
         f.write(filedata)
 
+
 def kong_pass(config):
     password = config.get('PASSWORDS', 'KONG')
     if password == "??????":
