@@ -293,7 +293,7 @@
 
   - name: Setting up Kong.conf file
     copy:
-      src: ./config/kong/kong.conf
+      src: ./config/kong/kong_new.conf
       dest: /etc/kong/kong.conf
       mode: 0644
 
