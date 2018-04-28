@@ -13,7 +13,6 @@ from datetime import datetime
 from modules.utils import setup_logging
 import argparse
 import subprocess
-import shutil
 
 
 class MyParser(argparse.ArgumentParser):
@@ -69,10 +68,7 @@ def str2bool(v):
 
 
 def remove(arguments):
-    subprocess.check_output("find {} -type f -delete".format(arguments.rm_data_path), shell=True)
-    shutil.rmtree('/var/ideam/data/kong/')
-    shutil.rmtree('/var/ideam/data/rabbitmq/')
-    shutil.rmtree('/var/ideam/data/tomcat/')
+    subprocess.check_output("find {} -mindepth 3 -delete".format(arguments.rm_data_path), shell=True)
 
 if __name__ == '__main__':
     default_log_file = "/tmp/" + datetime.now().strftime("ideam-%Y-%m-%d-%H-%M.log")

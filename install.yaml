@@ -223,7 +223,7 @@
 
   - name: Copy config.js
     copy:
-      src: config/hypercat/config.js
+      src: config/hypercat/config_new.js
       dest: /home/ansible/cat-json-schema-server/lib/config.js
       mode: 0644
 
@@ -535,7 +535,7 @@
 
   - name: Create ldapd.conf file
     copy:
-      src: config/ldapd/ldapd.conf
+      src: config/ldapd/ldapd_new.conf
       dest: /etc/ldapd.conf
       mode: 0600
 

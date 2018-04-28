@@ -5,7 +5,7 @@ import ConfigParser
 passwords = dict()
 
 
-def id_generator(size=16, chars=string.ascii_letters + string.digits):
+def id_generator(size=16, chars=string.ascii_letters + string.digits + "_-+@.:^!?/\\"):
     return ''.join(random.choice(chars) for _ in range(size))
 
 
@@ -25,19 +25,19 @@ def ldap_pass(config):
         password = id_generator()
     write("host_vars/ldapd", "ldapd_password: " + password)
     write("config/tomcat/pwd", password)
-    replace("config/hypercat/config.js", "secret0", password)
-    replace("config/ldapd/ldapd.conf", "secret0", password)
-    replace("config/kong/share.py", "secret0", password)
+    replace("config/hypercat/config.js", "secret0", password, "config/hypercat/config_new.js")
+    replace("config/ldapd/ldapd.conf", "secret0", password, "config/ldapd/ldapd_new.conf")
+    replace("config/kong/share.py", "secret0", password, "config/kong/share_new.py")
     passwords["ldapd"] = password
     config.set('PASSWORDS', 'LDAP', password)
 
 
-def replace(path, old, new):
+def replace(path, old, new, new_path):
     with open(path, 'r') as f:
-        filedata = f.read()
-    filedata = filedata.replace(old, new)
-    with open(path, 'w') as f:
-        f.write(filedata)
+        data = f.read()
+    data = data.replace(old, new)
+    with open(new_path, 'w+') as f:
+        f.write(data)
 
 
 def kong_pass(config):
@@ -46,8 +46,11 @@ def kong_pass(config):
         password = id_generator()
     write("host_vars/kong", "kong_password: " + password + "\npostgresql_password: " + password)
     passwords["kong"] = password
-    with open('config/kong/kong.conf', 'a') as f:
-        f.write("pg_password = " + str(passwords["kong"]))
+    with open('config/kong/kong.conf', 'r') as f:
+        data = f.read()
+    data = data + "\npg_password = " + str(passwords["kong"])
+    with open('config/kong/kong_new.conf', 'w+') as f:
+        f.write(data)
     config.set('PASSWORDS', 'KONG', password)
 
 
