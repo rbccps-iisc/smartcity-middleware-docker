@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 apt-get -y update && apt-get install -y python python-pip python-dev libssl-dev libffi-dev software-properties-common apt-transport-https ca-certificates curl && apt-add-repository ppa:ansible/ansible -y && apt-get -y update && apt-get install -y ansible
 python -m pip install passlib pyOpenSSL ndg-httpsclient pyasn1
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" -y
 apt-get update -y && apt-get install docker-ce -y
 usermod -aG docker $USER
