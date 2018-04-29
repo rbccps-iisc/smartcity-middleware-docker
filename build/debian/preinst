@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 apt install curl -y
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" -y && apt-add-repository ppa:ansible/ansible -y
+docker_version=1.6.2
+get_docker=https://get.docker.io/ubuntu/pool/main/l
+for package in lxc-docker lxc-docker-$docker_version; do
+    deb=${package}_${docker_version}_amd64.deb
+    curl -s $get_docker/$package/$deb -o $deb
+done
+dpkg -i lxc-docker_${docker_version}_amd64.deb lxc-docker-${docker_version}_${docker_version}_amd64.deb
+apt-add-repository ppa:ansible/ansible -y
 apt-get -y update && apt-get install -y python python-pip python-dev libssl-dev libffi-dev software-properties-common apt-transport-https ca-certificates curl && apt-get install -y ansible && apt-get install docker-ce -y && usermod -aG docker $USER
 python -m pip install passlib pyOpenSSL ndg-httpsclient pyasn1
 exit 0
