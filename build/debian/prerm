@@ -1,0 +1,5 @@
+rm -rf /usr/local/bin/ideam
+rm -rf /var/ideam/data/
+rm -rf /etc/ideam
+rm -rf /usr/share/ideam
+exit 0
