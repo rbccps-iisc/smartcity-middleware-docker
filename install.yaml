@@ -577,12 +577,12 @@
     become: true
 
   - name: Add smartcity.ldif
-    command: ldapmodify -h 127.0.0.1 -p 8389 -x -D cn=admin,dc=smartcity -w {{ ldapd_password }} -f smartcity.ldif
+    command: ldapmodify -h 127.0.0.1 -p 8389 -x -D cn=admin,dc=smartcity -w "{{ ldapd_password }}" -f smartcity.ldif
     args:
       chdir: /home/ideam/
 
   - name: Add devices.ldif
-    command: ldapmodify -h 127.0.0.1 -p 8389 -x -D cn=admin,dc=smartcity -w {{ ldapd_password }} -f devices.ldif
+    command: ldapmodify -h 127.0.0.1 -p 8389 -x -D cn=admin,dc=smartcity -w "{{ ldapd_password }}" -f devices.ldif
     args:
       chdir: /home/ideam/
 
