@@ -4,4 +4,4 @@
     user: name=ideam password={{ password }} groups=sudo
 
   - name: Set Bash for ansible ssh session
-    command: usermod -s /bin/bash ansible
+    command: usermod -s /bin/bash ideam
