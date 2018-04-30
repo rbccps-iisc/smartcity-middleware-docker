@@ -21,7 +21,7 @@
     shell: cp /root/.ssh/authorized_keys /root/id_rsa.pub
 
   - name: Sign ansible's public key with ca-user-certificate-key
-    shell: ssh-keygen -s /root/.ssh/ca-user-certificate-key -I user_ansible -n ansible,root,vagrant /root/id_rsa.pub
+    shell: ssh-keygen -s /root/.ssh/ca-user-certificate-key -I user_ansible -n ideam,root /root/id_rsa.pub
 
   - name: Fetch ansible's signed certificate from certificate_authority
     fetch:

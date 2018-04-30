@@ -17,7 +17,7 @@
   - name: Copy share.py
     copy:
       src: config/kong/share_new.py
-      dest: /home/ansible/share.py
+      dest: /home/ideam/share.py
 
   - name: Setting up Kong.conf file
     copy:
