@@ -31,7 +31,7 @@ def deregister(request):
     rabbitmq_exchange_delete(entity+".follow", "rbccps", "rbccps@123")
     rabbitmq_exchange_delete(entity+".public", "rbccps", "rbccps@123")
     rabbitmq_exchange_delete(entity+".protected", "rbccps", "rbccps@123")
-    rabbitmq_exchange_delete(entity+".public", "rbccps", "rbccps@123")
+    rabbitmq_exchange_delete(entity+".private", "rbccps", "rbccps@123")
     ldap_entity_delete(entity)
     kong_consumer_delete(entity)
     catalogue_delete(entity)
