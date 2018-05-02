@@ -28,8 +28,14 @@
   - name: Setting up nginx-kong.conf file
     copy:
       src: config/kong/nginx-kong.conf
-      dest: /usr/local/kong/nginx-kong.conf
+      dest: /usr/local/kong/nginx-kong1.conf
       mode: 0644 
+
+  - name: Setting up nginx.conf file
+    copy:
+      src: config/kong/nginx.conf
+      dest: /usr/local/kong/nginx1.conf
+      mode: 0644
 
   - name: Install Badrequest plugin
     shell: luarocks install kong-plugin-badrequest-0.1.0-1.all.rock
