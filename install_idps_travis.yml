@@ -9,13 +9,13 @@
      apt: pkg=python3 state=installed update_cache=true
 
    - name: Delete default Postgresql configuration file
-     shell: rm /etc/postgresql/9.3/main/pg_hba.conf
+     shell: rm /etc/postgresql/9.5/main/pg_hba.conf
      ignore_errors: yes
 
    - name: Copy postgresql config file
      copy: src={{item.src}} dest={{item.dest}}
      with_items:
-       - {src: './config/idps/pg_hba.conf', dest: '/etc/postgresql/9.3/main/'}
+       - {src: './config/idps/pg_hba.conf', dest: '/etc/postgresql/9.5/main/'}
 
    - name: Install supervisor
      apt: pkg=supervisor state=installed update_cache=true
