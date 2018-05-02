@@ -82,9 +82,6 @@
 
   tasks:
 
-   - name: Ensure database is created
-     postgresql_db: name={{dbname}}
-
    - name: Ensure user has access to database
      postgresql_user: db={{dbname}} name={{dbuser}} password={{db_password}} priv=ALL
 
