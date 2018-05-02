@@ -1,6 +1,9 @@
 [sshd]
 enabled = true
 
+[DEFAULT]
+ignorself = false
+
 [ssh-ddos]
 
 enabled = true
