@@ -2,7 +2,7 @@ import passlib.hash
 import string
 import random
 import ConfigParser
-passwords = dict()
+
 
 
 def id_generator(size=16, chars=string.ascii_letters + string.digits + "_-+@.^!?/\\"):
@@ -15,7 +15,6 @@ def ansible_user_pass(config):
         password = id_generator()
     sha_hash = passlib.hash.sha512_crypt.encrypt(password)
     write("host_vars/all", "password: " + sha_hash)
-    passwords["ansible"] = password
     config.set('PASSWORDS', 'USER_ANSIBLE', password)
 
 
@@ -28,7 +27,6 @@ def ldap_pass(config):
     replace("config/hypercat/config.js", "secret0", password, "config/hypercat/config_new.js")
     replace("config/ldapd/ldapd.conf", "secret0", password, "config/ldapd/ldapd_new.conf")
     replace("config/kong/share.py", "secret0", password, "config/kong/share_new.py")
-    passwords["ldapd"] = password
     config.set('PASSWORDS', 'LDAP', password)
 
 
@@ -45,10 +43,9 @@ def kong_pass(config):
     if password == "??????":
         password = id_generator()
     write("host_vars/kong", "kong_password: " + password + "\npostgresql_password: " + password)
-    passwords["kong"] = password
     with open('config/kong/kong.conf', 'r') as f:
         data = f.read()
-    data = data + "\npg_password = " + str(passwords["kong"])
+    data = data + "\npg_password = " + str(password)
     with open('config/kong/kong_new.conf', 'w+') as f:
         f.write(data)
     config.set('PASSWORDS', 'KONG', password)
@@ -59,8 +56,14 @@ def catalogue_pass(config):
     if password == "??????":
         password = id_generator()
     write("host_vars/hypercat", "mongodb_password: " + password)
-    passwords["hypercat"] = password
     config.set('PASSWORDS', 'HYPERCAT', password)
+
+def idps_pass(config):
+    password = config.get('PASSWORDS', 'IDPS')
+    if password == "??????":
+        password = id_generator()
+    write("host_vars/idps", "db_password: " + password)
+    config.set('PASSWORDS', 'IDPS', password)
 
 
 def write(path, contents):
@@ -75,5 +78,6 @@ def set_passwords(conf):
     ldap_pass(config)
     kong_pass(config)
     catalogue_pass(config)
+    idps_pass(config)
     with open(conf, 'w+') as configfile:
         config.write(configfile)
