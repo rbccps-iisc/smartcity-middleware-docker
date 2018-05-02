@@ -72,10 +72,10 @@
     apt: name=git state=present
 
   - name: set $GOPATH
-    lineinfile: dest=/etc/.profile line="export GOPATH=/home/ansible" create=yes
+    lineinfile: dest=/etc/.profile line="export GOPATH=/home/ideam" create=yes
 
   - name: set $GOPATH in bashrc
-    lineinfile: dest=/etc/bash.bashrc line="export GOPATH=/home/ansible" create=yes
+    lineinfile: dest=/etc/bash.bashrc line="export GOPATH=/home/ideam" create=yes
 
   - name: add go project binaries to path
     lineinfile: dest=/etc/.profile line='export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin' create=yes
@@ -84,14 +84,14 @@
     lineinfile: dest=/etc/bash.bashrc line='export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin' create=yes
 
   - name: go get github.com/streadway/amqp
-    shell: /usr/local/go/bin/go get github.com/streadway/amqp creates=/home/ansible/src/github.com/streadway/amqp
+    shell: /usr/local/go/bin/go get github.com/streadway/amqp creates=/home/ideam/src/github.com/streadway/amqp
     environment:
-      GOPATH: /home/ansible
+      GOPATH: /home/ideam
 
   - name: go get github.com/pct960/rabbitmq-http
-    shell: /usr/local/go/bin/go get github.com/pct960/rabbitmq-http creates=/home/ansible/src/github.com/pct960/rabbitmq-http
+    shell: /usr/local/go/bin/go get github.com/pct960/rabbitmq-http creates=/home/ideam/src/github.com/pct960/rabbitmq-http
     environment:
-      GOPATH: /home/ansible
+      GOPATH: /home/ideam
     ignore_errors: True
 
   - name: Install supervisor
@@ -194,57 +194,53 @@
     file: src=/usr/bin/nodejs dest=/usr/bin/node state=link
 
 - hosts: hypercat
-  remote_user: ansible
+  remote_user: ideam
   vars_files:
   - host_vars/all
   tasks:
   - name: Download cat-json-schema-server from rbccps-iisc
     git:
       repo: https://github.com/rbccps-iisc/cat-json-schema-server.git
-      dest: /home/ansible/cat-json-schema-server
+      dest: /home/ideam/cat-json-schema-server
     ignore_errors: True
-
-  - name: Change cat-json-schema-server port to 8000
-    command: sed -i 's/8001/8000/g' config.js
-    args:
-      chdir: /home/ansible/cat-json-schema-server/lib
 
   - name: Copy create_db.js
     copy:
       src: config/hypercat/create_db.js
-      dest: /home/ansible/create_db.js
+      dest: /home/ideam/create_db.js
       mode: 0644
 
   - name: Create catdemo table
     shell: mongo < create_db.js
     args:
-      chdir: /home/ansible/
+      chdir: /home/ideam/
 
   - name: Extract schemas.zip into schemas dir
     unarchive:
-      src: /home/ansible/cat-json-schema-server/schemas.zip
-      dest: /home/ansible/cat-json-schema-server
+      src: /home/ideam/cat-json-schema-server/schemas.zip
+      dest: /home/ideam/cat-json-schema-server
       remote_src: yes
 
-  - name: Change cat-json-schema-server ldap IP port
-    command: sed -i 's/10.156.14.20:389/ldapd:8389/g' config.js
-    args:
-      chdir: /home/ansible/cat-json-schema-server/lib
+  - name: Copy config.js
+    copy:
+      src: config/hypercat/config_new.js
+      dest: /home/ideam/cat-json-schema-server/lib/config.js
+      mode: 0644
 
   - name: Install cat-json-schema-server
     command: npm install
     args:
-      chdir: /home/ansible/cat-json-schema-server
+      chdir: /home/ideam/cat-json-schema-server
 
   - name: Create pwd
     shell: node pwd_script.js local123
     args:
-      chdir: /home/ansible/cat-json-schema-server/
+      chdir: /home/ideam/cat-json-schema-server/
 
   - name: Copy api.js
     copy:
       src: config/hypercat/api.js
-      dest: /home/ansible/cat-json-schema-server/api.js
+      dest: /home/ideam/cat-json-schema-server/lib/api.js
       mode: 0644
 
 - hosts: kong
@@ -297,7 +293,7 @@
 
   - name: Setting up Kong.conf file
     copy:
-      src: ./config/kong/kong.conf
+      src: ./config/kong/kong_new.conf
       dest: /etc/kong/kong.conf
       mode: 0644
 
@@ -339,6 +335,9 @@
   - name: Install ldap-utils
     apt: name=ldap-utils state=present
 
+  - name: Install tmux
+    apt: name=tmux state=present
+
   - name: Install python 3.6
     apt: "pkg={{ item }} state=present"
     with_items:
@@ -349,20 +348,14 @@
   - name: Copy pip requirements
     copy:
       src: config/kong/share_python_requirements.txt
-      dest: /home/ansible/requirements.txt
-    become_user: ansible
+      dest: /home/ideam/requirements.txt
+    become_user: ideam
 
   - name: Pip install share API requirements.txt
     pip:
-      requirements: /home/ansible/requirements.txt
+      requirements: /home/ideam/requirements.txt
       executable: pip3
-    become_user: ansible
-
-  - name: Copy supervisor-share.conf
-    copy:
-      src: config/kong/supervisor-share.conf
-      dest: /etc/supervisor/conf.d/supervisor-share.conf
-      mode: 0644
+    become_user: ideam
 
 
 ## Set up CA openssl environment
@@ -477,60 +470,60 @@
   - name: Download openbsd-ldapd-portable
     git:
       repo: https://github.com/harishanand95/openbsd-ldapd-portable.git
-      dest: /home/ansible/openbsd-ldapd-portable
+      dest: /home/ideam/openbsd-ldapd-portable
     ignore_errors: True
 
   - name: Download https://github.com/libevent/libevent/archive/release-1.4.13-stable.tar.gz
     get_url:
       url: https://github.com/libevent/libevent/archive/release-1.4.13-stable.tar.gz
-      dest: /home/ansible/release-1.4.13-stable.tar.gz
+      dest: /home/ideam/release-1.4.13-stable.tar.gz
       mode: 0440
 
   - name: Extract release-1.4.13-stable.tar.gz
     unarchive:
-        src: /home/ansible/release-1.4.13-stable.tar.gz
-        dest: /home/ansible
+        src: /home/ideam/release-1.4.13-stable.tar.gz
+        dest: /home/ideam
         remote_src: True
 
   - name: Libevent v1.4.13 autogen.sh
     command: ./autogen.sh
     args:
-      chdir: /home/ansible/libevent-release-1.4.13-stable
+      chdir: /home/ideam/libevent-release-1.4.13-stable
 
   - name: Libevent v1.4.13 Configure
     command: ./configure
     args:
-      chdir: /home/ansible/libevent-release-1.4.13-stable
+      chdir: /home/ideam/libevent-release-1.4.13-stable
 
   - name: Libevent v1.4.13 make
     command: make
     args:
-      chdir: /home/ansible/libevent-release-1.4.13-stable
+      chdir: /home/ideam/libevent-release-1.4.13-stable
 
   - name: Libevent v1.4.13 make install
     command: make install
     args:
-      chdir: /home/ansible/libevent-release-1.4.13-stable
+      chdir: /home/ideam/libevent-release-1.4.13-stable
 
   - name: Openbsd-ldapd-portable bootstrap
     command: ./bootstrap
     args:
-      chdir: /home/ansible/openbsd-ldapd-portable
+      chdir: /home/ideam/openbsd-ldapd-portable
 
   - name: Openbsd-ldapd-portable configure
     command: ./configure
     args:
-      chdir: /home/ansible/openbsd-ldapd-portable
+      chdir: /home/ideam/openbsd-ldapd-portable
 
   - name: Openbsd-ldapd-portable make
     command: make
     args:
-      chdir: /home/ansible/openbsd-ldapd-portable
+      chdir: /home/ideam/openbsd-ldapd-portable
 
   - name: Openbsd-ldapd-portable make install
     command: make install
     args:
-      chdir: /home/ansible/openbsd-ldapd-portable
+      chdir: /home/ideam/openbsd-ldapd-portable
     become: true
 
   - name: Link libevent-1.4.so.2
@@ -539,19 +532,19 @@
 
   - name: Create ldapd.conf file
     copy:
-      src: config/ldapd/ldapd.conf
+      src: config/ldapd/ldapd_new.conf
       dest: /etc/ldapd.conf
       mode: 0600
 
   - name: Create smartcity.ldif file
     copy:
       src: config/ldapd/smartcity.ldif
-      dest: /home/ansible
+      dest: /home/ideam
 
   - name: Create devices.ldif file
     copy:
       src: config/ldapd/devices.ldif
-      dest: /home/ansible
+      dest: /home/ideam
 
   - name: Create /etc/ldap directory
     file: path=/etc/ldap state=directory
@@ -581,14 +574,14 @@
     become: true
 
   - name: Add smartcity.ldif
-    command: ldapmodify -h 127.0.0.1 -p 8389 -x -D cn=admin,dc=smartcity -w {{ ldapd_password }} -f smartcity.ldif
+    command: ldapmodify -h 127.0.0.1 -p 8389 -x -D cn=admin,dc=smartcity -w "{{ ldapd_password }}" -f smartcity.ldif
     args:
-      chdir: /home/ansible/
+      chdir: /home/ideam/
 
   - name: Add devices.ldif
-    command: ldapmodify -h 127.0.0.1 -p 8389 -x -D cn=admin,dc=smartcity -w {{ ldapd_password }} -f devices.ldif
+    command: ldapmodify -h 127.0.0.1 -p 8389 -x -D cn=admin,dc=smartcity -w "{{ ldapd_password }}" -f devices.ldif
     args:
-      chdir: /home/ansible/
+      chdir: /home/ideam/
 
 ## Set up apache storm environment
 - hosts: apache_storm
@@ -706,6 +699,12 @@
     copy:
       src: config/tomcat/tomcat.conf
       dest: /etc/supervisor/conf.d/tomcat.conf
+      mode: 0644
+
+  - name: Copy pwd
+    copy:
+      src: config/tomcat/pwd
+      dest: /etc/pwd
       mode: 0644
 
 - hosts: pushpin

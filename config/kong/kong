@@ -9,7 +9,7 @@
 start() {
         if [ ! -f /var/lock/subsys/kong ]; then
             mkdir /var/lock/subsys 1>&2>/dev/null
-            /usr/local/bin/kong start &
+            /usr/local/bin/kong start -c /etc/kong/kong.conf --nginx-conf /usr/local/kong/nginx1.conf  &
             touch /var/lock/subsys/kong
         fi
 }

@@ -31,7 +31,7 @@ def deregister(request):
     rabbitmq_exchange_delete(entity+".follow", "rbccps", "rbccps@123")
     rabbitmq_exchange_delete(entity+".public", "rbccps", "rbccps@123")
     rabbitmq_exchange_delete(entity+".protected", "rbccps", "rbccps@123")
-    rabbitmq_exchange_delete(entity+".public", "rbccps", "rbccps@123")
+    rabbitmq_exchange_delete(entity+".private", "rbccps", "rbccps@123")
     ldap_entity_delete(entity)
     kong_consumer_delete(entity)
     catalogue_delete(entity)
@@ -69,7 +69,7 @@ def rabbitmq_exchange_delete(ename, consumer_id, apikey):
 
 
 def ldap_entity_delete(uid):
-    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w secret0"""
+    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w secret0 """
     cmd2 = """ "uid={0},cn=devices,dc=smartcity" -r""".\
         format(uid)
     cmd = cmd1 + cmd2
@@ -414,7 +414,7 @@ def check_ldap_entry(desc, uid, attribute, check_parameter):
 
 
 def delete_ldap_entry(desc, uid, entry):
-    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w secret0"""
+    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w secret0 """
     cmd2 = """ "description={0},description={2},description=broker,uid={1},cn=devices,dc=smartcity" """.\
         format(desc, uid, entry)
     cmd = cmd1 + cmd2

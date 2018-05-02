@@ -1,31 +1,31 @@
 ---
 - hosts: hypercat
-  remote_user: ansible
+  remote_user: ideam
   tasks:
   - include: tasks/hypercat/start_hypercat.yaml
 
 - hosts: rabbitmq
-  remote_user: ansible
+  remote_user: ideam
   tasks:
   - include: tasks/rabbitmq/start_rabbitmq.yaml
 
 - hosts: tomcat
-  remote_user: ansible
+  remote_user: ideam
   tasks:
   - include: tasks/tomcat/start_tomcat.yaml
 
 - hosts: ldapd
-  remote_user: ansible
+  remote_user: ideam
   tasks:
   - include: tasks/ldapd/start_ldapd.yml
 
 - hosts: kong
-  remote_user: ansible
+  remote_user: ideam
   tasks:
   - include: tasks/kong/start_kong.yml
 
 - hosts: apt_repo
-  remote_user: ansible
+  remote_user: ideam
   tasks:
   - include: tasks/apt_repo/start_apt_repo.yml
 
@@ -35,12 +35,12 @@
   - include: tasks/pushpin/start_pushpin.yml
 
 - hosts: elasticsearch
-  remote_user: ansible
+  remote_user: ideam
   tasks:
   - include: tasks/elasticsearch/start_elasticsearch.yml
 
 - hosts: kong
-  remote_user: ansible
+  remote_user: ideam
   tasks:
   - name: Create database entity
     uri:

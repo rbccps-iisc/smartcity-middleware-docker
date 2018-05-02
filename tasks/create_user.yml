@@ -1,7 +1,7 @@
 ---
-## create ansible user
-  - name: User ansible creation
-    user: name=ansible password={{ password }} groups=sudo
+## create ideam user
+  - name: User ideam creation
+    user: name=ideam password={{ password }} groups=sudo
 
-  - name: Set Bash for ansible ssh session
-    command: usermod -s /bin/bash ansible
+  - name: Set Bash for ideam ssh session
+    command: usermod -s /bin/bash ideam

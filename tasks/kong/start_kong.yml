@@ -16,15 +16,27 @@
 
   - name: Copy share.py
     copy:
-      src: config/kong/share.py
-      dest: /home/ansible/share.py
+      src: config/kong/share_new.py
+      dest: /home/ideam/share.py
 
   - name: Setting up Kong.conf file
     copy:
-      src: ./config/kong/kong.conf
+      src: config/kong/kong_new.conf
       dest: /etc/kong/kong.conf
       mode: 0644
-  
+ 
+  - name: Setting up nginx-kong.conf file
+    copy:
+      src: config/kong/nginx-kong.conf
+      dest: /usr/local/kong/nginx-kong1.conf
+      mode: 0644 
+
+  - name: Setting up nginx.conf file
+    copy:
+      src: config/kong/nginx.conf
+      dest: /usr/local/kong/nginx1.conf
+      mode: 0644
+
   - name: Install Badrequest plugin
     shell: luarocks install kong-plugin-badrequest-0.1.0-1.all.rock
     args:
@@ -38,14 +50,7 @@
     become: yes
     become_user: root
 
-  - name: Start supervisor
-    service: name=supervisor state=started
-    become: yes
-    become_user: root
-
-  - name: Reload supervisorctl
-    shell: supervisorctl reload
-    become: yes
-    become_user: root
+  - name: Start share python
+    command: tmux new-session -d '/usr/bin/python3.5 /home/ideam/share.py'
 
   - include: tasks/kong/kong_auth_configuration.yml
