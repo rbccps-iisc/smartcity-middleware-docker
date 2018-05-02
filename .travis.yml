@@ -6,7 +6,7 @@ before_install:
   - ./tests/install.sh
 language: python
 install:
-  - ideam install
+  - sudo ideam install
   - ideam start
 script:
   - python ./tests/pytest.py
