@@ -50,14 +50,7 @@
     become: yes
     become_user: root
 
-  - name: Start supervisor
-    service: name=supervisor state=started
-    become: yes
-    become_user: root
-
-  - name: Reload supervisorctl
-    shell: supervisorctl reload
-    become: yes
-    become_user: root
+  - name: Start share python
+    command: tmux new-session -d '/usr/bin/python3.5 /home/ideam/share.py'
 
   - include: tasks/kong/kong_auth_configuration.yml

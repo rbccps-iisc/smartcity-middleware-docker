@@ -335,6 +335,9 @@
   - name: Install ldap-utils
     apt: name=ldap-utils state=present
 
+  - name: Install tmux
+    apt: name=tmux state=present
+
   - name: Install python 3.6
     apt: "pkg={{ item }} state=present"
     with_items:
@@ -353,12 +356,6 @@
       requirements: /home/ideam/requirements.txt
       executable: pip3
     become_user: ideam
-
-  - name: Copy supervisor-share.conf
-    copy:
-      src: config/kong/supervisor-share.conf
-      dest: /etc/supervisor/conf.d/supervisor-share.conf
-      mode: 0644
 
 
 ## Set up CA openssl environment
