@@ -19,7 +19,6 @@ cp debian/control ideam_0.0-1/DEBIAN/control
 cp debian/prerm ideam_0.0-1/DEBIAN/prerm
 chmod 755 ideam_0.0-1/DEBIAN/prerm
 cp ../ideam.conf ideam_0.0-1/etc/ideam/
-chmod 600 ideam_0.0-1/etc/ideam/ideam.conf
 chmod +x ideam_0.0-1/usr/local/bin/ideam
 cd ../
 tar --exclude='./build' --exclude='./.git' --exclude='./.idea' --exclude='*.retry' --exclude='*.tar.gz' --exclude='./ideam.tgz' --exclude='*.DS_Store' --exclude='./.gitignore' -zcvf ideam.tgz ./
