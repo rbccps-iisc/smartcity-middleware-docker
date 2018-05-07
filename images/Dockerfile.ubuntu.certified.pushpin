@@ -15,5 +15,5 @@ WORKDIR /root/pushpin
 RUN echo "TrustedUserCAKeys /etc/ssh/ca-user-certificate-key.pub" >> /etc/ssh/sshd_config
 ARG CACHEBUST=1
 COPY config/certificate_authority/keys/ca-user-certificate-key.pub /etc/ssh/ca-user-certificate-key.pub
-CMD    ["/usr/sbin/sshd", "-D"]
 RUN sed -i '$ a LANG="en_US.UTF-8"' /etc/profile
+CMD    ["/usr/sbin/sshd", "-D"]
