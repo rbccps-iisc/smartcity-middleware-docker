@@ -46,7 +46,7 @@
     uri:
       url: http://localhost:8000/api/1.0.0/register
       method: POST
-      status_code: 200
+      status_code: [200,409]
       headers:
         Content-Type: "application/json"
         apikey: "guest"

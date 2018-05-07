@@ -8,6 +8,16 @@
 **/*.tgz
 config/apt_repo/keys/ansible.pub
 config/certificate_authority/keys/id_rsa-cert.pub
-hosts
+./hosts
 config/certificate_authority/keys/id_rsa.pub
 config/certificate_authority/keys/ca-user-certificate-key.pub
+config/hypercat/config_new.js
+config/kong/kong_new.conf
+config/kong/share_new.py
+config/ldapd/ldapd_new.conf
+host_vars/all
+host_vars/hypercat
+host_vars/idps
+host_vars/kong
+host_vars/ldapd
+ideam.conf.local

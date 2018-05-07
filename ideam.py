@@ -44,8 +44,10 @@ def start(arguments):
     """ Starts all docker containers. """
     if arguments.limit:
         container_start.ansible_start(arguments.limit)
+        if arguments.with_idps:
+	     container_start.start_idps()
 
-    if arguments.with_idps:
+    elif arguments.with_idps:
         container_start.start_all()
         container_start.start_idps()
 
@@ -117,8 +119,7 @@ if __name__ == '__main__':
     start_parser.add_argument("--log-file", help="Path to log file",
                               default=default_log_file)
 
-    start_parser.add_argument("--with-idps", type=str2bool, nargs='?', const=True,
-                                help="Include IDPS installation after starting IDEAM")
+    start_parser.add_argument("--with-idps",help="Include IDPS installation after starting IDEAM or any of its components", action="store_true")
 
     # restart command
     restart_parser = subparsers.add_parser('restart', help='Restart all the docker containers in the middleware')
