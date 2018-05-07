@@ -273,6 +273,15 @@ def docker_setup(log_file, config_path="ideam.conf"):
                           log_file=log_file,
                           exit_on_fail=True)
 
+    cmd = "docker build -t ansible/video-server:1.0 --build-arg CACHEBUST={0} " \
+          "-f images/Dockerfile.videoserver .".format(unique_value())
+    subprocess_with_print(cmd,
+                          success_msg="Created ansible/video-server:1.0 docker image. ",
+                          failure_msg="Building ubuntu image from "
+                                      "images/Dockerfile.videoserver failed.",
+                          log_file=log_file,
+                          exit_on_fail=True)
+
     ip, port, details = create_instance("apt_repo", "ansible/ubuntu-certified-aptrepo:1.0", log_file)
     instance_details["apt_repo"] = [ip, port]
     output_ok("Created Apt Local Repository docker instance. \n " + details)
@@ -336,6 +345,16 @@ def docker_setup(log_file, config_path="ideam.conf"):
                           failure_msg="Creation of KONGA docker instance failed.",
                           log_file=log_file,
                           exit_on_fail=True)
+
+    cmd = "docker run -d -p {1}:22 -p {2}:1935 -p {3}:8080 -p {4}:8088 --net=mynet --hostname={0} --privileged --cap-add=ALL --name={0} {5}".\
+        format("videoserver", "18022", "18935", "18080", "18088", "ansible/video-server:1.0")
+
+    subprocess_with_print(cmd,
+                          success_msg="Created Video Server docker instance. ",
+                          failure_msg="Creation of Video Server docker instance failed.",
+                          log_file=log_file,
+                          exit_on_fail=True)
+
     create_ansible_host_file(instance_details)
 
 
@@ -466,6 +485,21 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
             exit()
     elif server == "elasticsearch":
         ssh = config.get('ELASTICSEARCH', 'SSH')
+        kibana = config.get('ELASTICSEARCH', 'KIBANA')
+        cmd = "docker run -d -p {2}:22 -p {3}:5601 --net=mynet " \
+              "--hostname={0} --cap-add=NET_ADMIN --name={0} {1}".format(server, image, ssh, kibana)
+        try:
+            out, err = subprocess_popen(cmd,
+                                        log_file,
+                                        failure_msg="Creation of {0} docker instance failed.".format(server))
+            container_id = out
+        except OSError:
+            output_error("Creation of {0} docker instance failed.".format(server) +
+                         "\n           Check logs {0} for more details.".format(log_file),
+                         error_message=traceback.format_exc())
+            exit()
+    elif server == "videoserver":
+        ssh = config.get('', 'SSH')
         kibana = config.get('ELASTICSEARCH', 'KIBANA')
         cmd = "docker run -d -p {2}:22 -p {3}:5601 --net=mynet " \
               "--hostname={0} --cap-add=NET_ADMIN --name={0} {1}".format(server, image, ssh, kibana)

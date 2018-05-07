@@ -1,0 +1,3 @@
+---
+  - name: Set Bash for ideam ssh session
+    command: echo "{{ password }}" | passwd --stdin ideam
