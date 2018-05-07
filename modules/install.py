@@ -331,21 +331,22 @@ def docker_setup(log_file, config_path="ideam.conf"):
     instance_details["pushpin"] = [ip, port]
     output_ok("Created Pushpin docker instance. \n " + details)
 
+    ip, port, details = create_instance("videoserver", "ansible/video-server:1.0", log_file=log_file)
+    instance_details["videoserver"] = [ip, port]
+    output_ok("Created Videoserver docker instance. \n " + details)
+
     cmd = "cp config/tomcat/RegisterAPI.war " + tomcat_storage + "/RegisterAPI.war"
     subprocess_popen(cmd, log_file, "Copying RegisterAPI.war file to {0} failed.".format(tomcat_storage))
     output_ok("Copied  RegisterAPI.war file to {0}. ".format(tomcat_storage))
 
     konga = config.get('KONGA', 'HTTP')
-
     cmd = 'docker run -d -p {0}:1337 --net mynet --link kong:kong --name konga -e "NODE_ENV=production" pantsel/konga'.\
         format(konga)
-
     subprocess_with_print(cmd,
                           success_msg="Created KONGA docker instance. ",
                           failure_msg="Creation of KONGA docker instance failed.",
                           log_file=log_file,
                           exit_on_fail=True)
-
     create_ansible_host_file(instance_details)
 
 
@@ -492,10 +493,10 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     elif server == "videoserver":
         ssh = config.get('VIDEOSERVER', 'SSH')
         rtmp = config.get('VIDEOSERVER', 'RTMP')
-        http1 = config.get('VIDEOSERVER', 'HTTP1')
-        http2 = config.get('VIDEOSERVER', 'HTTP2')
+        hls = config.get('VIDEOSERVER', 'HLS')
+        http = config.get('VIDEOSERVER', 'HTTP')
         cmd = "docker run -d -p {1}:22 -p {2}:1935 -p {3}:8080 -p {4}:8088 --net=mynet --hostname={0} --privileged --cap-add=ALL --name={0} {5}". \
-            format("videoserver", ssh, rtmp, http1, http2, "ansible/video-server:1.0")
+            format("videoserver", ssh, rtmp, hls, http, image)
         try:
             out, err = subprocess_popen(cmd,
                                         log_file,
