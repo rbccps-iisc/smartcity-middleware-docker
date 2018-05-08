@@ -20,6 +20,12 @@ def remove_containers(log_file):
                           log_file=log_file,
                           exit_on_fail=False)
 
+    subprocess_with_print("docker rm videoserver",
+                          success_msg="Removing Videoserver",
+                          failure_msg="Videoserver container doesn't exist. SKIPPING THIS ERROR.",
+                          log_file=log_file,
+                          exit_on_fail=False)
+
     subprocess_with_print("docker rm apt_repo",
                           success_msg="Removing APT Repository",
                           failure_msg="APT Repository container doesn't exist. SKIPPING THIS ERROR.",
@@ -76,7 +82,7 @@ def remove_containers(log_file):
 
 
 def stop_containers(log_file):
-    """ Stops all existing docker containers like kong, rabbitmq, tomcat et cetera.
+    """ Stops all existing docker containers like kong, rabbitmq, tomcat .
 
     Args:
         log_file      (string): log file path
@@ -84,6 +90,12 @@ def stop_containers(log_file):
     subprocess_with_print("docker stop kong",
                           success_msg="Stopping Kong",
                           failure_msg="Kong container doesn't exist. SKIPPING THIS ERROR.",
+                          log_file=log_file,
+                          exit_on_fail=False)
+
+    subprocess_with_print("docker stop videoserver",
+                          success_msg="Stopping Videoserver",
+                          failure_msg="VideoServer container doesn't exist. SKIPPING THIS ERROR.",
                           log_file=log_file,
                           exit_on_fail=False)
 
@@ -563,7 +575,7 @@ def create_ansible_host_file(instances):
         hosts_list.append("{0} ansible_host={1} ansible_port={2} ansible_user=root".format(key, value[0], value[1]))
 
     hosts_contents = "\n".join(hosts_list)
-
+    print(hosts_contents)
     with open('hosts', 'w+') as host_file:
         host_file.write(hosts_contents)
 
