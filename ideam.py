@@ -25,8 +25,6 @@ class MyParser(argparse.ArgumentParser):
 
 def install(arguments):
     """ Installs docker images and containers."""
-    if arguments.remove:
-        remove(arguments)
     if arguments.limit:
         container_setup.ansible_installation(arguments.limit)
     else:
@@ -39,7 +37,6 @@ def install(arguments):
         container_setup.docker_setup(log_file=arguments.log_file, config_path=arguments.config_file)
         container_setup.ansible_installation("kong, rabbitmq, elasticsearch, apt_repo, "
                                              "tomcat, ldapd, hypercat, videoserver, pushpin")
-
 
 def start(arguments):
     """ Starts all docker containers. """
