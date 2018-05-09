@@ -23,6 +23,7 @@ chmod +x ideam_0.0-1/usr/local/bin/ideam
 cd ../
 tar --exclude='./build' --exclude='./.git' --exclude='./.idea' --exclude='*.retry' --exclude='*.tar.gz' --exclude='./ideam.tgz' --exclude='*.DS_Store' --exclude='./.gitignore' -zcvf ideam.tgz ./
 tar -xvzf ideam.tgz -C build/ideam_0.0-1/usr/share/ideam/
+rm ideam.tgz
 cd build/
 chmod -R 777 ideam_0.0-1/var/ideam/data/logs/kong
 dpkg-deb --build ideam_0.0-1/
