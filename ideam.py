@@ -36,8 +36,9 @@ def install(arguments):
         download_packages.download(arguments.log_file)
         set_passwords(arguments.config_file)
         container_setup.docker_setup(log_file=arguments.log_file, config_path=arguments.config_file)
-        container_setup.ansible_installation("kong, rabbitmq, elasticsearch, apt_repo, "
-                                             "tomcat, ldapd, hypercat, videoserver, pushpin")
+        subprocess.call('ansible-playbook -i hosts install.yaml '
+                        '--limit "kong, rabbitmq, elasticsearch, apt_repo, tomcat, ldapd,'
+                        ' hypercat, videoserver, pushpin"', shell=True)
 
 def start(arguments):
     """ Starts all docker containers. """
