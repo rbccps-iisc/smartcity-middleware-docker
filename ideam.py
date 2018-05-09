@@ -128,8 +128,8 @@ if __name__ == '__main__':
     restart_parser.add_argument("--log-file", help="Path to log file",
                                 default=default_log_file)
     # remove data command
-    test_parser = subparsers.add_parser('rmdata', help='Remove all contents in the data directory')
-    test_parser.add_argument("-d", "--rm-data-path",
+    remove_parser = subparsers.add_parser('rmdata', help='Remove all contents in the data directory')
+    remove_parser.add_argument("-d", "--rm-data-path",
                                 help="Path to data directory. Installation using deb file will have /var/ideam/data as"
                                      "directory. See /etc/ideam/ideam.conf for an details on data directory.",
                                 default="/var/ideam/data")
