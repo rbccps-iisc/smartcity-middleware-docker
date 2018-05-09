@@ -2,6 +2,7 @@
 import sys
 import os
 VERSION = '0.0-1'
+# No ideam.conf in /etc/ideam if during development
 if os.path.exists("/etc/ideam/ideam.conf"):
     sys.path.append("/usr/share/ideam")
     os.chdir("/usr/share/ideam")
