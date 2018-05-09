@@ -593,7 +593,7 @@ def check_dependencies(log_file):
                           exit_on_fail=True)
 
 
-def ansible_installation(limit=""):
+def ansible_installation(limit):
     """ Creates all the plays/installation from ansible install.yaml file.
 
     Args:
