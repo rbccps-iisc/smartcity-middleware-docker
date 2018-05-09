@@ -37,7 +37,8 @@ def install(arguments):
         download_packages.download(arguments.log_file)
         set_passwords(arguments.config_file)
         container_setup.docker_setup(log_file=arguments.log_file, config_path=arguments.config_file)
-        container_setup.ansible_installation("kong, rabbitmq, elasticsearch, apt_repo, tomcat, ldapd, hypercat")
+        container_setup.ansible_installation("kong, rabbitmq, elasticsearch, apt_repo, "
+                                             "tomcat, ldapd, hypercat, videoserver, pushpin")
 
 
 def start(arguments):
@@ -60,7 +61,7 @@ def restart(arguments):
     if arguments.limit:
         container_setup.stop_containers(log_file=arguments.log_file)
         container_start.ansible_start(arguments.limit)
-        
+
     else:
         container_setup.stop_containers(log_file=arguments.log_file)  # Stops all containers
         container_start.start_all()
@@ -93,16 +94,18 @@ if __name__ == '__main__':
                                 required=False,
                                 default="")
 
-    install_parser.add_argument("-r", "--remove", type=str2bool, nargs='?', const=True,
-                                help="Removes all the previous contents in the data directory. "
-                                     "Passing -r will delete the data directories and if not then"
-                                     " the data wont be deleted. Data directories are mentioned in the"
-                                     " /etc/ideam/ideam.conf file.")
+    # This requires sudo permission and further installation happens as root which is not desired.
+    # TODO: Delete data directories (which require root privileges) and let installation be run as normal user.
+    # install_parser.add_argument("-r", "--remove", type=str2bool, nargs='?', const=True,
+    #                             help="Removes all the previous contents in the data directory. "
+    #                                  "Passing -r will delete the data directories and if not then"
+    #                                  " the data wont be deleted. Data directories are mentioned in the"
+    #                                  " /etc/ideam/ideam.conf file.")
+    # install_parser.add_argument("-d", "--rm-data-path",
+    #                             help="Specify data directory in this argument if its not in /var/ideam/data. "
+    #                                  "Default data directories are mentioned in the /etc/ideam/ideam.conf file.",
+    #                             default="/var/ideam/data")
 
-    install_parser.add_argument("-d", "--rm-data-path",
-                                help="Specify data directory in this argument if its not in /var/ideam/data. "
-                                     "Default data directories are mentioned in the /etc/ideam/ideam.conf file.",
-                                default="/var/ideam/data")
     install_parser.add_argument("-f", "--config-file",
                                 help="Path to the conf file. See /etc/ideam/ideam.conf for an example.",
                                 default="/etc/ideam/ideam.conf")
