@@ -718,12 +718,3 @@
 
   - name: Install tmux
     apt: name=tmux state=present
-
-- hosts: videoserver
-  remote_user: root
-  vars_files:
-    - host_vars/all
-  tasks:
-  - include: tasks/add_local_repository.yml
-  - include: tasks/update_repos.yml
-  - include: tasks/user_modify.yml

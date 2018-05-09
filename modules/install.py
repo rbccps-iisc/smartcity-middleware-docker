@@ -20,12 +20,6 @@ def remove_containers(log_file):
                           log_file=log_file,
                           exit_on_fail=False)
 
-    subprocess_with_print("docker rm videoserver",
-                          success_msg="Removing Videoserver",
-                          failure_msg="Videoserver container doesn't exist. SKIPPING THIS ERROR.",
-                          log_file=log_file,
-                          exit_on_fail=False)
-
     subprocess_with_print("docker rm apt_repo",
                           success_msg="Removing APT Repository",
                           failure_msg="APT Repository container doesn't exist. SKIPPING THIS ERROR.",
@@ -82,7 +76,7 @@ def remove_containers(log_file):
 
 
 def stop_containers(log_file):
-    """ Stops all existing docker containers like kong, rabbitmq, tomcat .
+    """ Stops all existing docker containers like kong, rabbitmq, tomcat et cetera.
 
     Args:
         log_file      (string): log file path
@@ -90,12 +84,6 @@ def stop_containers(log_file):
     subprocess_with_print("docker stop kong",
                           success_msg="Stopping Kong",
                           failure_msg="Kong container doesn't exist. SKIPPING THIS ERROR.",
-                          log_file=log_file,
-                          exit_on_fail=False)
-
-    subprocess_with_print("docker stop videoserver",
-                          success_msg="Stopping Videoserver",
-                          failure_msg="VideoServer container doesn't exist. SKIPPING THIS ERROR.",
                           log_file=log_file,
                           exit_on_fail=False)
 
@@ -152,7 +140,7 @@ def unique_value():
     return str(int(time()))
 
 
-def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
+def docker_setup(log_file, config_path="ideam.conf"):
     """ Creates docker instances for kong, ca, hypercat, rabbitmq, elastic search, apache storm, ldap, ntp and bind
     server from an ubuntu-ssh image. First, docker creates certificate authority (CA) instance and then have the CA
     certify Ansible user's public key. A new docker image with this CA's public key in TrustedUserCAKeys is created to
@@ -285,15 +273,6 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
                           log_file=log_file,
                           exit_on_fail=True)
 
-    cmd = "docker build -t ansible/video-server:1.0 --build-arg CACHEBUST={0} " \
-          "-f images/Dockerfile.videoserver .".format(unique_value())
-    subprocess_with_print(cmd,
-                          success_msg="Created ansible/video-server:1.0 docker image. ",
-                          failure_msg="Building ubuntu image from "
-                                      "images/Dockerfile.videoserver failed.",
-                          log_file=log_file,
-                          exit_on_fail=True)
-
     ip, port, details = create_instance("apt_repo", "ansible/ubuntu-certified-aptrepo:1.0", log_file)
     instance_details["apt_repo"] = [ip, port]
     output_ok("Created Apt Local Repository docker instance. \n " + details)
@@ -343,17 +322,15 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
     instance_details["pushpin"] = [ip, port]
     output_ok("Created Pushpin docker instance. \n " + details)
 
-    ip, port, details = create_instance("videoserver", "ansible/video-server:1.0", log_file=log_file)
-    instance_details["videoserver"] = [ip, port]
-    output_ok("Created Videoserver docker instance. \n " + details)
-
     cmd = "cp config/tomcat/RegisterAPI.war " + tomcat_storage + "/RegisterAPI.war"
     subprocess_popen(cmd, log_file, "Copying RegisterAPI.war file to {0} failed.".format(tomcat_storage))
     output_ok("Copied  RegisterAPI.war file to {0}. ".format(tomcat_storage))
 
     konga = config.get('KONGA', 'HTTP')
+
     cmd = 'docker run -d -p {0}:1337 --net mynet --link kong:kong --name konga -e "NODE_ENV=production" pantsel/konga'.\
         format(konga)
+
     subprocess_with_print(cmd,
                           success_msg="Created KONGA docker instance. ",
                           failure_msg="Creation of KONGA docker instance failed.",
@@ -362,7 +339,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
     create_ansible_host_file(instance_details)
 
 
-def create_instance(server, image, log_file, storage_host="", storage_guest="", config_path="/etc/ideam/ideam.conf",
+def create_instance(server, image, log_file, storage_host="", storage_guest="", config_path="ideam.conf",
                     log_storage=""):
     """ Create a docker instance from the image provided with persistent storages.
 
@@ -502,23 +479,6 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
                          "\n           Check logs {0} for more details.".format(log_file),
                          error_message=traceback.format_exc())
             exit()
-    elif server == "videoserver":
-        ssh = config.get('VIDEOSERVER', 'SSH')
-        rtmp = config.get('VIDEOSERVER', 'RTMP')
-        hls = config.get('VIDEOSERVER', 'HLS')
-        http = config.get('VIDEOSERVER', 'HTTP')
-        cmd = "docker run -d -p {1}:22 -p {2}:1935 -p {3}:8080 -p {4}:8088 --net=mynet --hostname={0} --privileged --cap-add=ALL --name={0} {5}". \
-            format("videoserver", ssh, rtmp, hls, http, image)
-        try:
-            out, err = subprocess_popen(cmd,
-                                        log_file,
-                                        failure_msg="Creation of {0} docker instance failed.".format(server))
-            container_id = out
-        except OSError:
-            output_error("Creation of {0} docker instance failed.".format(server) +
-                         "\n           Check logs {0} for more details.".format(log_file),
-                         error_message=traceback.format_exc())
-            exit()
     else:
         cmd = "docker run -d -P --net=mynet --hostname={0} --cap-add=NET_ADMIN --name={0} {1}".format(server, image)
         try:
@@ -575,7 +535,7 @@ def create_ansible_host_file(instances):
         hosts_list.append("{0} ansible_host={1} ansible_port={2} ansible_user=root".format(key, value[0], value[1]))
 
     hosts_contents = "\n".join(hosts_list)
-    print(hosts_contents)
+
     with open('hosts', 'w+') as host_file:
         host_file.write(hosts_contents)
 
@@ -593,7 +553,7 @@ def check_dependencies(log_file):
                           exit_on_fail=True)
 
 
-def ansible_installation(limit):
+def ansible_installation(limit=""):
     """ Creates all the plays/installation from ansible install.yaml file.
 
     Args:

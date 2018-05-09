@@ -2,7 +2,6 @@
 import sys
 import os
 VERSION = '0.0-1'
-# No ideam.conf in /etc/ideam if during development
 if os.path.exists("/etc/ideam/ideam.conf"):
     sys.path.append("/usr/share/ideam")
     os.chdir("/usr/share/ideam")
@@ -26,6 +25,8 @@ class MyParser(argparse.ArgumentParser):
 
 def install(arguments):
     """ Installs docker images and containers."""
+    if arguments.remove:
+        remove(arguments)
     if arguments.limit:
         container_setup.ansible_installation(arguments.limit)
     else:
@@ -36,9 +37,8 @@ def install(arguments):
         download_packages.download(arguments.log_file)
         set_passwords(arguments.config_file)
         container_setup.docker_setup(log_file=arguments.log_file, config_path=arguments.config_file)
-        subprocess.call('ansible-playbook -i hosts install.yaml '
-                        '--limit "kong, rabbitmq, elasticsearch, apt_repo, tomcat, ldapd,'
-                        ' hypercat, videoserver, pushpin"', shell=True)
+        container_setup.ansible_installation("kong, rabbitmq, elasticsearch, apt_repo, tomcat, ldapd, hypercat")
+
 
 def start(arguments):
     """ Starts all docker containers. """
@@ -60,7 +60,7 @@ def restart(arguments):
     if arguments.limit:
         container_setup.stop_containers(log_file=arguments.log_file)
         container_start.ansible_start(arguments.limit)
-
+        
     else:
         container_setup.stop_containers(log_file=arguments.log_file)  # Stops all containers
         container_start.start_all()
@@ -93,18 +93,16 @@ if __name__ == '__main__':
                                 required=False,
                                 default="")
 
-    # This requires sudo permission and further installation happens as root which is not desired.
-    # TODO: Delete data directories (which require root privileges) and let installation be run as normal user.
-    # install_parser.add_argument("-r", "--remove", type=str2bool, nargs='?', const=True,
-    #                             help="Removes all the previous contents in the data directory. "
-    #                                  "Passing -r will delete the data directories and if not then"
-    #                                  " the data wont be deleted. Data directories are mentioned in the"
-    #                                  " /etc/ideam/ideam.conf file.")
-    # install_parser.add_argument("-d", "--rm-data-path",
-    #                             help="Specify data directory in this argument if its not in /var/ideam/data. "
-    #                                  "Default data directories are mentioned in the /etc/ideam/ideam.conf file.",
-    #                             default="/var/ideam/data")
+    install_parser.add_argument("-r", "--remove", type=str2bool, nargs='?', const=True,
+                                help="Removes all the previous contents in the data directory. "
+                                     "Passing -r will delete the data directories and if not then"
+                                     " the data wont be deleted. Data directories are mentioned in the"
+                                     " /etc/ideam/ideam.conf file.")
 
+    install_parser.add_argument("-d", "--rm-data-path",
+                                help="Specify data directory in this argument if its not in /var/ideam/data. "
+                                     "Default data directories are mentioned in the /etc/ideam/ideam.conf file.",
+                                default="/var/ideam/data")
     install_parser.add_argument("-f", "--config-file",
                                 help="Path to the conf file. See /etc/ideam/ideam.conf for an example.",
                                 default="/etc/ideam/ideam.conf")

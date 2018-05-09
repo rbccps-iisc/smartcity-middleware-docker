@@ -16,7 +16,10 @@ RUN sed -i '$ a LANG="en_US.UTF-8"' /etc/profile
 RUN sed -ri 's/^PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config
 RUN sed -ri 's/^PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config
 RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
+
 COPY config/certificate_authority/keys/id_rsa.pub /root/.ssh/authorized_keys
-EXPOSE 22
 RUN sed -i '$ a LANG="en_US.UTF-8"' /etc/profile
+EXPOSE 22
 CMD    ["/usr/sbin/sshd", "-D"]
+
+RUN sed -i '$ a LANG="en_US.UTF-8"' /etc/profile
