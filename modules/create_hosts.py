@@ -32,6 +32,8 @@ def create_hosts():
         get_port("pushpin").rstrip())
     subprocess.call("docker start tomcat", shell=True)
     hosts += "tomcat ansible_host=localhost ansible_port={0} ansible_user=root\n".format(get_port("tomcat").rstrip())
+    subprocess.call("docker start videoserver", shell=True)
+    hosts += "videoserver ansible_host=localhost ansible_port={0} ansible_user=root\n".format(get_port("videoserver").rstrip())
     print hosts
     with open('hosts', 'w+') as host_file:
         host_file.write(hosts)

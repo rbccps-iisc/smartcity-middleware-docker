@@ -53,3 +53,33 @@
       body: "{{ lookup('file','config/database_register.json') }}"
       body_format: json
       validate_certs: no
+
+- hosts: videoserver
+  remote_user: root
+  tasks:
+
+  - name: Start php service
+    service: name=php7.0-fpm state=restarted
+
+  - name: Stop backend
+    command: sh stop.sh
+    args:
+      chdir: /home/ideam/video-stream-server/backend/
+    ignore_errors: True
+
+  - name: Stop frontend
+    command: sh stop.sh
+    args:
+      chdir: /home/ideam/video-stream-server/frontend
+    ignore_errors: True
+
+  - name: Start backend
+    command: sh start.sh
+    args:
+      chdir: /home/ideam/video-stream-server/backend/
+
+  - name: Start frontend
+    command: sh start.sh
+    args:
+      chdir: /home/ideam/video-stream-server/frontend
+
