@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+useradd --system ideam
+chown -R ideam:ideam /etc/ideam/
+chown -R ideam:ideam /usr/local/bin/ideam
+chown -R ideam:ideam /usr/share/ideam/
+chown -R ideam:ideam /var/ideam/data/
+chmod -R 777 /var/ideam/data/logs/kong
+chmod -R 600 /etc/ideam/ideam.conf
+chown -R ideam:ideam /etc/ideam/ideam.conf
+pip install passlib
+exit 0
