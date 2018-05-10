@@ -17,13 +17,28 @@ def deregister(request):
     if "entityID" in e:
         entity = str(e["entityID"])
     print("entityID        : " + str(entity))
+
     if check_entity_exists(entity) is False:
+        # Remove any entry by the name mentioned
+        rabbitmq_queue_delete(entity, "rbccps", "rbccps@123")
+        rabbitmq_queue_delete(entity + ".follow", "rbccps", "rbccps@123")
+        rabbitmq_exchange_delete(entity, "rbccps", "rbccps@123")
+        rabbitmq_exchange_delete(entity + ".configure", "rbccps", "rbccps@123")
+        rabbitmq_exchange_delete(entity + ".follow", "rbccps", "rbccps@123")
+        rabbitmq_exchange_delete(entity + ".public", "rbccps", "rbccps@123")
+        rabbitmq_exchange_delete(entity + ".protected", "rbccps", "rbccps@123")
+        rabbitmq_exchange_delete(entity + ".private", "rbccps", "rbccps@123")
+        kong_consumer_delete(entity)
+        catalogue_delete(entity)
+        video_server_delete(entity)
         return request.Response(json={'status': 'failure',
-                                      'response': "Entity doesn't exist."}, code=400)
+                                      'response': "Access Denied"}, code=400)
     if check_owner(consumer_id, entity) is False:
         return request.Response(json={'status': 'failure',
                                       'response': "Only owner can remove an entity."}, code=400)
     # TODO: remove rbccps user to provider and his apikey ( which cant be used now, as its not there in ldap)
+    if check_entity_is_video(entity):
+        video_server_delete(entity)
     rabbitmq_queue_delete(entity, "rbccps", "rbccps@123")
     rabbitmq_queue_delete(entity+".follow", "rbccps", "rbccps@123")
     rabbitmq_exchange_delete(entity, "rbccps", "rbccps@123")
@@ -37,6 +52,13 @@ def deregister(request):
     catalogue_delete(entity)
     return request.Response(json={'status': 'success',
                                   'response': entity + " entity removed. "}, code=200)
+
+
+def video_server_delete(entity):
+    url = 'http://videoserver:8088/remove_stream?id='+str(entity)
+    headers = {'no-check': 'true', 'pwd': 'admin@123'}
+    r = requests.delete(url, headers=headers)
+    print(r.text)
 
 
 def catalogue_delete(entity):
@@ -93,6 +115,22 @@ def check_entity_exists(uid):
     check = "result: 0 Success"
     a = bytes(check, 'utf8') in resp
     print("check_entity_exists: " + str(a))
+    return a
+
+
+def check_entity_is_video(uid):
+    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w secret0 -b"""
+    cmd2 = """ "description=video,uid={0},cn=devices,dc=smartcity" """.\
+        format(uid)
+    cmd = cmd1 + cmd2
+    resp = b""
+    try:
+        resp = subprocess.check_output(cmd, shell=True)
+    except subprocess.CalledProcessError as e:
+        print(e)
+    check = "result: 0 Success"
+    a = bytes(check, 'utf8') in resp
+    print("check_entity_is_video: " + str(a))
     return a
 
 
