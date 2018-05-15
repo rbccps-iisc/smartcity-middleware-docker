@@ -707,6 +707,12 @@
       dest: /etc/pwd
       mode: 0644
 
+  - name: Copy rmqpwd
+    copy:
+      src: config/tomcat/rmqpwd
+      dest: /etc/rmqpwd
+      mode: 0644
+
 - hosts: pushpin
   remote_user: root
   vars_files:

@@ -62,6 +62,7 @@ def rmq_pass(config):
     password = config.get('PASSWORDS', 'RABBITMQ')
     if password == "??????":
         password = id_generator()
+    write("config/tomcat/rmqpwd", password)
     write("host_vars/rabbitmq", "password: " + password)
     replace("config/elasticsearch/logstash-input-rabbitmq.conf", "rbccps@123", password,
             "config/elasticsearch/logstash-input-rabbitmq_new.conf")
