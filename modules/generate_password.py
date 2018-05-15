@@ -63,10 +63,10 @@ def rmq_pass(config):
     if password == "??????":
         password = id_generator()
     write("host_vars/rabbitmq", "password: " + password)
-    replace("config/elaticsearch/logstash-input-rabbitmq.conf", "rbccps@123", password,
-            "config/elaticsearch/logstash-input-rabbitmq_new.conf")
-    replace("config/elaticsearch/logstash-input-rabbitmq_new.conf", "rbccps", "admin.ideam",
-            "config/elaticsearch/logstash-input-rabbitmq_new.conf")
+    replace("config/elasticsearch/logstash-input-rabbitmq.conf", "rbccps@123", password,
+            "config/elasticsearch/logstash-input-rabbitmq_new.conf")
+    replace("config/elasticsearch/logstash-input-rabbitmq_new.conf", "rbccps", "admin.ideam",
+            "config/elasticsearch/logstash-input-rabbitmq_new.conf")
     replace("config/kong/share_new.py", "rbccps@123", password, "config/kong/share_new.py")
     replace("config/kong/share_new.py", "rbccps", "admin.ideam", "config/kong/share_new.py")
     config.set('PASSWORDS', 'RABBITMQ', password)
