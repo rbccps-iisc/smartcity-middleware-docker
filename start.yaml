@@ -6,6 +6,8 @@
 
 - hosts: rabbitmq
   remote_user: ideam
+  vars_files:
+    - host_vars/rabbitmq
   tasks:
   - include: tasks/rabbitmq/start_rabbitmq.yaml
 

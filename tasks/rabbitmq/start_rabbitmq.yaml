@@ -27,13 +27,13 @@
   - name: Enable ldap plugin
     shell: rabbitmq-plugins enable rabbitmq_auth_backend_ldap
 
-  - name: Creating "rbccps" user at RabbitMQ
+  - name: Creating "admin.ideam" user at RabbitMQ
     uri:
-      url: http://localhost:15672/api/users/rbccps
+      url: http://localhost:15672/api/users/admin.ideam
       method: PUT
       user: "guest"
       password: "guest"
-      body: {"password": "rbccps@123", "tags": "administrator", "permissions": { "/": { "configure": ".*","read": ".*","write": ".*" } } }
+      body: {"password": "{{password}}", "tags": "administrator", "permissions": { "/": { "configure": ".*","read": ".*","write": ".*" } } }
       status_code: [201, 204]
       return_content: yes
       body_format: json

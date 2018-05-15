@@ -4,7 +4,6 @@ import random
 import ConfigParser
 
 
-
 def id_generator(size=16, chars=string.ascii_letters + string.digits + "_-+@.^!?/\\"):
     return ''.join(random.choice(chars) for _ in range(size))
 
@@ -58,6 +57,21 @@ def catalogue_pass(config):
     write("host_vars/hypercat", "mongodb_password: " + password)
     config.set('PASSWORDS', 'HYPERCAT', password)
 
+
+def rmq_pass(config):
+    password = config.get('PASSWORDS', 'RABBITMQ')
+    if password == "??????":
+        password = id_generator()
+    write("host_vars/rabbitmq", "password: " + password)
+    replace("config/elaticsearch/logstash-input-rabbitmq.conf", "rbccps@123", password,
+            "config/elaticsearch/logstash-input-rabbitmq_new.conf")
+    replace("config/elaticsearch/logstash-input-rabbitmq_new.conf", "rbccps", "admin.ideam",
+            "config/elaticsearch/logstash-input-rabbitmq_new.conf")
+    replace("config/kong/share_new.py", "rbccps@123", password, "config/kong/share_new.py")
+    replace("config/kong/share_new.py", "rbccps", "admin.ideam", "config/kong/share_new.py")
+    config.set('PASSWORDS', 'RABBITMQ', password)
+
+
 def idps_pass(config):
     password = config.get('PASSWORDS', 'IDPS')
     if password == "??????":
@@ -79,5 +93,6 @@ def set_passwords(conf):
     kong_pass(config)
     catalogue_pass(config)
     idps_pass(config)
+    rmq_pass(config)
     with open(conf, 'w+') as configfile:
         config.write(configfile)
