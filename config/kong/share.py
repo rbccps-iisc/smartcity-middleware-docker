@@ -3,6 +3,9 @@ import json
 import requests
 from time import gmtime, strftime
 import subprocess
+URL = "localhost"
+with open('/etc/url', 'r') as f:
+    URL = f.read()
 
 
 def deregister(request):
@@ -193,8 +196,6 @@ def follow(request):
         return request.Response(text=" A follow request was approved to exchange " + entity + " with " + permission +
                                      " access at " + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + " GMT.\n")
     else:
-        create_queue(entity + ".follow", consumer_id, apikey)  # TODO it should be as part of RegisterAPI, must remove
-        create_exchange("public", consumer_id, apikey)  # TODO it should be part of RegisterAPI
         bind(entity + ".follow", "public", entity + ".follow", consumer_id, apikey)
         print(strftime("%Y-%m-%d %H:%M:%S", gmtime()) + " Entity " + consumer_id +
               " made a follow request. Requested access is for " + permission)
@@ -525,7 +526,31 @@ def unshare(request):
             delete_ldap_entry(entity, consumer_id, "exchange")
         text = "Read-write access given to " + entity + " at " + consumer_id + " exchange removed.\n"
         return request.Response(text=text)
-    return request.Response(text="unshare success\n")
+
+
+def video_rtmp(request):
+    consumer_id = ""
+    apikey = ""
+    stream = ""
+    for name, value in request.query.items():
+        if name == "id":
+            consumer_id = value
+        elif name == "apikey":
+            apikey = value
+        elif name == "stream":
+            stream = value
+    print("consumer_id  : " + str(consumer_id))
+    print("stream       : " + str(stream))
+    if stream is not "" and apikey is not "" and consumer_id is not "":
+        return request.Response(code=301, headers={'Location': 'rtmp://'+URL+':18935/live1/{0}?user={1}&pass={2}'.
+                                format(stream, consumer_id, apikey)})
+    else:
+        return request.Response(json={'status': 'failure', 'response': 'missing stream in request'}, code=403)
+
+
+# Currently hls is not available in video server
+def video_hls(request):
+    return request.Response(code=301, headers={'Location': 'https://'+URL+':18935/live1/stream?id=device&pass=password'})
 
 app = Application()
 app.router.add_route('/follow', follow, methods=['POST'])
@@ -533,4 +558,5 @@ app.router.add_route('/follow', unfollow, methods=['DELETE'])
 app.router.add_route('/share', share, methods=['POST'])
 app.router.add_route('/share', unshare, methods=['DELETE'])
 app.router.add_route('/register', deregister, methods=['DELETE'])
+app.router.add_route('/video', video_rtmp, methods=['GET'])
 app.run(debug=True)

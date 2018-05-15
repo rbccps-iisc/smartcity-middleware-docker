@@ -40,6 +40,7 @@ def install(arguments):
                         '--limit "kong, rabbitmq, elasticsearch, apt_repo, tomcat, ldapd,'
                         ' hypercat, videoserver, pushpin"', shell=True)
 
+
 def start(arguments):
     """ Starts all docker containers. """
     if arguments.limit:

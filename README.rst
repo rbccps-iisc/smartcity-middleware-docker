@@ -105,6 +105,10 @@ IDEAM API ENDPOINTS
 +----------------------------------------------------------+------------------------------------------------+
 | ::                                                       |                                                |
 |                                                          |                                                |
+|        Video RTMP                                        |      ``GET``      `/api/1.0.0/video.rtmp`_     |
++----------------------------------------------------------+------------------------------------------------+
+| ::                                                       |                                                |
+|                                                          |                                                |
 |        Unshare                                           |``DELETE``   /api/1.0.0/share  `unshare.md`_    |
 +----------------------------------------------------------+------------------------------------------------+
 | ::                                                       |                                                |
@@ -123,6 +127,7 @@ IDEAM API ENDPOINTS
 .. _/api/1.0.0/subscribe: docs/api/1.0.0/subscribe.md
 .. _/api/1.0.0/cat: docs/api/1.0.0/catalogue.md
 .. _/api/1.0.0/db: docs/api/1.0.0/db.md
+.. _/api/1.0.0/video.rtmp: docs/api/1.0.0/video.md
 .. _unshare.md : docs/api/1.0.0/unshare.md
 .. _unfollow.md : docs/api/1.0.0/unfollow.md
 .. _deregister.md : docs/api/1.0.0/deregister.md

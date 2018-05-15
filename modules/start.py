@@ -1,4 +1,4 @@
-import subprocess,os
+import subprocess, os
 from create_hosts import create_hosts
 
 
@@ -8,9 +8,11 @@ def start_all():
     subprocess.call("docker start konga", shell=True)
     subprocess.call('ansible-playbook -i hosts start.yaml', shell=True)
 
+
 def ansible_start(limit=""):
     create_hosts()
     subprocess.call('ansible-playbook -i hosts start.yaml --limit "' + limit + '"', shell=True)
+
 
 def start_idps():
     if os.getlogin() == 'travis':
