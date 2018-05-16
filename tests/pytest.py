@@ -4,7 +4,7 @@ import ConfigParser
 print("################### REGISTER API TESTING ###################")
 register = subprocess.check_output("./tests/create_entity.sh streetlight", shell=True)
 print(register)
-registers = subprocess.check_output("cat /var/ideam/data/logs/tomcat/tomcat-stdo*", shell=True)
+registers = subprocess.check_output("sudo cat /var/ideam/data/logs/tomcat/tomcat-stdo*", shell=True)
 print(registers)
 register = json.loads(register)
 streetlight_key = register["apiKey"]
