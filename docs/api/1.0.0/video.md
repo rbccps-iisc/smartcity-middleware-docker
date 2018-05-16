@@ -13,7 +13,7 @@ To access video data from the middleware, devices can use this API with the foll
 **Curl example**
 
 ```bash
-curl --insecure -i -X POST https://localhost:10443/api/1.0.0/video.rtmp?stream=stream_name&id=entityid&apikey=entity_api_key
+curl --insecure -i -X GET https://localhost:10443/api/1.0.0/video.rtmp?stream=stream_name&id=entityid&apikey=entity_api_key
 
 ```
 

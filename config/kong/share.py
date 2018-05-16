@@ -5,7 +5,7 @@ from time import gmtime, strftime
 import subprocess
 URL = "localhost"
 with open('/etc/url', 'r') as f:
-    URL = f.read()
+    URL = f.readline()
 
 
 def deregister(request):
@@ -542,7 +542,7 @@ def video_rtmp(request):
     print("consumer_id  : " + str(consumer_id))
     print("stream       : " + str(stream))
     if stream is not "" and apikey is not "" and consumer_id is not "":
-        return request.Response(code=301, headers={'Location': 'rtmp://'+URL+':18935/live1/{0}?user={1}&pass={2}'.
+        return request.Response(code=301, headers={'Location': 'rtmp://'+URL.strip('\n')+':18935/live1/{0}?user={1}&pass={2}'.
                                 format(stream, consumer_id, apikey)})
     else:
         return request.Response(json={'status': 'failure', 'response': 'missing stream in request'}, code=403)
@@ -550,7 +550,7 @@ def video_rtmp(request):
 
 # Currently hls is not available in video server
 def video_hls(request):
-    return request.Response(code=301, headers={'Location': 'https://'+URL+':18935/live1/stream?id=device&pass=password'})
+    return request.Response(code=301, headers={'Location': 'https://'+URL.strip('\n')+':18935/live1/stream?id=device&pass=password'})
 
 app = Application()
 app.router.add_route('/follow', follow, methods=['POST'])
