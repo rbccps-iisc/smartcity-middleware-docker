@@ -69,7 +69,7 @@ def rabbitmq_exchange_delete(ename, consumer_id, apikey):
 
 
 def ldap_entity_delete(uid):
-    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w secret0 """
+    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "secret0" """
     cmd2 = """ "uid={0},cn=devices,dc=smartcity" -r""".\
         format(uid)
     cmd = cmd1 + cmd2
@@ -81,7 +81,7 @@ def ldap_entity_delete(uid):
 
 
 def check_entity_exists(uid):
-    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w secret0 -b"""
+    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "secret0" -b"""
     cmd2 = """ "uid={0},cn=devices,dc=smartcity" """.\
         format(uid)
     cmd = cmd1 + cmd2
@@ -97,7 +97,7 @@ def check_entity_exists(uid):
 
 
 def check_owner(owner, device):
-    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w secret0 -b"""
+    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "secret0" -b"""
     cmd2 = """ "uid={0},cn=devices,dc=smartcity" {1}""".\
         format(device, "owner")
     cmd = cmd1 + cmd2
@@ -211,8 +211,8 @@ def publish(body, exchange, key, consumer_id, apikey):
 
 
 def ldap_add_share_entry(device, consumer_id, read="false", write="false"):
-    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w secret0 -f /tmp/share.ldif -H ldap://ldapd:8389'
-    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w secret0 -f /tmp/share.ldif -H ldap://ldapd:8389'
+    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w "secret0" -f /tmp/share.ldif -H ldap://ldapd:8389'
+    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w "secret0" -f /tmp/share.ldif -H ldap://ldapd:8389'
     ldif = """dn: description={0},description=share,description=broker,uid={1},cn=devices,dc=smartcity
 objectClass: broker
 objectClass: exchange
@@ -244,8 +244,8 @@ write: {3}""".format(device, consumer_id, read, write)
 
 
 def ldap_add_exchange_entry(device, consumer_id, read="false", write="false"):
-    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w secret0 -f /tmp/exchange.ldif -H ldap://ldapd:8389'
-    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w secret0 -f /tmp/exchange.ldif -H ldap://ldapd:8389'
+    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w "secret0" -f /tmp/exchange.ldif -H ldap://ldapd:8389'
+    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w "secret0" -f /tmp/exchange.ldif -H ldap://ldapd:8389'
     ldif = """dn: description={0},description=exchange,description=broker,uid={1},cn=devices,dc=smartcity
 objectClass: broker
 objectClass: exchange
@@ -398,7 +398,7 @@ def unfollow(request):
 
 
 def check_ldap_entry(desc, uid, attribute, check_parameter):
-    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w secret0 -b"""
+    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "secret0" -b"""
     cmd2 = """ "description={0},description=share,description=broker,uid={1},cn=devices,dc=smartcity" {2}""".\
         format(desc, uid, attribute)
     cmd = cmd1 + cmd2
@@ -414,7 +414,7 @@ def check_ldap_entry(desc, uid, attribute, check_parameter):
 
 
 def delete_ldap_entry(desc, uid, entry):
-    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w secret0 """
+    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "secret0" """
     cmd2 = """ "description={0},description={2},description=broker,uid={1},cn=devices,dc=smartcity" """.\
         format(desc, uid, entry)
     cmd = cmd1 + cmd2

@@ -4,7 +4,7 @@ import random
 import ConfigParser
 
 
-def id_generator(size=16, chars=string.ascii_letters + string.digits + "_-+@.^!?/\\"):
+def id_generator(size=16, chars=string.ascii_letters + string.digits + "_+^!?/\\"):
     return ''.join(random.choice(chars) for _ in range(size))
 
 
@@ -20,7 +20,7 @@ def ansible_user_pass(config):
 def ldap_pass(config):
     password = config.get('PASSWORDS', 'LDAP')
     if password == "??????":
-        password = id_generator()
+        password = id_generator(size=16, chars=string.ascii_letters + string.digits)
     write("host_vars/ldapd", "ldapd_password: " + password)
     write("config/tomcat/pwd", password)
     replace("config/hypercat/config.js", "secret0", password, "config/hypercat/config_new.js")
