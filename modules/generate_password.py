@@ -61,7 +61,7 @@ def catalogue_pass(config):
 def rmq_pass(config):
     password = config.get('PASSWORDS', 'RABBITMQ')
     if password == "??????":
-        password = id_generator()
+        password = id_generator(size=16, chars=string.ascii_letters + string.digits)
     write("config/tomcat/rmqpwd", password)
     write("host_vars/rabbitmq", "password: " + password)
     replace("config/elasticsearch/logstash-input-rabbitmq.conf", "rbccps@123", password,
