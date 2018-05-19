@@ -14,6 +14,9 @@ from datetime import datetime
 from modules.utils import setup_logging
 import argparse
 import subprocess
+from modules.utils import output_ok, output_error
+import traceback
+import json
 
 
 class MyParser(argparse.ArgumentParser):
@@ -76,6 +79,97 @@ def str2bool(v):
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
 
+def test(arguments):
+    cmd = "./tests/create_entity.sh api_testing_streetlight"
+    api_testing_streetlight_key = ""
+    try:
+        process = subprocess.check_output(cmd, shell=True)
+        register = json.loads(process)
+        api_testing_streetlight_key = register["apiKey"]
+        output_ok("REGISTER API: Created entity api_testing_streetlight. API KEY is " + api_testing_streetlight_key)
+    except:
+        output_error(process,
+                     error_message=traceback.format_exc())
+        exit()
+
+    cmd = "./tests/create_entity.sh api_testing_dashboard"
+    api_testing_dashboard_key = ""
+    try:
+        process = subprocess.check_output(cmd, shell=True)
+        register = json.loads(process)
+        api_testing_dashboard_key = register["apiKey"]
+        output_ok("REGISTER API: Created entity api_testing_dashboard. API KEY is " + api_testing_dashboard_key)
+    except:
+        output_error(process,
+                     error_message=traceback.format_exc())
+        exit()
+
+    cmd = "./tests/publish.sh " + api_testing_streetlight_key
+    try:
+        process = subprocess.check_output(cmd, shell=True)
+        if "Publish message OK" in process:
+            output_ok("PUBLISH API: Published message as api_testing_streetlight.")
+        else:
+            output_error(process,
+                         error_message=traceback.format_exc())
+    except:
+        output_error(process,
+                     error_message=traceback.format_exc())
+        exit()
+
+    cmd = "./tests/catalogue.sh api_testing_dashboard"
+    try:
+        process = subprocess.check_output(cmd, shell=True)
+        if "api_testing_dashboard" in process:
+            output_ok("CATALOGUE API: Device api_testing_dashboard found in catalogue.")
+        else:
+            output_error(process,
+                         error_message=traceback.format_exc())
+    except:
+        output_error(process,
+                     error_message=traceback.format_exc())
+        exit()
+
+    cmd = "./tests/deregister.sh"
+    try:
+        process = subprocess.check_output(cmd, shell=True)
+        if "success" in process:
+            output_ok("DEREGISTER API: Device api_testing_dashboard removed.")
+        else:
+            output_error(process,
+                         error_message=traceback.format_exc())
+    except:
+        output_error(process,
+                     error_message=traceback.format_exc())
+        exit()
+
+    cmd = "sh tests/deregister1.sh"
+    try:
+        process = subprocess.check_output(cmd, shell=True)
+        if "success" in process:
+            output_ok("DEREGISTER API: Device api_testing_streetlight removed.")
+        else:
+            output_error(process,
+                         error_message=traceback.format_exc())
+    except:
+        output_error(process,
+                     error_message=traceback.format_exc())
+        exit()
+
+    cmd = "./tests/catalogue.sh api_testing_dashboard"
+    try:
+        process = subprocess.check_output(cmd, shell=True)
+        if "api_testing_dashboard" not in process:
+            output_ok("CATALOGUE API: Device api_testing_dashboard not found in catalogue.")
+        else:
+            output_error(process,
+                         error_message=traceback.format_exc())
+    except:
+        output_error(process,
+                     error_message=traceback.format_exc())
+        exit()
+
+
 def remove(arguments):
     subprocess.check_output("find {} -mindepth 3 -delete".format(arguments.rm_data_path), shell=True)
 
@@ -134,6 +228,7 @@ if __name__ == '__main__':
                                 help="Path to data directory. Installation using deb file will have /var/ideam/data as"
                                      "directory. See /etc/ideam/ideam.conf for an details on data directory.",
                                 default="/var/ideam/data")
+    test_parser = subparsers.add_parser('test', help='Test all API endpoints')
 
     args = parser.parse_args()
 
@@ -145,3 +240,5 @@ if __name__ == '__main__':
         start(args)
     elif args.command == "rmdata":
         remove(args)
+    elif args.command == "test":
+        test(args)
