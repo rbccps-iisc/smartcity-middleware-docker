@@ -67,6 +67,8 @@ After downloading and installing the deb file, do the following steps.
 
 - If you want to delete all the data stored as part of ideam, ``ideam rmdata``.
 
+- If you want to test all API endpoints of ideam, ``ideam test``.
+
 - If installation fails at some instance, all the time-dated logs are available at ``/tmp/ideam-%Y-%m-%d-%H-%M.log``.
 
 
