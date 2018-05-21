@@ -6,6 +6,10 @@ import subprocess
 from datetime import datetime
 from datetime import timedelta
 
+URL = "localhost"
+with open('/etc/url', 'r') as f:
+    URL = f.readline()
+
 
 def deregister(request):
     consumer_id = ""
@@ -137,7 +141,7 @@ def rabbitmq_exchange_delete(ename, consumer_id, apikey):
 
 
 def ldap_entity_delete(uid):
-    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w secret0 """
+    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "secret0" """
     cmd2 = """ "uid={0},cn=devices,dc=smartcity" -r""".\
         format(uid)
     cmd = cmd1 + cmd2
@@ -149,7 +153,7 @@ def ldap_entity_delete(uid):
 
 
 def check_entity_exists(uid):
-    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w secret0 -b"""
+    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "secret0" -b"""
     cmd2 = """ "uid={0},cn=devices,dc=smartcity" """.\
         format(uid)
     cmd = cmd1 + cmd2
@@ -181,7 +185,7 @@ def check_entity_is_video(uid):
 
 
 def check_owner(owner, device):
-    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w secret0 -b"""
+    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "secret0" -b"""
     cmd2 = """ "uid={0},cn=devices,dc=smartcity" {1}""".\
         format(device, "owner")
     cmd = cmd1 + cmd2
@@ -248,8 +252,6 @@ def follow(request):
         return request.Response(text=" A follow request was approved to exchange " + entity + " with " + permission +
                                      " access at " + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + " GMT.\n")
     else:
-        create_queue(entity + ".follow", consumer_id, apikey)  # TODO it should be as part of RegisterAPI, must remove
-        create_exchange("public", consumer_id, apikey)  # TODO it should be part of RegisterAPI
         bind(entity + ".follow", "public", entity + ".follow", consumer_id, apikey)
         print(strftime("%Y-%m-%d %H:%M:%S", gmtime()) + " Entity " + consumer_id +
               " made a follow request. Requested access is for " + permission)
@@ -301,7 +303,6 @@ def publish(body, exchange, key, consumer_id, apikey):
     data = {"exchange": exchange, "key": key, "body": body}
     r = requests.post(url, data=json.dumps(data), headers=headers)
     print(r.text)
-
 
 def ldap_add_share_entry(device, consumer_id,ttl, read="false", write="false"):
     today=datetime.now()
@@ -367,8 +368,8 @@ validity: {4}""".format(device, consumer_id, read, write,valid_until)
 
 
 def ldap_add_exchange_entry(device, consumer_id, read="false", write="false"):
-    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w secret0 -f /tmp/exchange.ldif -H ldap://ldapd:8389'
-    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w secret0 -f /tmp/exchange.ldif -H ldap://ldapd:8389'
+    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w "secret0" -f /tmp/exchange.ldif -H ldap://ldapd:8389'
+    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w "secret0" -f /tmp/exchange.ldif -H ldap://ldapd:8389'
     ldif = """dn: description={0},description=exchange,description=broker,uid={1},cn=devices,dc=smartcity
 objectClass: broker
 objectClass: exchange
@@ -530,7 +531,7 @@ def unfollow(request):
 
 
 def check_ldap_entry(desc, uid, attribute, check_parameter):
-    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w secret0 -b"""
+    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "secret0" -b"""
     cmd2 = """ "description={0},description=share,description=broker,uid={1},cn=devices,dc=smartcity" {2}""".\
         format(desc, uid, attribute)
     cmd = cmd1 + cmd2
@@ -546,7 +547,7 @@ def check_ldap_entry(desc, uid, attribute, check_parameter):
 
 
 def delete_ldap_entry(desc, uid, entry):
-    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w secret0 """
+    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "secret0" """
     cmd2 = """ "description={0},description={2},description=broker,uid={1},cn=devices,dc=smartcity" """.\
         format(desc, uid, entry)
     cmd = cmd1 + cmd2
@@ -619,7 +620,31 @@ def unshare(request):
             delete_ldap_entry(entity, consumer_id, "exchange")
         text = "Read-write access given to " + entity + " at " + consumer_id + " exchange removed.\n"
         return request.Response(text=text)
-    return request.Response(text="unshare success\n")
+
+
+def video_rtmp(request):
+    consumer_id = ""
+    apikey = ""
+    stream = ""
+    for name, value in request.query.items():
+        if name == "id":
+            consumer_id = value
+        elif name == "apikey":
+            apikey = value
+        elif name == "stream":
+            stream = value
+    print("consumer_id  : " + str(consumer_id))
+    print("stream       : " + str(stream))
+    if stream is not "" and apikey is not "" and consumer_id is not "":
+        return request.Response(code=301, headers={'Location': 'rtmp://'+URL.strip('\n')+':18935/live1/{0}?user={1}&pass={2}'.
+                                format(stream, consumer_id, apikey)})
+    else:
+        return request.Response(json={'status': 'failure', 'response': 'missing stream in request'}, code=403)
+
+
+# Currently hls is not available in video server
+def video_hls(request):
+    return request.Response(code=301, headers={'Location': 'https://'+URL.strip('\n')+':18935/live1/stream?id=device&pass=password'})
 
 app = Application()
 app.router.add_route('/follow', follow, methods=['POST'])
@@ -627,4 +652,5 @@ app.router.add_route('/follow', unfollow, methods=['DELETE'])
 app.router.add_route('/share', share, methods=['POST'])
 app.router.add_route('/share', unshare, methods=['DELETE'])
 app.router.add_route('/register', deregister, methods=['DELETE'])
+app.router.add_route('/video', video_rtmp, methods=['GET'])
 app.run(debug=True)

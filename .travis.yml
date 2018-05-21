@@ -7,9 +7,9 @@ before_install:
 language: python
 install:
   - ideam install
-  - ideam start
+  - ideam start --with-idps
 script:
-  - python ./tests/pytest.py
+  - ideam test
 addons:
   postgresql: "9.5"
 before_script:

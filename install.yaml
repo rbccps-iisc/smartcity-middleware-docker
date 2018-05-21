@@ -417,9 +417,9 @@
   - name: Install logstash-input-rabbitmq plugin
     command: /usr/share/logstash/bin/logstash-plugin install logstash-input-rabbitmq
 
-  - name: Copy logstash-input-rabbitmq.conf
+  - name: Copy logstash-input-rabbitmq_new.conf
     copy:
-      src: config/elasticsearch/logstash-input-rabbitmq.conf
+      src: config/elasticsearch/logstash-input-rabbitmq_new.conf
       dest: /etc/logstash/conf.d/logstash-input-rabbitmq.conf
       owner: root
       group: root
@@ -705,6 +705,12 @@
     copy:
       src: config/tomcat/pwd
       dest: /etc/pwd
+      mode: 0644
+
+  - name: Copy rmqpwd
+    copy:
+      src: config/tomcat/rmqpwd
+      dest: /etc/rmqpwd
       mode: 0644
 
 - hosts: pushpin

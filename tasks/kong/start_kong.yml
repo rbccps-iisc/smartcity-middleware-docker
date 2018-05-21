@@ -19,6 +19,11 @@
       src: config/kong/share_new.py
       dest: /home/ideam/share.py
 
+  - name: Copy url
+    copy:
+      src: config/kong/url
+      dest: /etc/url
+
   - name: Setting up Kong.conf file
     copy:
       src: config/kong/kong_new.conf

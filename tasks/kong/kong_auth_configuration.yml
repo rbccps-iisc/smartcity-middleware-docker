@@ -418,3 +418,47 @@
     register: request
     until: (request.status == 201) or (request.status == 409)
     retries: 5
+
+  - name: Creating "/api/1.0.0/video.rtmp" GET at kong (http://kong:8080/video)
+    uri:
+      url: http://localhost:8001/apis/
+      method: POST
+      body: 'name=video.rtmp&upstream_url=http://kong:8080/video&uris=/api/1.0.0/video.rtmp&methods=GET'
+      status_code: [201, 409]
+      return_content: yes
+    register: request
+    until: (request.status == 409) or (request.status == 201)
+    retries: 5
+
+  - name: Adding key-auth to "/api/1.0.0/video.rtmp"
+    uri:
+        url: http://localhost:8001/apis/video.rtmp/plugins
+        method: POST
+        body: 'name=key-auth'
+        status_code: [201, 409]
+        return_content: yes
+    register: request
+    until: (request.status == 409) or (request.status == 201)
+    retries: 5
+
+  - name: Adding acl "subscribe" group to "/api/1.0.0/video.rtmp"
+    uri:
+      url: http://localhost:8001/apis/video.rtmp/plugins
+      method: POST
+      body: 'name=acl&config.whitelist=subscribe'
+      status_code: [201, 409]
+      return_content: yes
+    register: request
+    until: (request.status == 201) or (request.status == 409)
+    retries: 5
+
+  - name: Adding acl "publish" group to "/api/1.0.0/video.rtmp"
+    uri:
+      url: http://localhost:8001/apis/video.rtmp/plugins
+      method: POST
+      body: 'name=acl&config.whitelist=publish'
+      status_code: [201, 409]
+      return_content: yes
+    register: request
+    until: (request.status == 201) or (request.status == 409)
+    retries: 5
