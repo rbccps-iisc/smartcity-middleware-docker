@@ -5,8 +5,8 @@
     - host_vars/idps
 
   tasks:
-   - name: Install python3
-     apt: pkg=python3 state=installed update_cache=true
+   - name: Install python3.5
+     apt: pkg=python3.5 state=installed update_cache=true
 
    - name: Ensure packages are installed
      apt: name={{item}}
@@ -81,6 +81,12 @@
 
    - name: Ensure apt cache is up to date
      apt: update_cache=yes
+
+   - cron:
+       name: "Purge expired subscriptions"
+       minute: "*"
+       hour: "*"
+       job: "python3.5 {{dir.stdout}}/config/idps/cron.py"
  
 
 - hosts: 127.0.0.1
