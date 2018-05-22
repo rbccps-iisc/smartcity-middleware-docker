@@ -3,11 +3,20 @@ import json
 import requests
 import subprocess
 import re
+import time
+import sys
 
 consumers_list=[]
+ldap_ip=""
+kong_ip=""
+ldap_password=""
+ideam_home=str(sys.argv[1])
 
 def delete_share_entry(desc,uid):
-    cmd1 = """ldapdelete -H ldap://172.18.0.6:8389 -D "cn=admin,dc=smartcity" -w xRVF!Qowj-3iKWnT """
+
+    global ldap_password,ldap_ip
+
+    cmd1 = "ldapdelete -H ldap://"+ldap_ip+":8389 -D \"cn=admin,dc=smartcity\" -w "+ldap_password
     cmd2 = """ "description={0},description=share,description=broker,uid={1},cn=devices,dc=smartcity" -r""". \
         format(desc,uid)
     cmd = cmd1 + cmd2
@@ -18,7 +27,10 @@ def delete_share_entry(desc,uid):
         print(e)
 
 def check_entity_exists(uid):
-    cmd1 = """ldapsearch -H ldap://172.18.0.6:8389 -D "cn=admin,dc=smartcity" -w xRVF!Qowj-3iKWnT -b"""
+
+    global ldap_ip,ldap_password
+
+    cmd1 = "ldapsearch -H ldap://"+ldap_ip+":8389 -D \"cn=admin,dc=smartcity\" -w "+ldap_password+" -b"
     cmd2 = """ "uid={0},cn=devices,dc=smartcity" """.\
         format(uid)
     cmd = cmd1 + cmd2
@@ -32,7 +44,10 @@ def check_entity_exists(uid):
     return a
 
 def check_expiry(uid):
-    cmd1 = """ldapsearch -H ldap://172.18.0.6:8389 -D "cn=admin,dc=smartcity" -w xRVF!Qowj-3iKWnT -b"""
+
+    global ldap_password,ldap_ip
+
+    cmd1 = "ldapsearch -H ldap://"+ldap_ip+":8389 -D \"cn=admin,dc=smartcity\" -w "+ldap_password+" -b"
     cmd2 = """ "description=share,description=broker,uid={0},cn=devices,dc=smartcity" """. \
         format(uid)
     cmd = cmd1 + cmd2
@@ -62,11 +77,46 @@ def check_expiry(uid):
 
         i+=1
 
+def get_ips():
+
+    global ldap_ip, kong_ip
+
+    resp = ""
+
+    try:
+        resp = subprocess.check_output("docker network inspect mynet", shell=True)
+    except Exception as e:
+        print(e)
+
+    data = json.loads(resp.decode("utf-8").replace("\'", "\""))
+    data = json.dumps(data)[1:-1]
+    data = json.loads(data)
+
+    for entry in data['Containers']:
+
+        if data["Containers"][entry]["Name"] == "ldapd":
+            ldap_ip = str(data["Containers"][entry]["IPv4Address"]).split("/")[0]
+
+        if data["Containers"][entry]["Name"] == "kong":
+            kong_ip = str(data["Containers"][entry]["IPv4Address"]).split("/")[0]
+
+    if ldap_ip == "" or kong_ip == "":
+        print("Please start all docker containers")
+        exit(code=1)
+
+def read_pwd():
+    global ideam_home,ldap_password
+    f=open(ideam_home+"/host_vars/ldapd","r")
+    ldap_password=f.readline().split(":")[1]
+
 def main():
 
-    global consumers_list
+    global consumers_list,kong_ip
 
-    r=requests.get("http://172.18.0.2:8001/consumers/")
+    get_ips()
+    read_pwd()
+
+    r=requests.get("http://"+kong_ip+":8001/consumers/")
     data=json.loads(r.text)
 
     for entry in data['data']:
@@ -76,6 +126,7 @@ def main():
         if check_entity_exists(user):
             check_expiry(user)
 
-if __name__ == '__main__':
-    main()
-
+starttime=time.time()
+while True:
+  main()
+  time.sleep(60.0 - ((time.time() - starttime) % 60.0))

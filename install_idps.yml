@@ -32,23 +32,48 @@
      shell: "pwd"
      register: dir
 
-   - name: Update password in key.conf
+   - name: Make a copy of key.conf
+     copy: src={{item.src}} dest={{item.dest}}
+     with_items:
+       - {src: './config/idps/key.conf', dest: './config/idps/key_new.conf'}
+
+   - name: Update password in key_new.conf
      lineinfile:
-        path: ./config/idps/key.conf
+        path: ./config/idps/key_new.conf
         regexp: '^PASSWORD='
         line: 'PASSWORD={{db_password}}'
 
+   - name: Make a copy of log_parser.conf
+     copy: src={{item.src}} dest={{item.dest}}
+     with_items:
+       - {src: './config/idps/log_parser.conf', dest: './config/idps/log_parser_new.conf'}
 
    - name: Update python script location in supervisor conf
      lineinfile:
-        path: ./config/idps/log_parser.conf
+        path: ./config/idps/log_parser_new.conf
         regexp: '^command='
         line: 'command=python3 {{dir.stdout}}/config/idps/log_parser.py {{dir.stdout}}'
 
    - name: Copy supervisor config file
      copy: src={{ item.src }} dest={{ item.dest }}
      with_items:
-       - { src: './config/idps/log_parser.conf', dest: '/etc/supervisor/conf.d/' }
+       - { src: './config/idps/log_parser_new.conf', dest: '/etc/supervisor/conf.d/' }
+
+   - name: Make a copy of metering_cron.conf
+     copy: src={{item.src}} dest={{item.dest}}
+     with_items:
+       - {src: './config/idps/metering_cron.conf', dest: './config/idps/metering_cron_new.conf'}
+
+   - name: Update script location in supervisor conf
+     lineinfile:
+        path: ./config/idps/metering_cron_new.conf
+        regexp: '^command='
+        line: 'command=/usr/bin/python3.5 {{dir.stdout}}/config/idps/metering_cron.py {{dir.stdout}}'
+
+   - name: Copy supervisor config file
+     copy: src={{ item.src }} dest={{ item.dest }}
+     with_items:
+       - { src: './config/idps/metering_cron_new.conf', dest: '/etc/supervisor/conf.d/' }
 
    - name: Register service with supervisor
      command: supervisorctl reread
@@ -82,12 +107,6 @@
    - name: Ensure apt cache is up to date
      apt: update_cache=yes
 
-   - cron:
-       name: "Purge expired subscriptions"
-       minute: "*"
-       hour: "*"
-       job: "python3.5 {{dir.stdout}}/config/idps/cron.py"
- 
 
 - hosts: 127.0.0.1
   connection: local

@@ -32,6 +32,7 @@ def install(arguments):
     if arguments.limit:
         container_setup.ansible_installation(arguments.limit)
     else:
+        print(arguments.config_file)
         setup_logging(log_file=arguments.log_file)
         container_setup.check_dependencies(log_file=arguments.log_file)
         container_setup.stop_containers(log_file=arguments.log_file)

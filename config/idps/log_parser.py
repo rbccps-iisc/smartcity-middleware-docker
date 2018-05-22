@@ -113,9 +113,6 @@ def parse(log_line):
             pass
 
         username = ""
-        consumerId = ""
-
-        apikey=""
 
         try:
             username = str(data['request']['headers']['x-consumer-username'])
@@ -128,7 +125,7 @@ def parse(log_line):
         except:
             pass
 
-        formatted += resourceId + " " + apikey + " " + username + " " + consumerId + " " + response
+        formatted += resourceId + " " + username + " " + response
         formatted=" ".join(formatted.split())
 
         i+=1
@@ -156,7 +153,7 @@ count=1
 
 ideam_home=str(sys.argv[1])
 config = configparser.ConfigParser()
-config.read_file(open(ideam_home+"/config/idps/key.conf"))
+config.read_file(open(ideam_home+"/config/idps/key_new.conf"))
 db_name=config.get('DATABASE','NAME')
 db_user=config.get('DATABASE','USER')
 db_password=config.get('DATABASE','PASSWORD')

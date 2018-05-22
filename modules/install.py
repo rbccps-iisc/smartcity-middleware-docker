@@ -162,7 +162,6 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
                This should be used only for fresh installation.
 
     """
-
     instance_details = {}
     config = ConfigParser.ConfigParser()
     config.readfp(open(config_path))
@@ -210,7 +209,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
                           log_file=log_file,
                           exit_on_fail=True)
 
-    ca_ip, ca_port, details = create_instance("certificate_authority", "ansible/ubuntu-ssh", log_file)
+    ca_ip, ca_port, details = create_instance("certificate_authority", "ansible/ubuntu-ssh", log_file, config_path=config_path)
     output_ok("Created Certificate Authority docker instance. \n " + details)
 
     instance_details["certificate_authority"] = [ca_ip, ca_port]
@@ -294,7 +293,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
                           log_file=log_file,
                           exit_on_fail=True)
 
-    ip, port, details = create_instance("apt_repo", "ansible/ubuntu-certified-aptrepo:1.0", log_file)
+    ip, port, details = create_instance("apt_repo", "ansible/ubuntu-certified-aptrepo:1.0", log_file, config_path=config_path)
     instance_details["apt_repo"] = [ip, port]
     output_ok("Created Apt Local Repository docker instance. \n " + details)
 
@@ -302,6 +301,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
                                         storage_host=kong_storage,
                                         storage_guest="/var/lib/postgresql",
                                         log_file=log_file,
+                                        config_path=config_path,
                                         log_storage=kong_log_location)
 
     instance_details["kong"] = [ip, port]
@@ -310,40 +310,44 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
     ip, port, details = create_instance("hypercat", "ansible/ubuntu-certified-catalogue:1.0",
                                         storage_host=catalogue_storage,
                                         storage_guest="/data/db",
-                                        log_file=log_file)
+                                        log_file=log_file,
+                                        config_path=config_path)
     instance_details["hypercat"] = [ip, port]
     output_ok("Created Catalogue docker instance. \n " + details)
 
     ip, port, details = create_instance("rabbitmq", "ansible/ubuntu-certified-rabbitmq:1.0",
                                         storage_host=rabbitmq_storage,
                                         storage_guest="/var/lib/rabbitmq",
-                                        log_file=log_file)
+                                        log_file=log_file,
+                                        config_path=config_path)
     instance_details["rabbitmq"] = [ip, port]
     output_ok("Created RabbitMQ docker instance. \n " + details)
 
-    ip, port, details = create_instance("elasticsearch", "ansible/ubuntu-certified-elk:1.0", log_file=log_file)
+    ip, port, details = create_instance("elasticsearch", "ansible/ubuntu-certified-elk:1.0", log_file=log_file, config_path=config_path)
     instance_details["elasticsearch"] = [ip, port]
     output_ok("Created Elastic Search docker instance. \n " + details)
 
     ip, port, details = create_instance("tomcat", "ansible/tomcat",
                                         storage_host=tomcat_storage,
                                         storage_guest="/opt/tomcat/webapps",
-                                        log_file=log_file)
+                                        log_file=log_file,
+                                        config_path=config_path)
     instance_details["tomcat"] = [ip, port]
     output_ok("Created Tomcat docker instance. \n " + details)
 
     ip, port, details = create_instance("ldapd", "ansible/ubuntu-certified-ldapd:1.0",
                                         storage_host="ldapd-data",
                                         storage_guest="/var/db",
-                                        log_file=log_file)
+                                        log_file=log_file,
+                                        config_path=config_path)
     instance_details["ldapd"] = [ip, port]
     output_ok("Created LDAP docker instance. \n " + details)
 
-    ip, port, details = create_instance("pushpin", "ansible/pushpin", log_file=log_file)
+    ip, port, details = create_instance("pushpin", "ansible/pushpin", log_file=log_file, config_path=config_path)
     instance_details["pushpin"] = [ip, port]
     output_ok("Created Pushpin docker instance. \n " + details)
 
-    ip, port, details = create_instance("videoserver", "ansible/video-server:1.0", log_file=log_file)
+    ip, port, details = create_instance("videoserver", "ansible/video-server:1.0", log_file=log_file, config_path=config_path)
     instance_details["videoserver"] = [ip, port]
     output_ok("Created Videoserver docker instance. \n " + details)
 

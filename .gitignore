@@ -21,3 +21,4 @@ host_vars/idps
 host_vars/kong
 host_vars/ldapd
 ideam.conf.local
+config/idps/log_parser_new.conf
