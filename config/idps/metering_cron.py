@@ -9,8 +9,15 @@ import sys
 consumers_list=[]
 ldap_ip=""
 kong_ip=""
+rmq_pwd=""
 ldap_password=""
 ideam_home=str(sys.argv[1])
+
+def unbind(exchange,queue):
+    global rmq_pwd
+    url = "http://localhost:12081/api/bindings/%2f/e/"+exchange+"/q/"+queue+"/%23"
+    r = requests.delete(url, auth=('admin.ideam',rmq_pwd))
+    print(r.text)
 
 def delete_share_entry(desc,uid):
 
@@ -64,13 +71,21 @@ def check_expiry(uid):
     i=0
     for entry in resp:
         if p.match(entry):
-            desc=resp[i-3].split(":")[1].strip()
+            count=0
+
+            while resp[i].split(":")[0].strip() != "description":
+                i-=1
+                count+=1
+
+            desc=resp[i].split(":")[1].strip()
+            i+=count
             date=p.findall(entry)
             date=''.join(date)
             now=datetime.now().timestamp()
 
             try:
                 if now>float(date):
+                    unbind(uid+".protected",desc)
                     delete_share_entry(desc,uid)
             except:
                 pass
@@ -88,7 +103,7 @@ def get_ips():
     except Exception as e:
         print(e)
 
-    data = json.loads(resp.decode("utf-8").replace("\'", "\""))
+    data = json.loads(resp.decode('utf-8').replace("\'", "\""))
     data = json.dumps(data)[1:-1]
     data = json.loads(data)
 
@@ -105,9 +120,21 @@ def get_ips():
         exit(code=1)
 
 def read_pwd():
-    global ideam_home,ldap_password
-    f=open(ideam_home+"/host_vars/ldapd","r")
-    ldap_password=f.readline().split(":")[1]
+    
+    global ideam_home,ldap_password,rmq_pwd
+    
+    try:
+        f=open(ideam_home+"/host_vars/ldapd","r")
+        ldap_password=f.readline().split(":")[1].strip()
+    except Exception as e:
+        print(e)
+    
+    try:
+        f = open(ideam_home + "/host_vars/rabbitmq", "r")
+        rmq_pwd = f.readline().split(":")[1].strip()
+    except Exception as e:
+        print(e)
+
 
 def main():
 
