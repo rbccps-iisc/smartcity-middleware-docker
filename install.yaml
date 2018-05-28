@@ -26,7 +26,20 @@
   - name: Reload supervisorctl
     shell: supervisorctl reload
     become: true
+  
+  - name: Install rsyslog
+    apt: pkg=rsyslog state=installed update_cache=true 
 
+  - name: Start logging service
+    shell: rsyslogd
+  
+  - name: Allow localhost SSH access into containers
+    shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
+
+  - name: Block SSH access into containers from outside machines
+    shell: sed -i "$ a sshd {{":"}} ALL {{":"}} deny" /etc/hosts.allow
+
+   
 ## Set up rabbitmq environment
 - hosts: rabbitmq
   remote_user: root
@@ -113,6 +126,18 @@
       dest: /etc/supervisor/conf.d/rabbitmqhttp.conf
       mode: 0644
 
+  - name: Install rsyslog
+    apt: pkg=rsyslog state=installed update_cache=true 
+
+  - name: Start logging service
+    shell: rsyslogd
+  
+  - name: Allow localhost SSH access into containers
+    shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
+
+  - name: Block SSH access into containers from outside machines
+    shell: sed -i "$ a sshd {{":"}} ALL {{":"}} deny" /etc/hosts.allow
+
 ## Set up hypercat environment
 - hosts: hypercat
   remote_user: root
@@ -192,6 +217,18 @@
 
   - name: Link nodejs to node
     file: src=/usr/bin/nodejs dest=/usr/bin/node state=link
+
+  - name: Install rsyslog
+    apt: pkg=rsyslog state=installed update_cache=true 
+
+  - name: Start logging service
+    shell: rsyslogd
+  
+  - name: Allow localhost SSH access into containers
+    shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
+
+  - name: Block SSH access into containers from outside machines
+    shell: sed -i "$ a sshd {{":"}} ALL {{":"}} deny" /etc/hosts.allow
 
 - hosts: hypercat
   remote_user: ideam
@@ -357,6 +394,18 @@
       executable: pip3
     become_user: ideam
 
+  - name: Install rsyslog
+    apt: pkg=rsyslog state=installed update_cache=true 
+
+  - name: Start logging service
+    shell: rsyslogd
+  
+  - name: Allow localhost SSH access into containers
+    shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
+
+  - name: Block SSH access into containers from outside machines
+    shell: sed -i "$ a sshd {{":"}} ALL {{":"}} deny" /etc/hosts.allow
+
 
 ## Set up CA openssl environment
 - hosts: certificate_authority
@@ -374,6 +423,18 @@
     apt: name=openssl state=present
 
   - include: tasks/certificate_authority/ssh_configuration.yml
+
+  - name: Install rsyslog
+    apt: pkg=rsyslog state=installed update_cache=true 
+
+  - name: Start logging service
+    shell: rsyslogd
+  
+  - name: Allow localhost SSH access into containers
+    shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
+
+  - name: Block SSH access into containers from outside machines
+    shell: sed -i "$ a sshd {{":"}} ALL {{":"}} deny" /etc/hosts.allow
 
 ## Set up elasticsearch environment
 - hosts: elasticsearch
@@ -434,6 +495,18 @@
     copy:
       src: config/elasticsearch/elasticsearch.yml
       dest: /etc/elasticsearch/elasticsearch.yml
+
+  - name: Install rsyslog
+    apt: pkg=rsyslog state=installed update_cache=true 
+
+  - name: Start logging service
+    shell: rsyslogd
+  
+  - name: Allow localhost SSH access into containers
+    shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
+
+  - name: Block SSH access into containers from outside machines
+    shell: sed -i "$ a sshd {{":"}} ALL {{":"}} deny" /etc/hosts.allow
 
 ## Set up ldapd environment
 - hosts: ldapd
@@ -583,6 +656,18 @@
     args:
       chdir: /home/ideam/
 
+  - name: Install rsyslog
+    apt: pkg=rsyslog state=installed update_cache=true 
+
+  - name: Start logging service
+    shell: rsyslogd
+  
+  - name: Allow localhost SSH access into containers
+    shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
+
+  - name: Block SSH access into containers from outside machines
+    shell: sed -i "$ a sshd {{":"}} ALL {{":"}} deny" /etc/hosts.allow
+
 ## Set up apache storm environment
 - hosts: apache_storm
   remote_user: root
@@ -713,6 +798,18 @@
       dest: /etc/rmqpwd
       mode: 0644
 
+  - name: Install rsyslog
+    apt: pkg=rsyslog state=installed update_cache=true 
+
+  - name: Start logging service
+    shell: rsyslogd
+  
+  - name: Allow localhost SSH access into containers
+    shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
+
+  - name: Block SSH access into containers from outside machines
+    shell: sed -i "$ a sshd {{":"}} ALL {{":"}} deny" /etc/hosts.allow
+
 - hosts: pushpin
   remote_user: root
   vars_files:
@@ -724,6 +821,18 @@
 
   - name: Install tmux
     apt: name=tmux state=present
+  
+  - name: Install rsyslog
+    apt: pkg=rsyslog state=installed update_cache=true 
+
+  - name: Start logging service
+    shell: rsyslogd
+  
+  - name: Allow localhost SSH access into containers
+    shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
+
+  - name: Block SSH access into containers from outside machines
+    shell: sed -i "$ a sshd {{":"}} ALL {{":"}} deny" /etc/hosts.allow
 
 - hosts: videoserver
   remote_user: root
@@ -733,3 +842,15 @@
   - include: tasks/add_local_repository.yml
   - include: tasks/update_repos.yml
   - include: tasks/user_modify.yml
+
+  - name: Install rsyslog
+    apt: pkg=rsyslog state=installed update_cache=true 
+
+  - name: Start logging service
+    shell: rsyslogd
+  
+  - name: Allow localhost SSH access into containers
+    shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
+
+  - name: Block SSH access into containers from outside machines
+    shell: sed -i "$ a sshd {{":"}} ALL {{":"}} deny" /etc/hosts.allow
