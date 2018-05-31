@@ -10,7 +10,7 @@ def id_generator(size=16, chars=string.ascii_letters + string.digits + "_+^?/"):
 
 def ansible_user_pass(config):
     password = config.get('PASSWORDS', 'USER_ANSIBLE')
-    if password == "??????":
+    if password == "?":
         password = id_generator()
     sha_hash = passlib.hash.sha512_crypt.encrypt(password)
     write("host_vars/all", "password: " + sha_hash)
@@ -19,7 +19,7 @@ def ansible_user_pass(config):
 
 def ldap_pass(config):
     password = config.get('PASSWORDS', 'LDAP')
-    if password == "??????":
+    if password == "?":
         password = id_generator(size=16, chars=string.ascii_letters + string.digits)
     write("host_vars/ldapd", "ldapd_password: " + password)
     write("config/tomcat/pwd", password)
@@ -39,7 +39,7 @@ def replace(path, old, new, new_path):
 
 def kong_pass(config):
     password = config.get('PASSWORDS', 'KONG')
-    if password == "??????":
+    if password == "?":
         password = id_generator()
     write("host_vars/kong", "kong_password: " + password + "\npostgresql_password: " + password)
     with open('config/kong/kong.conf', 'r') as f:
@@ -52,7 +52,7 @@ def kong_pass(config):
 
 def catalogue_pass(config):
     password = config.get('PASSWORDS', 'HYPERCAT')
-    if password == "??????":
+    if password == "?":
         password = id_generator()
     write("host_vars/hypercat", "mongodb_password: " + password)
     config.set('PASSWORDS', 'HYPERCAT', password)
@@ -60,7 +60,7 @@ def catalogue_pass(config):
 
 def rmq_pass(config):
     password = config.get('PASSWORDS', 'RABBITMQ')
-    if password == "??????":
+    if password == "?":
         password = id_generator(size=16, chars=string.ascii_letters + string.digits)
     write("config/tomcat/rmqpwd", password)
     write("host_vars/rabbitmq", "password: " + password)
@@ -75,7 +75,7 @@ def rmq_pass(config):
 
 def idps_pass(config):
     password = config.get('PASSWORDS', 'IDPS')
-    if password == "??????":
+    if password == "?":
         password = id_generator()
     write("host_vars/idps", "db_password: " + password)
     config.set('PASSWORDS', 'IDPS', password)

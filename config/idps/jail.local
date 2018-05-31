@@ -48,6 +48,6 @@ filter   = middleware-badrequest
 logpath  = /var/ideam/data/logs/kong/kong.log
 port     = all
 action   = iptables-middleware
-maxretry = 1
+maxretry = 5
 bantime  = 60
 findtime = 60
