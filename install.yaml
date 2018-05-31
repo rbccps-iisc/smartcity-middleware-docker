@@ -32,6 +32,7 @@
 
   - name: Start logging service
     shell: rsyslogd
+    ignore_errors: yes
   
   - name: Allow localhost SSH access into containers
     shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
@@ -131,6 +132,7 @@
 
   - name: Start logging service
     shell: rsyslogd
+    ignore_errors: yes
   
   - name: Allow localhost SSH access into containers
     shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
@@ -223,6 +225,7 @@
 
   - name: Start logging service
     shell: rsyslogd
+    ignore_errors: yes
   
   - name: Allow localhost SSH access into containers
     shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
@@ -399,6 +402,7 @@
 
   - name: Start logging service
     shell: rsyslogd
+    ignore_errors: yes
   
   - name: Allow localhost SSH access into containers
     shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
@@ -429,6 +433,7 @@
 
   - name: Start logging service
     shell: rsyslogd
+    ignore_errors: yes
   
   - name: Allow localhost SSH access into containers
     shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
@@ -501,6 +506,7 @@
 
   - name: Start logging service
     shell: rsyslogd
+    ignore_errors: yes
   
   - name: Allow localhost SSH access into containers
     shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
@@ -661,6 +667,7 @@
 
   - name: Start logging service
     shell: rsyslogd
+    ignore_errors: yes
   
   - name: Allow localhost SSH access into containers
     shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
@@ -803,6 +810,7 @@
 
   - name: Start logging service
     shell: rsyslogd
+    ignore_errors: yes
   
   - name: Allow localhost SSH access into containers
     shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
@@ -827,6 +835,7 @@
 
   - name: Start logging service
     shell: rsyslogd
+    ignore_errors: yes
   
   - name: Allow localhost SSH access into containers
     shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
@@ -848,6 +857,7 @@
 
   - name: Start logging service
     shell: rsyslogd
+    ignore_errors: yes
   
   - name: Allow localhost SSH access into containers
     shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
