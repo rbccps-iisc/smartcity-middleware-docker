@@ -1,0 +1,7 @@
+---
+## create ideam user
+  - name: User ideam creation
+    user: name=ideam password=$6$TfS9o75.C.euCrh$j3bx9VnZt4QtzQsP7cvj4d7VqFjOU9ngkyE5EDd1ZoGB1bhWKg61QgG88xAXwOdmL45mbjeojx9Ib1W7QxJ5A1 groups=sudo #rbccps@123456
+
+#  - name: Set Bash for ideam ssh session
+#    command: usermod -s /bin/bash ideam

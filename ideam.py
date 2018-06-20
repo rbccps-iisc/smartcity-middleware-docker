@@ -9,6 +9,7 @@ if os.path.exists("/etc/ideam/ideam.conf"):
 import modules.download_packages as download_packages
 import modules.start as container_start
 import modules.install as container_setup
+import modules.quick_install as quick_setup
 from modules.generate_password import set_passwords
 from datetime import datetime
 from modules.utils import setup_logging
@@ -35,12 +36,25 @@ def install(arguments):
         print(arguments.config_file)
         setup_logging(log_file=arguments.log_file)
         container_setup.check_dependencies(log_file=arguments.log_file)
-        container_setup.stop_containers(log_file=arguments.log_file)
-        container_setup.remove_containers(log_file=arguments.log_file)
-        download_packages.download(arguments.log_file)
+
+        if not arguments.quick:
+            container_setup.stop_containers(log_file=arguments.log_file)
+            container_setup.remove_containers(log_file=arguments.log_file)
+
+        else:
+            quick_setup.stop_containers(log_file=arguments.log_file)
+            quick_setup.remove_containers(log_file=arguments.log_file)
+
+        if not arguments.quick:
+            download_packages.download(arguments.log_file)
+
         set_passwords(arguments.config_file)
-        container_setup.docker_setup(log_file=arguments.log_file, config_path=arguments.config_file)
-        subprocess.call('ansible-playbook -i hosts install.yaml '
+
+        if arguments.quick:
+            quick_setup.docker_setup(log_file=arguments.log_file,config_path=arguments.config_file)
+        else:
+            container_setup.docker_setup(log_file=arguments.log_file, config_path=arguments.config_file)
+            subprocess.call('ansible-playbook -i hosts install.yaml '
                         '--limit "kong, rabbitmq, elasticsearch, apt_repo, tomcat, ldapd,'
                         ' hypercat, videoserver, pushpin"', shell=True)
 
@@ -206,6 +220,8 @@ if __name__ == '__main__':
                                 default="/etc/ideam/ideam.conf")
     install_parser.add_argument("--log-file", help="Path to log file",
                                 default=default_log_file)
+
+    install_parser.add_argument("--quick",help="Use Alpine base images for quick installation of IDEAM", action="store_true")
     # start command
     start_parser = subparsers.add_parser('start', help='Start all the docker containers in the middleware')
     start_parser.add_argument("-l",

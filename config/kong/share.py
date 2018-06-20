@@ -27,42 +27,42 @@ def deregister(request):
     if check_entity_exists(entity) is False:
         # Remove any entry by the name mentioned
         try:
-            rabbitmq_queue_delete(entity, "rbccps", "rbccps@123")
+            rabbitmq_queue_delete(entity, "rmq_user", "rmq_pwd")
         except :
             pass
 
         try:
-            rabbitmq_queue_delete(entity + ".follow", "rbccps", "rbccps@123")
+            rabbitmq_queue_delete(entity + ".follow", "rmq_user", "rmq_pwd")
         except:
             pass
 
         try:
-            rabbitmq_exchange_delete(entity, "rbccps", "rbccps@123")
+            rabbitmq_exchange_delete(entity, "rmq_user", "rmq_pwd")
         except:
             pass
 
         try:
-            rabbitmq_exchange_delete(entity + ".configure", "rbccps", "rbccps@123")
+            rabbitmq_exchange_delete(entity + ".configure", "rmq_user", "rmq_pwd")
         except:
             pass
 
         try:
-            rabbitmq_exchange_delete(entity + ".follow", "rbccps", "rbccps@123")
+            rabbitmq_exchange_delete(entity + ".follow", "rmq_user", "rmq_pwd")
         except:
             pass
 
         try:
-            rabbitmq_exchange_delete(entity + ".public", "rbccps", "rbccps@123")
+            rabbitmq_exchange_delete(entity + ".public", "rmq_user", "rmq_pwd")
         except:
             pass
 
         try:
-            rabbitmq_exchange_delete(entity + ".protected", "rbccps", "rbccps@123")
+            rabbitmq_exchange_delete(entity + ".protected", "rmq_user", "rmq_pwd")
         except:
             pass
 
         try:
-            rabbitmq_exchange_delete(entity + ".private", "rbccps", "rbccps@123")
+            rabbitmq_exchange_delete(entity + ".private", "rmq_user", "rmq_pwd")
         except:
             pass
 
@@ -86,17 +86,17 @@ def deregister(request):
     if check_owner(consumer_id, entity) is False:
         return request.Response(json={'status': 'failure',
                                       'response': "Only owner can remove an entity."}, code=400)
-    # TODO: remove rbccps user to provider and his apikey ( which cant be used now, as its not there in ldap)
+    # TODO: remove rmq_user user to provider and his apikey ( which cant be used now, as its not there in ldap)
     if check_entity_is_video(entity):
         video_server_delete(entity)
-    rabbitmq_queue_delete(entity, "rbccps", "rbccps@123")
-    rabbitmq_queue_delete(entity+".follow", "rbccps", "rbccps@123")
-    rabbitmq_exchange_delete(entity, "rbccps", "rbccps@123")
-    rabbitmq_exchange_delete(entity+".configure", "rbccps", "rbccps@123")
-    rabbitmq_exchange_delete(entity+".follow", "rbccps", "rbccps@123")
-    rabbitmq_exchange_delete(entity+".public", "rbccps", "rbccps@123")
-    rabbitmq_exchange_delete(entity+".protected", "rbccps", "rbccps@123")
-    rabbitmq_exchange_delete(entity+".private", "rbccps", "rbccps@123")
+    rabbitmq_queue_delete(entity, "rmq_user", "rmq_pwd")
+    rabbitmq_queue_delete(entity+".follow", "rmq_user", "rmq_pwd")
+    rabbitmq_exchange_delete(entity, "rmq_user", "rmq_pwd")
+    rabbitmq_exchange_delete(entity+".configure", "rmq_user", "rmq_pwd")
+    rabbitmq_exchange_delete(entity+".follow", "rmq_user", "rmq_pwd")
+    rabbitmq_exchange_delete(entity+".public", "rmq_user", "rmq_pwd")
+    rabbitmq_exchange_delete(entity+".protected", "rmq_user", "rmq_pwd")
+    rabbitmq_exchange_delete(entity+".private", "rmq_user", "rmq_pwd")
     ldap_entity_delete(entity)
     kong_consumer_delete(entity)
     catalogue_delete(entity)
@@ -141,7 +141,7 @@ def rabbitmq_exchange_delete(ename, consumer_id, apikey):
 
 
 def ldap_entity_delete(uid):
-    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "secret0" """
+    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "ldap_pwd" """
     cmd2 = """ "uid={0},cn=devices,dc=smartcity" -r""".\
         format(uid)
     cmd = cmd1 + cmd2
@@ -153,7 +153,7 @@ def ldap_entity_delete(uid):
 
 
 def check_entity_exists(uid):
-    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "secret0" -b"""
+    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "ldap_pwd" -b"""
     cmd2 = """ "uid={0},cn=devices,dc=smartcity" """.\
         format(uid)
     cmd = cmd1 + cmd2
@@ -169,7 +169,7 @@ def check_entity_exists(uid):
 
 
 def check_entity_is_video(uid):
-    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w secret0 -b"""
+    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w ldap_pwd -b"""
     cmd2 = """ "description=video,uid={0},cn=devices,dc=smartcity" """.\
         format(uid)
     cmd = cmd1 + cmd2
@@ -185,7 +185,7 @@ def check_entity_is_video(uid):
 
 
 def check_owner(owner, device):
-    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "secret0" -b"""
+    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "ldap_pwd" -b"""
     cmd2 = """ "uid={0},cn=devices,dc=smartcity" {1}""".\
         format(device, "owner")
     cmd = cmd1 + cmd2
@@ -331,8 +331,8 @@ def ldap_add_share_entry(device, consumer_id,ttl, read="false", write="false"):
 
     print(valid_until)
 
-    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w secret0 -f /tmp/share.ldif -H ldap://ldapd:8389'
-    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w secret0 -f /tmp/share.ldif -H ldap://ldapd:8389'
+    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w ldap_pwd -f /tmp/share.ldif -H ldap://ldapd:8389'
+    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w ldap_pwd -f /tmp/share.ldif -H ldap://ldapd:8389'
     ldif = """dn: description={0},description=share,description=broker,uid={1},cn=devices,dc=smartcity
 objectClass: broker
 objectClass: exchange
@@ -368,8 +368,8 @@ validity: {4}""".format(device, consumer_id, read, write,valid_until)
 
 
 def ldap_add_exchange_entry(device, consumer_id, read="false", write="false"):
-    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w "secret0" -f /tmp/exchange.ldif -H ldap://ldapd:8389'
-    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w "secret0" -f /tmp/exchange.ldif -H ldap://ldapd:8389'
+    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w "ldap_pwd" -f /tmp/exchange.ldif -H ldap://ldapd:8389'
+    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w "ldap_pwd" -f /tmp/exchange.ldif -H ldap://ldapd:8389'
     ldif = """dn: description={0},description=exchange,description=broker,uid={1},cn=devices,dc=smartcity
 objectClass: broker
 objectClass: exchange
@@ -531,7 +531,7 @@ def unfollow(request):
 
 
 def check_ldap_entry(desc, uid, attribute, check_parameter):
-    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "secret0" -b"""
+    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "ldap_pwd" -b"""
     cmd2 = """ "description={0},description=share,description=broker,uid={1},cn=devices,dc=smartcity" {2}""".\
         format(desc, uid, attribute)
     cmd = cmd1 + cmd2
@@ -547,7 +547,7 @@ def check_ldap_entry(desc, uid, attribute, check_parameter):
 
 
 def delete_ldap_entry(desc, uid, entry):
-    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "secret0" """
+    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "ldap_pwd" """
     cmd2 = """ "description={0},description={2},description=broker,uid={1},cn=devices,dc=smartcity" """.\
         format(desc, uid, entry)
     cmd = cmd1 + cmd2

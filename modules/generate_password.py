@@ -23,9 +23,9 @@ def ldap_pass(config):
         password = id_generator(size=16, chars=string.ascii_letters + string.digits)
     write("host_vars/ldapd", "ldapd_password: " + password)
     write("config/tomcat/pwd", password)
-    replace("config/hypercat/config.js", "secret0", password, "config/hypercat/config_new.js")
-    replace("config/ldapd/ldapd.conf", "secret0", password, "config/ldapd/ldapd_new.conf")
-    replace("config/kong/share.py", "secret0", password, "config/kong/share_new.py")
+    replace("config/hypercat/config.js", "ldap_pwd", password, "config/hypercat/config_new.js")
+    replace("config/ldapd/ldapd.conf", "ldap_pwd", password, "config/ldapd/ldapd_new.conf")
+    replace("config/kong/share.py", "ldap_pwd", password, "config/kong/share_new.py")
     config.set('PASSWORDS', 'LDAP', password)
 
 
@@ -64,12 +64,12 @@ def rmq_pass(config):
         password = id_generator(size=16, chars=string.ascii_letters + string.digits)
     write("config/tomcat/rmqpwd", password)
     write("host_vars/rabbitmq", "password: " + password)
-    replace("config/elasticsearch/logstash-input-rabbitmq.conf", "rbccps@123", password,
+    replace("config/elasticsearch/logstash-input-rabbitmq.conf", "rmq_pwd", password,
             "config/elasticsearch/logstash-input-rabbitmq_new.conf")
-    replace("config/elasticsearch/logstash-input-rabbitmq_new.conf", "rbccps", "admin.ideam",
+    replace("config/elasticsearch/logstash-input-rabbitmq_new.conf", "rmq_user", "admin.ideam",
             "config/elasticsearch/logstash-input-rabbitmq_new.conf")
-    replace("config/kong/share_new.py", "rbccps@123", password, "config/kong/share_new.py")
-    replace("config/kong/share_new.py", "rbccps", "admin.ideam", "config/kong/share_new.py")
+    replace("config/kong/share_new.py", "rmq_pwd", password, "config/kong/share_new.py")
+    replace("config/kong/share_new.py", "rmq_user", "admin.ideam", "config/kong/share_new.py")
     config.set('PASSWORDS', 'RABBITMQ', password)
 
 

@@ -27,7 +27,7 @@ exports.mongo = {
 exports.ldap = {
 	url: "ldap://ldapd:8389",
 	adminDN: "cn=admin,dc=smartcity",
-	adminPassword: "secret0",
+	adminPassword: "ldap_pwd",
 	baseDN: "cn=devices,dc=smartcity"
 };
 

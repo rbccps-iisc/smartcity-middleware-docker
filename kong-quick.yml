@@ -1,0 +1,95 @@
+- hosts: kong
+  remote_user: root
+  vars_files:
+    - host_vars/all
+    - host_vars/kong
+
+  tasks:
+  - include: tasks/create_user_new.yml
+#  - include: tasks/add_local_repository.yml
+  - include: tasks/update_repos_new.yml
+  - include: tasks/kong/kong_dependencies-alpine.yml
+
+  - name: Postgresql python dependency:- psycopg2
+    pip: name=psycopg2 state=present
+
+  - name: Download Kong v0.10.3
+    copy:
+      src: ./pkg/kong-0.10.3.xenial_all.deb
+      dest: ~/kong_installer.deb
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Install Kong
+    apt: deb=~/kong_installer.deb
+
+  - name: Setting up Kong.conf file
+    copy:
+      src: ./config/kong/kong.conf
+      dest: /etc/kong/kong.conf
+      mode: 0644
+
+  - name: Setting up nginx-kong.conf file
+    copy:
+      src: config/kong/nginx-kong.conf
+      dest: /usr/local/kong/nginx-kong1.conf
+      mode: 0644 
+
+  - name: Setting up nginx.conf file
+    copy:
+      src: config/kong/nginx.conf
+      dest: /usr/local/kong/nginx1.conf
+      mode: 0644
+
+  - name: Kong handler changed
+    copy:
+      src: ./config/kong/handler.lua
+      dest: /usr/local/share/lua/5.1/kong/plugins/key-auth/handler.lua
+      mode: 0644
+  
+  - name: Copy Badrequest plugin rock file
+    copy: 
+      src: ./pkg/kong-plugin-badrequest-0.1.0-1.all.rock
+      dest: /root
+      mode: 0644
+
+  - name: Copy kong init script
+    copy: src=./config/kong/kong dest=/etc/init.d/kong owner=root group=root mode=0644
+
+  - name: Change permissions of "kong", adding "+x"
+    file: dest=/etc/init.d/kong mode=a+x
+
+  - name: Install apt-transport-https
+    apt: name=apt-transport-https state=present
+
+  - name: Install software-properties-common
+    apt: name=software-properties-common state=present
+
+  - name: Install ldap-utils
+    apt: name=ldap-utils state=present
+
+  - name: Install tmux
+    apt: name=tmux state=present
+
+  - name: Install python 3.6
+    apt: "pkg={{ item }} state=present"
+    with_items:
+      - python3
+      - python3-dev
+      - python3-pip
+
+  - name: Copy pip requirements
+    copy:
+      src: config/kong/share_python_requirements.txt
+      dest: /home/ideam/requirements.txt
+    become_user: ideam
+
+  - name: Pip install share API requirements.txt
+    pip:
+      requirements: /home/ideam/requirements.txt
+      executable: pip3
+    become_user: ideam
+
+  - name: Install rsyslog
+    apt: pkg=rsyslog state=installed update_cache=true

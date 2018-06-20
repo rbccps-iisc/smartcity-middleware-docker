@@ -1,0 +1,808 @@
+---   
+## Set up rabbitmq environment
+- hosts: rabbitmq
+  remote_user: root
+  vars_files:
+    - host_vars/all
+  tasks:
+
+  - include: tasks/create_user.yml
+  - include: tasks/add_local_repository.yml
+  - include: tasks/update_repos.yml
+
+  - name: Add RabbitMQ repository key
+    apt_key: url=https://www.rabbitmq.com/rabbitmq-release-signing-key.asc state=present
+
+  - name: Add rabbitmq official apt repository
+    apt_repository: repo='deb http://www.rabbitmq.com/debian/ testing main' state=present
+
+  - include: tasks/update_repos.yml
+
+  - name: ensure python-software-properties is installed
+    apt: name=python-software-properties state=present
+
+  - name: Install rabbitmq-server
+    apt: name={{ item }} state=present
+    with_items:
+      - rabbitmq-server
+
+  - name: Download Golang v1.9.2
+    copy:
+      src: ./pkg/go1.9.2.linux-amd64.tar.gz
+      dest: ~/go1.9.2.linux-amd64.tar.gz
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Install Golang
+    unarchive:
+      src: ~/go1.9.2.linux-amd64.tar.gz
+      dest: /usr/local/
+      remote_src: True
+
+  - name: Install git
+    apt: name=git state=present
+
+  - name: set $GOPATH
+    lineinfile: dest=/etc/.profile line="export GOPATH=/home/ideam" create=yes
+
+  - name: set $GOPATH in bashrc
+    lineinfile: dest=/etc/bash.bashrc line="export GOPATH=/home/ideam" create=yes
+
+  - name: add go project binaries to path
+    lineinfile: dest=/etc/.profile line='export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin' create=yes
+
+  - name: add go project binaries to path
+    lineinfile: dest=/etc/bash.bashrc line='export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin' create=yes
+
+  - name: go get github.com/streadway/amqp
+    shell: /usr/local/go/bin/go get github.com/streadway/amqp creates=/home/ideam/src/github.com/streadway/amqp
+    environment:
+      GOPATH: /home/ideam
+
+  - name: go get github.com/pct960/rabbitmq-http
+    shell: /usr/local/go/bin/go get github.com/pct960/rabbitmq-http creates=/home/ideam/src/github.com/pct960/rabbitmq-http
+    environment:
+      GOPATH: /home/ideam
+    ignore_errors: True
+
+  - name: Install supervisor
+    apt: name=supervisor state=present
+
+  - name: Setting up supervisor.conf
+    copy:
+      src: config/apt_repo/supervisor.conf
+      dest: /etc/supervisor/supervisord.conf
+
+  - name: Setting up RabbitMQ configuration
+    copy:
+      src: config/rabbitmq/rabbitmq.config
+      dest: /etc/rabbitmq/rabbitmq.config
+
+  - name: Copy rabbitmqhttp.conf
+    copy:
+      src: config/rabbitmq/rabbitmqhttp.conf
+      dest: /etc/supervisor/conf.d/rabbitmqhttp.conf
+      mode: 0644
+
+  - name: Install rsyslog
+    apt: pkg=rsyslog state=installed update_cache=true 
+
+  - name: Start logging service
+    shell: rsyslogd
+    ignore_errors: yes
+  
+  - name: Allow localhost SSH access into containers
+    shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
+
+  - name: Block SSH access into containers from outside machines
+    shell: sed -i "$ a sshd {{":"}} ALL {{":"}} deny" /etc/hosts.allow
+
+## Set up hypercat environment
+- hosts: hypercat
+  remote_user: root
+  vars_files:
+    - host_vars/all
+    - host_vars/hypercat
+  tasks:
+  - include: tasks/create_user.yml
+  - include: tasks/add_local_repository.yml
+  - include: tasks/update_repos.yml
+
+  - name: Add MongoDB repository key
+    apt_key: id=0C49F3730359A14518585931BC711F9BA15703C6  keyserver=keyserver.ubuntu.com
+
+  - name: Add MongoDB repository
+    apt_repository:
+      repo: 'deb http://repo.mongodb.org/apt/ubuntu {{ansible_distribution_release}}/mongodb-org/3.4 multiverse'
+      state: present
+    retries: 5
+
+  - name: Install mongodb-org
+    apt: pkg=mongodb-org state=present
+
+  - name: MongoDB dependencies:- python-pip
+    apt: name=python-pip state=present
+
+  - name: MongoDB python dependencies:- pymongo
+    pip: name=pymongo state=present
+
+  - name: Create MongoDB /data/db directory
+    file: path=/data/db state=directory
+
+  - name: Copy mongod init script
+    copy: src=./config/hypercat/mongod dest=/etc/init.d/mongod owner=root group=root mode=0644
+
+  - name: Change permissions of "mongod", adding "+x"
+    file: dest=/etc/init.d/mongod mode=a+x
+
+  - name: Start mongodb service
+    command: service mongod start
+
+  - name: Add  admin user in mongodb
+    mongodb_user: database="admin" name="admin" password={{ mongodb_password }} state=present
+    ignore_errors: no
+
+  - name: Install git
+    apt: name=git state=present
+
+  - name: Install nodejs
+    apt: name=nodejs state=present
+
+  - name: Install npm
+    apt: name=npm state=present
+
+  - name: Install supervisor
+    apt: name=supervisor state=present
+
+  - name: Setting up supervisor.conf
+    copy:
+      src: config/apt_repo/supervisor.conf
+      dest: /etc/supervisor/supervisord.conf
+
+  - name: Install screen
+    apt: name=screen state=present
+
+  - name: Install tmux
+    apt: name=tmux state=present
+
+  - name: Install unzip
+    apt: name=unzip state=present
+
+  - name: Copy supervisor-cat-server.conf
+    copy:
+      src: config/hypercat/supervisor-cat-server.conf
+      dest: /etc/supervisor/conf.d/supervisor-cat-server.conf
+      mode: 0644
+
+  - name: Link nodejs to node
+    file: src=/usr/bin/nodejs dest=/usr/bin/node state=link
+
+  - name: Install rsyslog
+    apt: pkg=rsyslog state=installed update_cache=true 
+
+  - name: Start logging service
+    shell: rsyslogd
+    ignore_errors: yes
+  
+  - name: Allow localhost SSH access into containers
+    shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
+
+  - name: Block SSH access into containers from outside machines
+    shell: sed -i "$ a sshd {{":"}} ALL {{":"}} deny" /etc/hosts.allow
+
+- hosts: hypercat
+  remote_user: ideam
+  vars_files:
+  - host_vars/all
+  tasks:
+  - name: Download cat-json-schema-server from rbccps-iisc
+    git:
+      repo: https://github.com/rbccps-iisc/cat-json-schema-server.git
+      dest: /home/ideam/cat-json-schema-server
+    ignore_errors: True
+
+  - name: Copy create_db.js
+    copy:
+      src: config/hypercat/create_db.js
+      dest: /home/ideam/create_db.js
+      mode: 0644
+
+  - name: Create catdemo table
+    shell: mongo < create_db.js
+    args:
+      chdir: /home/ideam/
+
+  - name: Extract schemas.zip into schemas dir
+    unarchive:
+      src: /home/ideam/cat-json-schema-server/schemas.zip
+      dest: /home/ideam/cat-json-schema-server
+      remote_src: yes
+
+  - name: Copy config.js
+    copy:
+      src: config/hypercat/config_new.js
+      dest: /home/ideam/cat-json-schema-server/lib/config.js
+      mode: 0644
+
+  - name: Install cat-json-schema-server
+    command: npm install
+    args:
+      chdir: /home/ideam/cat-json-schema-server
+
+  - name: Create pwd
+    shell: node pwd_script.js local123
+    args:
+      chdir: /home/ideam/cat-json-schema-server/
+
+  - name: Copy api.js
+    copy:
+      src: config/hypercat/api.js
+      dest: /home/ideam/cat-json-schema-server/lib/api.js
+      mode: 0644
+
+- hosts: kong
+  remote_user: root
+  vars_files:
+    - host_vars/all
+    - host_vars/kong
+
+  tasks:
+  - include: tasks/create_user.yml
+  - include: tasks/add_local_repository.yml
+  - include: tasks/update_repos.yml
+  - include: tasks/kong/kong_dependencies.yml
+
+  - name: Postgresql python dependency:- psycopg2
+    pip: name=psycopg2 state=present
+
+  - name: User postgres creation
+    user: name=postgres password={{ password }}
+
+  - name: Download Kong v0.10.3
+    copy:
+      src: ./pkg/kong-0.10.3.xenial_all.deb
+      dest: ~/kong_installer.deb
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Install Kong
+    apt: deb=~/kong_installer.deb
+
+  - name: Start postgresql service
+    shell: service postgresql start
+    become: yes
+
+  - name: Create user 'postgres' in Postgresql
+    postgresql_user: name=postgres encrypted=true password={{ postgresql_password }}
+    become: yes
+    become_user: postgres
+
+  - name: Create user 'kong' in Postgresql
+    postgresql_user: name=kong encrypted=true password={{ kong_password }}
+    become: yes
+    become_user: postgres
+
+  - name: Create 'kong' database in Postgresql
+    postgresql_db: name=kong
+    become: yes
+    become_user: postgres
+
+  - name: Setting up Kong.conf file
+    copy:
+      src: ./config/kong/kong_new.conf
+      dest: /etc/kong/kong.conf
+      mode: 0644
+
+  - name: Kong handler changed
+    copy:
+      src: ./config/kong/handler.lua
+      dest: /usr/local/share/lua/5.1/kong/plugins/key-auth/handler.lua
+      mode: 0644
+  
+  - name: Copy Badrequest plugin rock file
+    copy: 
+      src: ./pkg/kong-plugin-badrequest-0.1.0-1.all.rock
+      dest: /root
+      mode: 0644
+
+  - name: Install supervisor
+    apt: name=supervisor state=present
+
+  - name: Setting up supervisor.conf
+    copy:
+      src: config/apt_repo/supervisor.conf
+      dest: /etc/supervisor/supervisord.conf
+
+  - name: Kong migration on postgresql db
+    command: kong migrations up -c /etc/kong/kong.conf
+
+  - name: Copy kong init script
+    copy: src=./config/kong/kong dest=/etc/init.d/kong owner=root group=root mode=0644
+
+  - name: Change permissions of "kong", adding "+x"
+    file: dest=/etc/init.d/kong mode=a+x
+
+  - name: Install apt-transport-https
+    apt: name=apt-transport-https state=present
+
+  - name: Install software-properties-common
+    apt: name=software-properties-common state=present
+
+  - name: Install ldap-utils
+    apt: name=ldap-utils state=present
+
+  - name: Install tmux
+    apt: name=tmux state=present
+
+  - name: Install python 3.6
+    apt: "pkg={{ item }} state=present"
+    with_items:
+      - python3
+      - python3-dev
+      - python3-pip
+
+  - name: Copy pip requirements
+    copy:
+      src: config/kong/share_python_requirements.txt
+      dest: /home/ideam/requirements.txt
+    become_user: ideam
+
+  - name: Pip install share API requirements.txt
+    pip:
+      requirements: /home/ideam/requirements.txt
+      executable: pip3
+    become_user: ideam
+
+  - name: Install rsyslog
+    apt: pkg=rsyslog state=installed update_cache=true 
+
+  - name: Start logging service
+    shell: rsyslogd
+    ignore_errors: yes
+  
+  - name: Allow localhost SSH access into containers
+    shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
+
+  - name: Block SSH access into containers from outside machines
+    shell: sed -i "$ a sshd {{":"}} ALL {{":"}} deny" /etc/hosts.allow
+
+
+## Set up CA openssl environment
+- hosts: certificate_authority
+  remote_user: root
+  vars_files:
+    - host_vars/all
+  vars:
+    # .pub will be appended to ansible_ssh_public_key to avoid any chance of sending private keys
+    ansible_ssh_public_key: "id_rsa"
+
+  - name: Install open-ssl
+    apk: name=openssl state=present
+
+  - include: tasks/certificate_authority/ssh_configuration.yml
+
+## Set up elasticsearch environment
+- hosts: elasticsearch
+  remote_user: root
+  vars_files:
+    - host_vars/all
+  tasks:
+  - include: tasks/create_user.yml
+  - include: tasks/add_local_repository.yml
+  - include: tasks/update_repos.yml
+
+  - name: Elasticsearch dependencies:- openjdk-8-jdk
+    apt: pkg=openjdk-8-jdk state=present
+
+  - name: Install apt-transport-https
+    apt: pkg=apt-transport-https state=present
+
+  - name: Add Elastic repository key
+    apt_key: url=https://artifacts.elastic.co/GPG-KEY-elasticsearch state=present
+
+  - name: Add Elastic repository
+    apt_repository:
+      repo: deb [trusted=yes] https://artifacts.elastic.co/packages/5.x/apt stable main
+      state: present
+      filename: 'elastic-5.x'
+
+  - include: tasks/update_repos.yml
+
+  - name: Install elasticsearch
+    apt: pkg=elasticsearch state=present
+
+  - name: Install kibana
+    apt: pkg=kibana state=present
+
+  - name: Install logstash
+    apt: pkg=logstash state=present
+
+  - name: Create logstash service file
+    command: /usr/share/logstash/bin/system-install /etc/logstash/startup.options sysv
+
+  - name: Install logstash-input-rabbitmq plugin
+    command: /usr/share/logstash/bin/logstash-plugin install logstash-input-rabbitmq
+
+  - name: Copy logstash-input-rabbitmq_new.conf
+    copy:
+      src: config/elasticsearch/logstash-input-rabbitmq_new.conf
+      dest: /etc/logstash/conf.d/logstash-input-rabbitmq.conf
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Copy kibana.yml
+    copy:
+      src: config/elasticsearch/kibana.yml
+      dest: /etc/kibana/kibana.yml
+
+  - name: Copy elasticsearch.yml
+    copy:
+      src: config/elasticsearch/elasticsearch.yml
+      dest: /etc/elasticsearch/elasticsearch.yml
+
+  - name: Install rsyslog
+    apt: pkg=rsyslog state=installed update_cache=true 
+
+  - name: Start logging service
+    shell: rsyslogd
+    ignore_errors: yes
+  
+  - name: Allow localhost SSH access into containers
+    shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
+
+  - name: Block SSH access into containers from outside machines
+    shell: sed -i "$ a sshd {{":"}} ALL {{":"}} deny" /etc/hosts.allow
+
+## Set up ldapd environment
+- hosts: ldapd
+  remote_user: root
+  vars_files:
+    - host_vars/all
+    - host_vars/ldapd
+  tasks:
+  - include: tasks/create_user.yml
+  - include: tasks/add_local_repository.yml
+  - include: tasks/update_repos.yml
+
+  - name: Install git
+    apt: name=git state=present
+
+  - name: Install dh-autoreconf
+    apt: name=dh-autoreconf state=present
+
+  - name: Install byacc
+    apt: name=byacc state=present
+
+  - name: Install flex
+    apt: name=flex state=present
+
+  - name: Install libssl-dev
+    apt: name=libssl-dev state=present
+
+  - name: Install ldap-utils
+    apt: pkg=ldap-utils state=present
+
+  - name: Install libbsd-dev
+    apt: pkg=libbsd-dev state=present
+
+  - name: Download openbsd-ldapd-portable
+    git:
+      repo: https://github.com/harishanand95/openbsd-ldapd-portable.git
+      dest: /home/ideam/openbsd-ldapd-portable
+    ignore_errors: True
+
+  - name: Download https://github.com/libevent/libevent/archive/release-1.4.13-stable.tar.gz
+    get_url:
+      url: https://github.com/libevent/libevent/archive/release-1.4.13-stable.tar.gz
+      dest: /home/ideam/release-1.4.13-stable.tar.gz
+      mode: 0440
+
+  - name: Extract release-1.4.13-stable.tar.gz
+    unarchive:
+        src: /home/ideam/release-1.4.13-stable.tar.gz
+        dest: /home/ideam
+        remote_src: True
+
+  - name: Libevent v1.4.13 autogen.sh
+    command: ./autogen.sh
+    args:
+      chdir: /home/ideam/libevent-release-1.4.13-stable
+
+  - name: Libevent v1.4.13 Configure
+    command: ./configure
+    args:
+      chdir: /home/ideam/libevent-release-1.4.13-stable
+
+  - name: Libevent v1.4.13 make
+    command: make
+    args:
+      chdir: /home/ideam/libevent-release-1.4.13-stable
+
+  - name: Libevent v1.4.13 make install
+    command: make install
+    args:
+      chdir: /home/ideam/libevent-release-1.4.13-stable
+
+  - name: Openbsd-ldapd-portable bootstrap
+    command: ./bootstrap
+    args:
+      chdir: /home/ideam/openbsd-ldapd-portable
+
+  - name: Openbsd-ldapd-portable configure
+    command: ./configure
+    args:
+      chdir: /home/ideam/openbsd-ldapd-portable
+
+  - name: Openbsd-ldapd-portable make
+    command: make
+    args:
+      chdir: /home/ideam/openbsd-ldapd-portable
+
+  - name: Openbsd-ldapd-portable make install
+    command: make install
+    args:
+      chdir: /home/ideam/openbsd-ldapd-portable
+    become: true
+
+  - name: Link libevent-1.4.so.2
+    file: src=/usr/local/lib/libevent-1.4.so.2 dest=/usr/lib/libevent-1.4.so.2 state=link
+    become: true
+
+  - name: Create ldapd.conf file
+    copy:
+      src: config/ldapd/ldapd_new.conf
+      dest: /etc/ldapd.conf
+      mode: 0600
+
+  - name: Create smartcity.ldif file
+    copy:
+      src: config/ldapd/smartcity.ldif
+      dest: /home/ideam
+
+  - name: Create devices.ldif file
+    copy:
+      src: config/ldapd/devices.ldif
+      dest: /home/ideam
+
+  - name: Create /etc/ldap directory
+    file: path=/etc/ldap state=directory
+
+  - name: Create LDAP /var/db directory
+    file: path=/var/db state=directory
+
+  - name: Create MongoDB /var/db/ldap directory
+    file: path=/var/db/ldap state=directory
+
+  - name: Create core.schema file
+    copy:
+      src: config/ldapd/core.schema
+      dest: /etc/ldap
+
+  - name: Create user _ldapd
+    user:
+      name: _ldapd
+      comment: "LDAP daemon"
+      home: /var/db/ldap
+      shell: /sbin/nologin
+      group: root
+    become: true
+
+  - name: Start ldapd
+    shell: ldapd
+    become: true
+
+  - name: Add smartcity.ldif
+    command: ldapmodify -h 127.0.0.1 -p 8389 -x -D cn=admin,dc=smartcity -w "{{ ldapd_password }}" -f smartcity.ldif
+    args:
+      chdir: /home/ideam/
+
+  - name: Add devices.ldif
+    command: ldapmodify -h 127.0.0.1 -p 8389 -x -D cn=admin,dc=smartcity -w "{{ ldapd_password }}" -f devices.ldif
+    args:
+      chdir: /home/ideam/
+
+  - name: Install rsyslog
+    apt: pkg=rsyslog state=installed update_cache=true 
+
+  - name: Start logging service
+    shell: rsyslogd
+    ignore_errors: yes
+  
+  - name: Allow localhost SSH access into containers
+    shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
+
+  - name: Block SSH access into containers from outside machines
+    shell: sed -i "$ a sshd {{":"}} ALL {{":"}} deny" /etc/hosts.allow
+
+## Set up apache storm environment
+- hosts: apache_storm
+  remote_user: root
+  vars_files:
+    - host_vars/all
+  tasks:
+  - include: tasks/create_user.yml
+  - include: tasks/add_local_repository.yml
+  - include: tasks/update_repos.yml
+
+  - name: Apache storm dependencies:- openjdk-8-jdk
+    apt: pkg=openjdk-8-jdk state=present
+
+  - name: Download Zookeeper v3.4.10
+    copy:
+      src: ./pkg/zookeeper-3.4.10.tar.gz
+      dest: ~/zookeeper-3.4.10.tar.gz
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Download Apache Storm v1.1.1
+    copy:
+      src: ./pkg/apache-storm-1.1.1.tar.gz
+      dest: ~/apache-storm-1.1.1.tar.gz
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Install Zookeeper
+    unarchive:
+      src: ~/zookeeper-3.4.10.tar.gz
+      dest: /usr/lib/
+      remote_src: True
+
+  - name: Install Apache Storm
+    unarchive:
+      src: ~/apache-storm-1.1.1.tar.gz
+      dest: /usr/lib/
+      remote_src: True
+
+  - name: Setting environment variables
+    copy:
+      src: ./config/apache_storm/storm.sh
+      dest: /etc/profile.d/storm.sh
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Changing permissions of "storm", adding "+x"
+    file: dest=/etc/profile.d/storm.sh mode=a+x
+
+  - name: Setting up Zookeeper configuration
+    copy:
+      src: ./config/apache_storm/zoo.cfg
+      dest: /usr/lib/zookeeper-3.4.10/conf/zoo.cfg
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Setting up Storm configuration
+    copy:
+      src: ./config/apache_storm/storm.yaml
+      dest: /usr/lib/apache-storm-1.1.1/conf/storm.yaml
+      owner: root
+      group: root
+      mode: 0644
+
+## Set up openntpd environment
+- hosts: openntpd
+  remote_user: root
+  vars_files:
+    - host_vars/all
+  tasks:
+  - include: tasks/create_user.yml
+  - include: tasks/add_local_repository.yml
+  - include: tasks/update_repos.yml
+
+  - name: Install openntpd
+    apt: pkg=openntpd state=present
+
+# Set up bind environment
+- hosts: bind
+  remote_user: root
+  vars_files:
+    - host_vars/all
+  tasks:
+  - include: tasks/create_user.yml
+  - include: tasks/add_local_repository.yml
+  - include: tasks/update_repos.yml
+
+  - name: Install bind
+    apt: pkg=bind9 state=present
+
+# Set up tomcat environment
+- hosts: tomcat
+  remote_user: root
+  vars_files:
+    - host_vars/all
+  tasks:
+  - include: tasks/create_user.yml
+  - include: tasks/add_local_repository.yml
+  - include: tasks/update_repos.yml
+
+  - name: Install supervisor
+    apt: name=supervisor state=present
+
+  - name: Setting up supervisor.conf
+    copy:
+      src: config/apt_repo/supervisor.conf
+      dest: /etc/supervisor/supervisord.conf
+
+  - name: Copy tomcat.conf
+    copy:
+      src: config/tomcat/tomcat.conf
+      dest: /etc/supervisor/conf.d/tomcat.conf
+      mode: 0644
+
+  - name: Copy pwd
+    copy:
+      src: config/tomcat/pwd
+      dest: /etc/pwd
+      mode: 0644
+
+  - name: Copy rmqpwd
+    copy:
+      src: config/tomcat/rmqpwd
+      dest: /etc/rmqpwd
+      mode: 0644
+
+  - name: Install rsyslog
+    apt: pkg=rsyslog state=installed update_cache=true 
+
+  - name: Start logging service
+    shell: rsyslogd
+    ignore_errors: yes
+  
+  - name: Allow localhost SSH access into containers
+    shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
+
+  - name: Block SSH access into containers from outside machines
+    shell: sed -i "$ a sshd {{":"}} ALL {{":"}} deny" /etc/hosts.allow
+
+- hosts: pushpin
+  remote_user: root
+  vars_files:
+    - host_vars/all
+  tasks:
+  - include: tasks/create_user.yml
+  - include: tasks/add_local_repository.yml
+  - include: tasks/update_repos.yml
+
+  - name: Install tmux
+    apt: name=tmux state=present
+  
+  - name: Install rsyslog
+    apt: pkg=rsyslog state=installed update_cache=true 
+
+  - name: Start logging service
+    shell: rsyslogd
+    ignore_errors: yes
+  
+  - name: Allow localhost SSH access into containers
+    shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
+
+  - name: Block SSH access into containers from outside machines
+    shell: sed -i "$ a sshd {{":"}} ALL {{":"}} deny" /etc/hosts.allow
+
+- hosts: videoserver
+  remote_user: root
+  vars_files:
+    - host_vars/all
+  tasks:
+  - include: tasks/add_local_repository.yml
+  - include: tasks/update_repos.yml
+  - include: tasks/user_modify.yml
+
+  - name: Install rsyslog
+    apt: pkg=rsyslog state=installed update_cache=true 
+
+  - name: Start logging service
+    shell: rsyslogd
+    ignore_errors: yes
+  
+  - name: Allow localhost SSH access into containers
+    shell: sed -i "$ a sshd {{":"}} 172.18.0.1 {{":"}} allow" /etc/hosts.allow
+
+  - name: Block SSH access into containers from outside machines
+    shell: sed -i "$ a sshd {{":"}} ALL {{":"}} deny" /etc/hosts.allow
