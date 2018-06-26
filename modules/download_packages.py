@@ -38,11 +38,11 @@ def download(log_file):
                   "Downloaded apache-storm-1.1.1.tar.gz to pkg directory",
                   "Failure to download apache-storm-1.1.1.tar.gz in pkg directory",
                   log_file)
-    output_info("Downloading go1.9.2.linux-amd64.tar.gz")
-    download_file("https://storage.googleapis.com/golang/go1.9.2.linux-amd64.tar.gz",
-                  "pkg/go1.9.2.linux-amd64.tar.gz",
-                  "Downloaded go1.9.2.linux-amd64.tar.gz to pkg directory",
-                  "Failure to download go1.9.2.linux-amd64.tar.gz in pkg directory",
+    output_info("Downloading go1.10.3.linux-amd64.tar.gz")
+    download_file("https://storage.googleapis.com/golang/go1.10.3.linux-amd64.tar.gz",
+                  "pkg/go1.10.3.linux-amd64.tar.gz",
+                  "Downloaded go1.10.3.linux-amd64.tar.gz to pkg directory",
+                  "Failure to download go1.10.3.linux-amd64.tar.gz in pkg directory",
                   log_file)
     output_info("Downloading zookeeper-3.4.10.tar.gz")
     download_file("https://apache.org/dist/zookeeper/stable/zookeeper-3.4.10.tar.gz",
