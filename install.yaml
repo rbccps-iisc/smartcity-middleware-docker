@@ -70,8 +70,8 @@
 
   - name: Download Golang v1.9.2
     copy:
-      src: ./pkg/go1.9.2.linux-amd64.tar.gz
-      dest: ~/go1.9.2.linux-amd64.tar.gz
+      src: ./pkg/go1.10.3.linux-amd64.tar.gz
+      dest: ~/go1.10.3.linux-amd64.tar.gz
       owner: root
       group: root
       mode: 0644
