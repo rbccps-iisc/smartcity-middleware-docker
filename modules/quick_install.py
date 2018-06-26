@@ -38,7 +38,7 @@ def remove_containers(log_file):
                           log_file=log_file,
                           exit_on_fail=False)
 
-    subprocess_with_print("docker rm catalogue",
+    subprocess_with_print("docker rm hypercat",
                           success_msg="Removing Catalogue server",
                           failure_msg="Catalogue server container doesn't exist. SKIPPING THIS ERROR.",
                           log_file=log_file,
@@ -111,7 +111,7 @@ def stop_containers(log_file):
                           log_file=log_file,
                           exit_on_fail=False)
 
-    subprocess_with_print("docker stop catalogue",
+    subprocess_with_print("docker stop hypercat",
                           success_msg="Stopping Catalogue server",
                           failure_msg="Catalogue server container doesn't exist. SKIPPING THIS ERROR.",
                           log_file=log_file,
@@ -235,7 +235,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
     instance_details["kong"] = [ip, port]
     output_ok("Created Kong docker instance. \n " + details)
 
-    ip, port, details = create_instance("catalogue", "ideam/catalogue",
+    ip, port, details = create_instance("hypercat", "ideam/catalogue",
                                         storage_host=catalogue_storage,
                                         storage_guest="/data/db",
                                         log_file=log_file,
@@ -257,7 +257,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
 
     ip, port, details = create_instance("tomcat", "ideam/tomcat",
                                         storage_host=tomcat_storage,
-                                        storage_guest="/opt/tomcat/webapps",
+                                        storage_guest="/usr/local/tomcat/webapps",
                                         log_file=log_file,
                                         config_path=config_path)
     instance_details["tomcat"] = [ip, port]
@@ -298,7 +298,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
 
     output_info("Starting Catalogue quick install")
     subprocess.call('tasks/hypercat/quick-catalogue.sh ' + str(
-        subprocess.check_output("docker port catalogue | grep 22 | cut -d : -f 2", shell=True)).strip(),
+        subprocess.check_output("docker port hypercat | grep 22 | cut -d : -f 2", shell=True)).strip(),
                     shell=True)
 
     output_info("Starting Tomcat quick install")
@@ -338,7 +338,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     if server == "kong":  # separate kong log storage needed
         ssh = config.get('KONG', 'SSH')
 
-        cmd = "docker run -d -p {4}:22 --net=mynet --hostname={0} " \
+        cmd = "docker run -d -p {4}:22 -p 11000:8000 --net=mynet --hostname={0} " \
               "-v {2}:{3} -v {5}:/tmp --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest, ssh, log_storage)
 
@@ -378,7 +378,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
         ssh = config.get('TOMCAT', 'SSH')
         http = config.get('TOMCAT', 'HTTP')
         log_storage = config.get('TOMCAT', 'LOG_LOCATION')
-        cmd = "docker run -d -p {4}:22 -p {5}:8080 --net=mynet --hostname={0} -v {2}:{3} -v {6}:/var/log/supervisor" \
+        cmd = "docker run -d -p {4}:22 -p {5}:8080 --net=mynet --hostname={0} -v {2}:{3}" \
               " --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest, ssh, http, log_storage)
 
@@ -392,7 +392,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
                          "\n           Check logs {0} for more details.".format(log_file),
                          error_message=traceback.format_exc())
             exit()
-    elif server == "catalogue":  # separate data storage needed
+    elif server == "hypercat":  # separate data storage needed
         ssh = config.get('CATALOGUE', 'SSH')
         http = config.get('CATALOGUE', 'HTTP')
         cmd = "docker run -d -p {4}:22 -p {5}:8000 --net=mynet --hostname={0} " \

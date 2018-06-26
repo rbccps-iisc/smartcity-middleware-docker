@@ -122,8 +122,12 @@ local function do_authentication(conf)
   end
 
   -- retrieve our consumer linked to this API key
-  local credential, err = cache.get_or_set(cache.keyauth_credential_key(key),
-                                      nil, load_credential, key)
+  local cache = singletons.cache
+  local dao = singletons.dao
+
+  local credential_cache_key = dao.keyauth_credentials:cache_key(key)
+  local credential, err = cache:get(credential_cache_key, nil,
+                                    load_credential, key)
   if err then
     return responses.send_HTTP_INTERNAL_SERVER_ERROR(err)
   end
@@ -139,8 +143,9 @@ local function do_authentication(conf)
   -----------------------------------------
 
   -- retrieve the consumer linked to this API key, to set appropriate headers
-  local consumer, err = cache.get_or_set(cache.consumer_key(credential.consumer_id),
-                                    nil, load_consumer, credential.consumer_id)
+  local consumer_cache_key = dao.consumers:cache_key(credential.consumer_id)
+  local consumer, err = cache:get(consumer_cache_key, nil, load_consumer,
+                                  credential.consumer_id)
   if err then
     return responses.send_HTTP_INTERNAL_SERVER_ERROR(err)
   end
