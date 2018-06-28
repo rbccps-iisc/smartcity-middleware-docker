@@ -14,3 +14,4 @@ sudo usermod -aG docker $USER
 ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -N ''
 # vm.max_map_count must be set to higher value for elasticsearch.
 sudo sysctl -w vm.max_map_count=662144
+sudo apt-get install sshpass
