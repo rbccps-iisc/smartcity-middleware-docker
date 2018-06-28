@@ -6,15 +6,15 @@ before_install:
   - ./tests/install.sh
 language: python
 install:
-  - ideam install
-  - ideam start --with-idps
+  - ideam install --quick
+  #- ideam start --with-idps
 script:
   - ideam test
-addons:
-  postgresql: "9.5"
-before_script:
-  - psql -U postgres -c "ALTER USER postgres WITH SUPERUSER CREATEDB;"
-  - psql -d postgres -c 'create extension if not exists pgcrypto;'
-  - psql -U postgres -d postgres -c 'CREATE TABLE IF NOT EXISTS logs(id serial NOT NULL,logline text,hash text,CONSTRAINT logs_pkey PRIMARY KEY (id))WITH (OIDS=FALSE);ALTER TABLE logs OWNER TO postgres;'
-  - psql -d postgres -f ./config/idps/function.sql
-  - psql -d postgres -f ./config/idps/trigger.sql
+#addons:
+#  postgresql: "9.5"
+#before_script:
+#  - psql -U postgres -c "ALTER USER postgres WITH SUPERUSER CREATEDB;"
+#  - psql -d postgres -c 'create extension if not exists pgcrypto;'
+#  - psql -U postgres -d postgres -c 'CREATE TABLE IF NOT EXISTS logs(id serial NOT NULL,logline text,hash text,CONSTRAINT logs_pkey PRIMARY KEY (id))WITH (OIDS=FALSE);ALTER TABLE logs OWNER TO postgres;'
+#  - psql -d postgres -f ./config/idps/function.sql
+#  - psql -d postgres -f ./config/idps/trigger.sql
