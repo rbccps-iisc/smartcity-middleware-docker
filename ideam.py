@@ -96,6 +96,7 @@ def str2bool(v):
 def test(arguments):
     cmd = "./tests/create_entity.sh apitestingstreetlight"
     api_testing_streetlight_key = ""
+    process = "NYI"
     try:
         process = subprocess.check_output(cmd, shell=True)
         register = json.loads(process)
