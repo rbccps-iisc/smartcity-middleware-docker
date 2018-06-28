@@ -1,9 +1,19 @@
 #!/bin/ash
 echo "TrustedUserCAKeys /etc/ssh/ca-user-certificate-key.pub" >> /etc/ssh/sshd_config
 su postgres -c "/usr/local/pgsql/bin/postgres -D /usr/local/pgsql/data >/var/lib/postgresql/logfile 2>&1 &"
-sleep 5
+
+until psql --host=localhost --username=postgres postgres -w &>/dev/null
+do
+sleep 0.1
+done
+
 kong start -c /etc/kong/kong.conf
-sleep 5
+
+#while ! nc -z localhost 8001
+#do 
+#sleep 0.1
+#done
+
 rmqpwd=`cat /etc/rabbitmq | cut -d : -f 2 | awk '{$1=$1};1'`
 ldapdpwd=`cat /etc/ldapd | cut -d : -f 2 | awk '{$1=$1};1'`
 sed -i 's/rmq_user/admin.ideam/g' /home/ideam/share.py

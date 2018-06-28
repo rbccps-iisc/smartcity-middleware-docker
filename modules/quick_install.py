@@ -291,30 +291,36 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
         subprocess.check_output("docker port kong | grep 22 | cut -d : -f 2", shell=True)).strip(),
                     shell=True)
 
+    output_ok("Installed Kong")
     output_info("Starting RabbitMQ quick install")
     subprocess.call('tasks/rabbitmq/quick-rmq.sh ' + str(
         subprocess.check_output("docker port rabbitmq | grep 22 | cut -d : -f 2", shell=True)).strip(),
                     shell=True)
 
+    output_ok("Installed RabbitMQ")
     output_info("Starting Catalogue quick install")
     subprocess.call('tasks/hypercat/quick-catalogue.sh ' + str(
         subprocess.check_output("docker port hypercat | grep 22 | cut -d : -f 2", shell=True)).strip(),
                     shell=True)
 
+    output_ok("Installed Catalogue")
     output_info("Starting Tomcat quick install")
     subprocess.call('tasks/tomcat/quick-tomcat.sh ' + str(
         subprocess.check_output("docker port tomcat | grep 22 | cut -d : -f 2", shell=True)).strip(),
                     shell=True)
 
+    output_ok("Installed Tomcat")
     output_info("Starting Elasticsearch quick install")
     subprocess.call('tasks/elasticsearch/quick-elk.sh ' + str(
         subprocess.check_output("docker port elasticsearch | grep 22 | cut -d : -f 2", shell=True)).strip(),
                     shell=True)
 
+    output_ok("Installed Elasticsearch")
     output_info("Starting LDAPD quick install")
     subprocess.call('tasks/ldapd/quick-ldapd.sh ' + str(
         subprocess.check_output("docker port ldapd | grep 22 | cut -d : -f 2", shell=True)).strip(),
                     shell=True)
+    output_ok("Installed LDAPD")
 
 
 def create_instance(server, image, log_file, storage_host="", storage_guest="", config_path="/etc/ideam/ideam.conf",

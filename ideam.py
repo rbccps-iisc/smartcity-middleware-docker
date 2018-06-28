@@ -33,7 +33,6 @@ def install(arguments):
     if arguments.limit:
         container_setup.ansible_installation(arguments.limit)
     else:
-        print(arguments.config_file)
         setup_logging(log_file=arguments.log_file)
         container_setup.check_dependencies(log_file=arguments.log_file)
 
@@ -95,25 +94,25 @@ def str2bool(v):
 
 
 def test(arguments):
-    cmd = "./tests/create_entity.sh api_testing_streetlight"
+    cmd = "./tests/create_entity.sh apitestingstreetlight"
     api_testing_streetlight_key = ""
     try:
         process = subprocess.check_output(cmd, shell=True)
         register = json.loads(process)
         api_testing_streetlight_key = register["apiKey"]
-        output_ok("REGISTER API: Created entity api_testing_streetlight. API KEY is " + api_testing_streetlight_key)
+        output_ok("REGISTER API: Created entity apitestingstreetlight. API KEY is " + api_testing_streetlight_key)
     except:
         output_error(process,
                      error_message=traceback.format_exc())
         exit()
 
-    cmd = "./tests/create_entity.sh api_testing_dashboard"
+    cmd = "./tests/create_entity.sh apitestingdashboard"
     api_testing_dashboard_key = ""
     try:
         process = subprocess.check_output(cmd, shell=True)
         register = json.loads(process)
         api_testing_dashboard_key = register["apiKey"]
-        output_ok("REGISTER API: Created entity api_testing_dashboard. API KEY is " + api_testing_dashboard_key)
+        output_ok("REGISTER API: Created entity apitestingdashboard. API KEY is " + api_testing_dashboard_key)
     except:
         output_error(process,
                      error_message=traceback.format_exc())
@@ -123,7 +122,7 @@ def test(arguments):
     try:
         process = subprocess.check_output(cmd, shell=True)
         if "Publish message OK" in process:
-            output_ok("PUBLISH API: Published message as api_testing_streetlight.")
+            output_ok("PUBLISH API: Published message as apitestingstreetlight.")
         else:
             output_error(process,
                          error_message=traceback.format_exc())
@@ -132,11 +131,11 @@ def test(arguments):
                      error_message=traceback.format_exc())
         exit()
 
-    cmd = "./tests/catalogue.sh api_testing_dashboard"
+    cmd = "./tests/catalogue.sh apitestingdashboard"
     try:
         process = subprocess.check_output(cmd, shell=True)
-        if "api_testing_dashboard" in process:
-            output_ok("CATALOGUE API: Device api_testing_dashboard found in catalogue.")
+        if "apitestingdashboard" in process:
+            output_ok("CATALOGUE API: Device apitestingdashboard found in catalogue.")
         else:
             output_error(process,
                          error_message=traceback.format_exc())
@@ -149,7 +148,7 @@ def test(arguments):
     try:
         process = subprocess.check_output(cmd, shell=True)
         if "success" in process:
-            output_ok("DEREGISTER API: Device api_testing_dashboard removed.")
+            output_ok("DEREGISTER API: Device apitestingdashboard removed.")
         else:
             output_error(process,
                          error_message=traceback.format_exc())
@@ -162,7 +161,7 @@ def test(arguments):
     try:
         process = subprocess.check_output(cmd, shell=True)
         if "success" in process:
-            output_ok("DEREGISTER API: Device api_testing_streetlight removed.")
+            output_ok("DEREGISTER API: Device apitestingstreetlight removed.")
         else:
             output_error(process,
                          error_message=traceback.format_exc())
@@ -171,11 +170,11 @@ def test(arguments):
                      error_message=traceback.format_exc())
         exit()
 
-    cmd = "./tests/catalogue.sh api_testing_dashboard"
+    cmd = "./tests/catalogue.sh apitestingdashboard"
     try:
         process = subprocess.check_output(cmd, shell=True)
-        if "api_testing_dashboard" not in process:
-            output_ok("CATALOGUE API: Device api_testing_dashboard not found in catalogue.")
+        if "apitestingdashboard" not in process:
+            output_ok("CATALOGUE API: Device apitestingdashboard not found in catalogue.")
         else:
             output_error(process,
                          error_message=traceback.format_exc())
