@@ -8,7 +8,6 @@ sleep 0.1
 done
 
 kong start -c /etc/kong/kong.conf
-echo "Kong run"
 
 #while ! nc -z localhost 8001
 #do 

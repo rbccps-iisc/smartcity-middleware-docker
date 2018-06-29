@@ -1,3 +1,4 @@
+#!/bin/ash
 echo "TrustedUserCAKeys /etc/ssh/ca-user-certificate-key.pub" >> /etc/ssh/sshd_config
 pwd=`cat /etc/ldapd | cut -d : -f 2 | awk '{$1=$1};1'`
 sed -i 's/ldap_pwd/'$pwd'/g' /etc/ldapd.conf
