@@ -1,5 +1,5 @@
 sudo: required
-dist: trusty
+dist: xenial
 before_install:
   - ./build/build.sh
   - ./tests/test_setup.sh
