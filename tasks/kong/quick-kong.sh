@@ -7,4 +7,5 @@ docker cp host_vars/ldapd kong:/etc
 #sshpass -p "rbccps@123456" ssh root@localhost -p $1 < tasks/kong/quick-kong-setup.sh 
 docker cp tasks/kong/quick-kong-setup.sh kong:/etc/
 docker exec kong chmod +x /etc/quick-kong-setup.sh
+docker exec kong chmod 
 docker exec kong /etc/quick-kong-setup.sh
