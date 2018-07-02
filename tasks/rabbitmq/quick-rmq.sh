@@ -8,3 +8,4 @@ docker cp host_vars/rabbitmq rabbitmq:/etc/
 docker cp tasks/rabbitmq/quick-rmq-setup.sh rabbitmq:/etc/
 docker exec rabbitmq chmod +x /etc/quick-rmq-setup.sh
 docker exec rabbitmq /etc/quick-rmq-setup.sh 
+docker exec rabbitmq /usr/local/go/bin/rabbitmq-http -address=0.0.0.0:8000 > /dev/null 2>&1 &
