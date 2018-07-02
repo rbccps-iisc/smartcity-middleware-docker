@@ -28,7 +28,7 @@ def deregister(request):
         # Remove any entry by the name mentioned
         try:
             rabbitmq_queue_delete(entity, "rmq_user", "rmq_pwd")
-        except :
+        except:
             pass
 
         try:
@@ -90,13 +90,13 @@ def deregister(request):
     if check_entity_is_video(entity):
         video_server_delete(entity)
     rabbitmq_queue_delete(entity, "rmq_user", "rmq_pwd")
-    rabbitmq_queue_delete(entity+".follow", "rmq_user", "rmq_pwd")
+    rabbitmq_queue_delete(entity + ".follow", "rmq_user", "rmq_pwd")
     rabbitmq_exchange_delete(entity, "rmq_user", "rmq_pwd")
-    rabbitmq_exchange_delete(entity+".configure", "rmq_user", "rmq_pwd")
-    rabbitmq_exchange_delete(entity+".follow", "rmq_user", "rmq_pwd")
-    rabbitmq_exchange_delete(entity+".public", "rmq_user", "rmq_pwd")
-    rabbitmq_exchange_delete(entity+".protected", "rmq_user", "rmq_pwd")
-    rabbitmq_exchange_delete(entity+".private", "rmq_user", "rmq_pwd")
+    rabbitmq_exchange_delete(entity + ".configure", "rmq_user", "rmq_pwd")
+    rabbitmq_exchange_delete(entity + ".follow", "rmq_user", "rmq_pwd")
+    rabbitmq_exchange_delete(entity + ".public", "rmq_user", "rmq_pwd")
+    rabbitmq_exchange_delete(entity + ".protected", "rmq_user", "rmq_pwd")
+    rabbitmq_exchange_delete(entity + ".private", "rmq_user", "rmq_pwd")
     ldap_entity_delete(entity)
     kong_consumer_delete(entity)
     catalogue_delete(entity)
@@ -105,7 +105,7 @@ def deregister(request):
 
 
 def video_server_delete(entity):
-    url = 'http://videoserver:8088/remove_stream?id='+str(entity)
+    url = 'http://videoserver:8088/remove_stream?id=' + str(entity)
     headers = {'no-check': 'true', 'pwd': 'admin@123'}
     r = requests.delete(url, headers=headers)
     print(r.text)
@@ -142,7 +142,7 @@ def rabbitmq_exchange_delete(ename, consumer_id, apikey):
 
 def ldap_entity_delete(uid):
     cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "ldap_pwd" """
-    cmd2 = """ "uid={0},cn=devices,dc=smartcity" -r""".\
+    cmd2 = """ "uid={0},cn=devices,dc=smartcity" -r""". \
         format(uid)
     cmd = cmd1 + cmd2
     try:
@@ -154,7 +154,7 @@ def ldap_entity_delete(uid):
 
 def check_entity_exists(uid):
     cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "ldap_pwd" -b"""
-    cmd2 = """ "uid={0},cn=devices,dc=smartcity" """.\
+    cmd2 = """ "uid={0},cn=devices,dc=smartcity" """. \
         format(uid)
     cmd = cmd1 + cmd2
     resp = b""
@@ -170,7 +170,7 @@ def check_entity_exists(uid):
 
 def check_entity_is_video(uid):
     cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w ldap_pwd -b"""
-    cmd2 = """ "description=video,uid={0},cn=devices,dc=smartcity" """.\
+    cmd2 = """ "description=video,uid={0},cn=devices,dc=smartcity" """. \
         format(uid)
     cmd = cmd1 + cmd2
     resp = b""
@@ -186,7 +186,7 @@ def check_entity_is_video(uid):
 
 def check_owner(owner, device):
     cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "ldap_pwd" -b"""
-    cmd2 = """ "uid={0},cn=devices,dc=smartcity" {1}""".\
+    cmd2 = """ "uid={0},cn=devices,dc=smartcity" {1}""". \
         format(device, "owner")
     cmd = cmd1 + cmd2
     resp = b""
@@ -205,7 +205,7 @@ def check_owner(owner, device):
 def follow(request):
     consumer_id = ""
     apikey = ""
-    ttl=""
+    ttl = ""
 
     for name, value in request.headers.items():
         if name == "X-Consumer-Username":
@@ -218,7 +218,7 @@ def follow(request):
     e = json.loads(request.text)
 
     try:
-        ttl=e['validity']
+        ttl = e['validity']
     except:
         return request.Response(json={'status': 'failure', 'response': 'Validity period not specified'}, code=400)
 
@@ -252,12 +252,19 @@ def follow(request):
         return request.Response(text=" A follow request was approved to exchange " + entity + " with " + permission +
                                      " access at " + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + " GMT.\n")
     else:
-        bind(entity + ".follow", "public", entity + ".follow", consumer_id, apikey)
+        bind(entity + ".follow", entity + ".follow", entity + ".follow", consumer_id, apikey)
         print(strftime("%Y-%m-%d %H:%M:%S", gmtime()) + " Entity " + consumer_id +
               " made a follow request. Requested access is for " + permission)
-        publish(strftime("%Y-%m-%d %H:%M:%S", gmtime()) + " Entity " + consumer_id +
-                " made a follow request. Requested access is for " + permission, "public",
-                entity + ".follow", consumer_id, apikey)
+        # data=strftime("%Y-%m-%d %H:%M:%S", gmtime()) + " Entity " + consumer_id +" made a follow request. Requested access is for " + permission
+
+        url = "http://rabbitmq:15672/api/exchanges/%2f/" + entity + ".follow/publish"
+        data = {"properties": {}, "routing_key": entity + ".follow", "payload": strftime("%Y-%m-%d %H:%M:%S",
+                                                                                         gmtime()) + " Entity " + consumer_id + " made a follow request. Requested access is for " + permission,
+                "payload_encoding": "string"}
+        headers = {'Accept': 'application/json'}
+        r = requests.post(url, auth=('rmq_user', 'rmq_pwd'), data=json.dumps(data), headers=headers)
+        print(r.text)
+        # publish(data,entity + ".follow", entity + ".follow", consumer_id, apikey)
     return request.Response(text=" A follow request has been made to entity " + entity + " with " + permission +
                                  " access at " + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + " GMT.\n")
 
@@ -304,30 +311,31 @@ def publish(body, exchange, key, consumer_id, apikey):
     r = requests.post(url, data=json.dumps(data), headers=headers)
     print(r.text)
 
-def ldap_add_share_entry(device, consumer_id,ttl, read="false", write="false"):
-    today=datetime.now()
-    valid_until=""
 
-    if ttl[-1]=="Y":
-        days=int(ttl[:-1])*365
-        valid_until=today+timedelta(days=days)
-    elif ttl[-1]=="M":
-        days=int(ttl[:-1])*30
-        valid_until=today+timedelta(days=days)
-    elif ttl[-1]=="D":
-        days=int(ttl[:-1])
-        valid_until=today+timedelta(days=days)
-    elif ttl[-1]=="h":
-        hours=int(ttl[:-1])
-        valid_until=today+timedelta(hours=hours)
-    elif ttl[-1]=="m":
-        minutes=int(ttl[:-1])
-        valid_until=today+timedelta(minutes=minutes)
-    elif ttl[-1]=="s":
-        seconds=int(ttl[:-1])
-        valid_until=today+timedelta(seconds=seconds)
+def ldap_add_share_entry(device, consumer_id, ttl, read="false", write="false"):
+    today = datetime.now()
+    valid_until = ""
 
-    valid_until=valid_until.timestamp()
+    if ttl[-1] == "Y":
+        days = int(ttl[:-1]) * 365
+        valid_until = today + timedelta(days=days)
+    elif ttl[-1] == "M":
+        days = int(ttl[:-1]) * 30
+        valid_until = today + timedelta(days=days)
+    elif ttl[-1] == "D":
+        days = int(ttl[:-1])
+        valid_until = today + timedelta(days=days)
+    elif ttl[-1] == "h":
+        hours = int(ttl[:-1])
+        valid_until = today + timedelta(hours=hours)
+    elif ttl[-1] == "m":
+        minutes = int(ttl[:-1])
+        valid_until = today + timedelta(minutes=minutes)
+    elif ttl[-1] == "s":
+        seconds = int(ttl[:-1])
+        valid_until = today + timedelta(seconds=seconds)
+
+    valid_until = valid_until.timestamp()
 
     print(valid_until)
 
@@ -341,7 +349,7 @@ objectClass: share
 description: {0}
 read: {2}
 write: {3}
-validity: {4}""".format(device, consumer_id, read, write,valid_until)
+validity: {4}""".format(device, consumer_id, read, write, valid_until)
     f = open('/tmp/share.ldif', 'w')
     f.write(ldif)
     f.close()
@@ -359,7 +367,7 @@ replace: write
 write: {3}
 -
 replace: validity
-validity: {4}""".format(device, consumer_id, read, write,valid_until)
+validity: {4}""".format(device, consumer_id, read, write, valid_until)
             f = open('/tmp/share.ldif', 'w')
             f.write(ldif)
             f.close()
@@ -403,7 +411,7 @@ write: {3}""".format(device, consumer_id, read, write)
 def share(request):
     consumer_id = ""
     apikey = ""
-    ttl=""
+    ttl = ""
 
     for name, value in request.headers.items():
         if name == "X-Consumer-Username":
@@ -416,7 +424,7 @@ def share(request):
     e = json.loads(request.text)
 
     try:
-        ttl=e['validity']
+        ttl = e['validity']
     except:
         return request.Response(json={'status': 'failure', 'response': 'Validity period not specified'}, code=400)
 
@@ -445,22 +453,22 @@ def share(request):
     if permission == "read":
         # This ldap_add_share_entry provides a list of people who subscribed.
         if check_ldap_entry(entity, consumer_id, "write", "true"):
-            ldap_add_share_entry(entity, consumer_id, ttl,read="true", write="true")
+            ldap_add_share_entry(entity, consumer_id, ttl, read="true", write="true")
         else:
-            ldap_add_share_entry(entity, consumer_id, ttl,read="true", write="false")
+            ldap_add_share_entry(entity, consumer_id, ttl, read="true", write="false")
         bind(entity, consumer_id + ".protected", "#", consumer_id, apikey)
         text = "Read access given to " + entity + " at " + consumer_id + " exchange.\n"
         return request.Response(text=text)
     elif permission == "write":
         if check_ldap_entry(entity, consumer_id, "read", "true"):
-            ldap_add_share_entry(entity, consumer_id, ttl,read="true", write="true")
+            ldap_add_share_entry(entity, consumer_id, ttl, read="true", write="true")
         else:
-            ldap_add_share_entry(entity, consumer_id, ttl,read="false", write="true")
+            ldap_add_share_entry(entity, consumer_id, ttl, read="false", write="true")
         ldap_add_exchange_entry(exchange, entity, read="false", write="true")
         text = "Write access given to " + entity + " at " + exchange + " exchange.\n"
         return request.Response(text=text)
     elif permission == "read-write":
-        ldap_add_share_entry(entity, consumer_id, ttl,read="true", write="true")
+        ldap_add_share_entry(entity, consumer_id, ttl, read="true", write="true")
         bind(entity, consumer_id + ".protected", "#", consumer_id, apikey)
         ldap_add_exchange_entry(exchange, entity, read="false", write="true")
         text = "Read access given to " + entity + " at " + consumer_id + " exchange.\n"
@@ -517,14 +525,14 @@ def unfollow(request):
         else:
             delete_ldap_entry(consumer_id, entity, "share")
         if "." not in entity:
-            delete_ldap_entry(entity+".protected", consumer_id, "exchange")
+            delete_ldap_entry(entity + ".protected", consumer_id, "exchange")
         else:
             delete_ldap_entry(entity, consumer_id, "exchange")
     elif permission == "read-write":
         delete_ldap_entry(consumer_id, entity, "share")
         unbind(consumer_id, entity + ".protected", "#", consumer_id, apikey)
         if "." not in entity:
-            delete_ldap_entry(entity+".protected", consumer_id, "exchange")
+            delete_ldap_entry(entity + ".protected", consumer_id, "exchange")
         else:
             delete_ldap_entry(entity, consumer_id, "exchange")
     return request.Response(text="unfollow success\n")
@@ -532,7 +540,7 @@ def unfollow(request):
 
 def check_ldap_entry(desc, uid, attribute, check_parameter):
     cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "ldap_pwd" -b"""
-    cmd2 = """ "description={0},description=share,description=broker,uid={1},cn=devices,dc=smartcity" {2}""".\
+    cmd2 = """ "description={0},description=share,description=broker,uid={1},cn=devices,dc=smartcity" {2}""". \
         format(desc, uid, attribute)
     cmd = cmd1 + cmd2
     resp = b""
@@ -548,7 +556,7 @@ def check_ldap_entry(desc, uid, attribute, check_parameter):
 
 def delete_ldap_entry(desc, uid, entry):
     cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "ldap_pwd" """
-    cmd2 = """ "description={0},description={2},description=broker,uid={1},cn=devices,dc=smartcity" """.\
+    cmd2 = """ "description={0},description={2},description=broker,uid={1},cn=devices,dc=smartcity" """. \
         format(desc, uid, entry)
     cmd = cmd1 + cmd2
     try:
@@ -605,8 +613,8 @@ def unshare(request):
             ldap_add_share_entry(entity, consumer_id, read="true", write="false")
         else:
             delete_ldap_entry(entity, consumer_id, "share")
-        if "." not in entity :
-            delete_ldap_entry(consumer_id+".protected", entity, "exchange")
+        if "." not in entity:
+            delete_ldap_entry(consumer_id + ".protected", entity, "exchange")
         else:
             delete_ldap_entry(entity, consumer_id, "exchange")
         text = "Write access given to " + entity + " at " + consumer_id + " exchange removed.\n"
@@ -615,7 +623,7 @@ def unshare(request):
         delete_ldap_entry(entity, consumer_id, "share")
         unbind(entity, consumer_id + ".protected", "#", consumer_id, apikey)
         if "." not in entity:
-            delete_ldap_entry(consumer_id+".protected", entity, "exchange")
+            delete_ldap_entry(consumer_id + ".protected", entity, "exchange")
         else:
             delete_ldap_entry(entity, consumer_id, "exchange")
         text = "Read-write access given to " + entity + " at " + consumer_id + " exchange removed.\n"
@@ -636,7 +644,8 @@ def video_rtmp(request):
     print("consumer_id  : " + str(consumer_id))
     print("stream       : " + str(stream))
     if stream is not "" and apikey is not "" and consumer_id is not "":
-        return request.Response(code=301, headers={'Location': 'rtmp://'+URL.strip('\n')+':18935/live1/{0}?user={1}&pass={2}'.
+        return request.Response(code=301,
+                                headers={'Location': 'rtmp://' + URL.strip('\n') + ':18935/live1/{0}?user={1}&pass={2}'.
                                 format(stream, consumer_id, apikey)})
     else:
         return request.Response(json={'status': 'failure', 'response': 'missing stream in request'}, code=403)
@@ -644,7 +653,9 @@ def video_rtmp(request):
 
 # Currently hls is not available in video server
 def video_hls(request):
-    return request.Response(code=301, headers={'Location': 'https://'+URL.strip('\n')+':18935/live1/stream?id=device&pass=password'})
+    return request.Response(code=301, headers={
+        'Location': 'https://' + URL.strip('\n') + ':18935/live1/stream?id=device&pass=password'})
+
 
 app = Application()
 app.router.add_route('/follow', follow, methods=['POST'])
