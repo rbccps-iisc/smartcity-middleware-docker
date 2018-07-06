@@ -8,7 +8,7 @@ su postgres -c "/usr/local/pgsql/bin/postgres -D /usr/local/pgsql/data > /var/li
 #sleep 0.1
 #done
 
-until su postgres -c 'pg_isready'
+until su postgres -c 'pg_isready' >/dev/null 2>&1
 do
   sleep 0.1
 done
