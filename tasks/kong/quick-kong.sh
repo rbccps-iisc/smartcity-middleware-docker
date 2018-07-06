@@ -8,4 +8,5 @@ docker cp host_vars/ldapd kong:/etc
 docker cp tasks/kong/quick-kong-setup.sh kong:/etc/
 docker exec kong chmod 777 /etc/quick-kong-setup.sh
 docker exec kong chmod -R 777 /var/lib/postgresql 
+docker exec kong chmod -R 777 /tmp
 docker exec kong /etc/quick-kong-setup.sh
