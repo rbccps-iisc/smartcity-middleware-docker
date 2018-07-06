@@ -1,5 +1,6 @@
 #!/bin/ash
 echo "TrustedUserCAKeys /etc/ssh/ca-user-certificate-key.pub" >> /etc/ssh/sshd_config
+rm -r /tmp/tmux-*
 
 su postgres -c "/usr/local/pgsql/bin/postgres -D /usr/local/pgsql/data > /var/lib/postgresql/logfile 2>&1 &"
 
