@@ -7,6 +7,11 @@ do
 sleep 0.1
 done
 
+#until 'pg_isready' 2>/dev/null; do
+#  >&2 echo "Postgres is unavailable - sleeping for 0.1 seconds"
+#  sleep 0.1
+#done
+
 kong start -c /etc/kong/kong.conf
 
 #while ! nc -z localhost 8001
