@@ -202,27 +202,27 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
     cmd = 'cp -r ' + key + ' ' + os.getcwd() + '/config/certificate_authority/keys/id_rsa.pub'
     subprocess_popen(cmd, log_file, "Copying to /config/certificate_authority/keys/ failed.")
 
-    subprocess_with_print("docker build -t ideam/alpine-ssh -f images/alpine/Dockerfile.alpine-ssh .".
-                          format(unique_value()),
-                          success_msg="Created ideam/alpine-ssh docker image. ",
-                          failure_msg="Building alpine image from images/alpine/Dockerfile.alpine-ssh failed.",
-                          log_file=log_file,
-                          exit_on_fail=True)
-
-    ca_ip, ca_port, details = create_instance("certificate_authority", "ideam/alpine-ssh", log_file, config_path=config_path)
-    output_ok("Created Certificate Authority docker instance. \n " + details)
-
-    instance_details["certificate_authority"] = [ca_ip, ca_port]
-    create_ansible_host_file(instance_details)
-    output_ok("Created Ansible hosts file with CA instance. ")
-
-    output_info("Starting Ansible Certificate Authority Setup. ")
-    subprocess.call('tasks/certificate_authority/ca.sh '+str(subprocess.check_output("docker port certificate_authority | grep 22 | cut -d : -f 2",shell=True)).strip(),
-                    shell=True)
-
-    cmd = "cp config/certificate_authority/keys/id_rsa-cert.pub " + "~/.ssh/".replace("~", home)
-    subprocess_popen(cmd, log_file, "Copying Certificate Authority's cert file to ansible's .ssh/ failed.")
-    output_ok("Copied Certificate Authority's cert file to Ansible's .ssh. ")
+    # subprocess_with_print("docker build -t ideam/alpine-ssh -f images/alpine/Dockerfile.alpine-ssh .".
+    #                       format(unique_value()),
+    #                       success_msg="Created ideam/alpine-ssh docker image. ",
+    #                       failure_msg="Building alpine image from images/alpine/Dockerfile.alpine-ssh failed.",
+    #                       log_file=log_file,
+    #                       exit_on_fail=True)
+    #
+    # ca_ip, ca_port, details = create_instance("certificate_authority", "ideam/alpine-ssh", log_file, config_path=config_path)
+    # output_ok("Created Certificate Authority docker instance. \n " + details)
+    #
+    # instance_details["certificate_authority"] = [ca_ip, ca_port]
+    # create_ansible_host_file(instance_details)
+    # output_ok("Created Ansible hosts file with CA instance. ")
+    #
+    # output_info("Starting Ansible Certificate Authority Setup. ")
+    # subprocess.call('tasks/certificate_authority/ca.sh '+str(subprocess.check_output("docker port certificate_authority | grep 22 | cut -d : -f 2",shell=True)).strip(),
+    #                 shell=True)
+    #
+    # cmd = "cp config/certificate_authority/keys/id_rsa-cert.pub " + "~/.ssh/".replace("~", home)
+    # subprocess_popen(cmd, log_file, "Copying Certificate Authority's cert file to ansible's .ssh/ failed.")
+    # output_ok("Copied Certificate Authority's cert file to Ansible's .ssh. ")
 
 
     ip, port, details = create_instance("kong", "ideam/kong",
@@ -321,6 +321,12 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
         subprocess.check_output("docker port ldapd | grep 22 | cut -d : -f 2", shell=True)).strip(),
                     shell=True)
     output_ok("Installed LDAPD")
+
+    output_info("Starting Videoserver quick install")
+    subprocess.call('tasks/videoserver/quick-vs.sh ' + str(
+        subprocess.check_output("docker port videoserver | grep 22 | cut -d : -f 2", shell=True)).strip(),
+                    shell=True)
+    output_ok("Installed Videoserver")
 
 
 def create_instance(server, image, log_file, storage_host="", storage_guest="", config_path="/etc/ideam/ideam.conf",
@@ -524,22 +530,77 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     return "localhost", port.rstrip(), details
 
 
-def create_ansible_host_file(instances):
-    """ Creates an inventory file named hosts for ansible in the current directory. Inventory file will contain
-    IP address, port and ssh_username of the all the hosts (docker containers) mentioned in instances parameter.
+# def create_ansible_host_file(instances):
+#     """ Creates an inventory file named hosts for ansible in the current directory. Inventory file will contain
+#     IP address, port and ssh_username of the all the hosts (docker containers) mentioned in instances parameter.
+#
+#     Args:
+#         instances (dict): instances is a dict of the form { 'server' : [IPAddress, Port] }.
+#     """
+#     hosts_list = []
+#     for key, value in instances.iteritems():
+#         hosts_list.append("{0} ansible_host={1} ansible_port={2} ansible_user=root".format(key, value[0], value[1]))
+#
+#     hosts_contents = "\n".join(hosts_list)
+#     print(hosts_contents)
+#     with open('hosts', 'w+') as host_file:
+#         host_file.write(hosts_contents)
 
-    Args:
-        instances (dict): instances is a dict of the form { 'server' : [IPAddress, Port] }.
-    """
-    hosts_list = []
-    for key, value in instances.iteritems():
-        hosts_list.append("{0} ansible_host={1} ansible_port={2} ansible_user=root".format(key, value[0], value[1]))
+def limit_install(limit):
 
-    hosts_contents = "\n".join(hosts_list)
-    print(hosts_contents)
-    with open('hosts', 'w+') as host_file:
-        host_file.write(hosts_contents)
+    if "kong" in limit:
+        output_info("Starting Kong quick install")
+        subprocess.call('tasks/kong/quick-kong.sh ' + str(
+            subprocess.check_output("docker port kong | grep 22 | cut -d : -f 2", shell=True)).strip(),
+                        shell=True)
 
+        output_ok("Installed Kong")
+
+    if "rabbitmq" in limit:
+        output_info("Starting RabbitMQ quick install")
+        subprocess.call('tasks/rabbitmq/quick-rmq.sh ' + str(
+            subprocess.check_output("docker port rabbitmq | grep 22 | cut -d : -f 2", shell=True)).strip(),
+                        shell=True)
+
+        output_ok("Installed RabbitMQ")
+
+    if "hypercat" in limit:
+        output_info("Starting Catalogue quick install")
+        subprocess.call('tasks/hypercat/quick-catalogue.sh ' + str(
+            subprocess.check_output("docker port hypercat | grep 22 | cut -d : -f 2", shell=True)).strip(),
+                        shell=True)
+
+        output_ok("Installed Catalogue")
+
+    if "tomcat" in limit:
+        output_info("Starting Tomcat quick install")
+        subprocess.call('tasks/tomcat/quick-tomcat.sh ' + str(
+            subprocess.check_output("docker port tomcat | grep 22 | cut -d : -f 2", shell=True)).strip(),
+                        shell=True)
+
+        output_ok("Installed Tomcat")
+
+    if "elasticsearch" in limit:
+        output_info("Starting Elasticsearch quick install")
+        subprocess.call('tasks/elasticsearch/quick-elk.sh ' + str(
+            subprocess.check_output("docker port elasticsearch | grep 22 | cut -d : -f 2", shell=True)).strip(),
+                        shell=True)
+
+        output_ok("Installed Elasticsearch")
+
+    if "ldapd" in limit:
+        output_info("Starting LDAPD quick install")
+        subprocess.call('tasks/ldapd/quick-ldapd.sh ' + str(
+            subprocess.check_output("docker port ldapd | grep 22 | cut -d : -f 2", shell=True)).strip(),
+                        shell=True)
+        output_ok("Installed LDAPD")
+
+    if "videoserver" in limit:
+        output_info("Starting Videoserver quick install")
+        subprocess.call('tasks/videoserver/quick-vs.sh ' + str(
+            subprocess.check_output("docker port videoserver | grep 22 | cut -d : -f 2", shell=True)).strip(),
+                        shell=True)
+        output_ok("Installed Videoserver")
 
 def check_dependencies(log_file):
     """ Checks for system dependencies.
@@ -554,16 +615,16 @@ def check_dependencies(log_file):
                           exit_on_fail=True)
 
 
-def ansible_installation(limit):
-    """ Creates all the plays/installation from ansible install.yaml file.
-
-    Args:
-         limit (string):  Limits the ansible installation to the servers mentioned.
-                          A comma separated list of servers like --limit kong, rabbitmq
-    """
-    output_info("Starting Ansible setup. ")
-    # subprocess.call('ansible-playbook -i \'localhost\' -s install_idps.yml --ask-sudo-pass')
-    subprocess.call('ansible-playbook -i hosts install.yaml --limit "' + limit + '"', shell=True)
+# def ansible_installation(limit):
+#     """ Creates all the plays/installation from ansible install.yaml file.
+#
+#     Args:
+#          limit (string):  Limits the ansible installation to the servers mentioned.
+#                           A comma separated list of servers like --limit kong, rabbitmq
+#     """
+#     output_info("Starting Ansible setup. ")
+#     # subprocess.call('ansible-playbook -i \'localhost\' -s install_idps.yml --ask-sudo-pass')
+#     subprocess.call('ansible-playbook -i hosts install.yaml --limit "' + limit + '"', shell=True)
 
 
 def subprocess_with_print(cmd, success_msg, failure_msg, log_file, exit_on_fail=False):

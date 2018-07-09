@@ -31,7 +31,11 @@ class MyParser(argparse.ArgumentParser):
 def install(arguments):
     """ Installs docker images and containers."""
     if arguments.limit:
-        container_setup.ansible_installation(arguments.limit)
+
+        if arguments.quick:
+            quick_setup.limit_install(arguments.limit)
+        else:
+            container_setup.ansible_installation(arguments.limit)
     else:
         setup_logging(log_file=arguments.log_file)
         container_setup.check_dependencies(log_file=arguments.log_file)
@@ -63,7 +67,7 @@ def start(arguments):
     if arguments.limit:
         container_start.ansible_start(arguments.limit)
         if arguments.with_idps:
-	     container_start.start_idps()
+            container_start.start_idps()
 
     elif arguments.with_idps:
         container_start.start_all()
