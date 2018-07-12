@@ -1,0 +1,164 @@
+   0 mkdir .ssh && cd .ssh
+   3 apk add --update --no-cache git
+   4 apk add --update --no-cache autoconf
+   5 apk add --update --no-cache byacc
+   6 apk add --update --no-cache flex-dev
+   7 apk add --update --no-cache libssl-dev
+   8 apk add --update --no-cache openssl-dev
+   9 apk add --update --no-cache openldap-clients
+  12 apk add --update --no-cache libbsd-dev
+  13 git clone https://github.com/harishanand95/openbsd-ldapd-portable.git
+  15 wget https://github.com/libevent/libevent/archive/release-1.4.13-stable.tar.gz
+  18 tar -zxvf release-1.4.13-stable.tar.gz 
+  20 cd libevent-release-1.4.13-stable/
+  21 ./autogen.sh 
+  22 vim autogen.sh 
+  23 vi autogen.sh 
+  24 apk add --update --no-cache build-base
+  25 vi autogen.sh 
+  26 ./autogen.sh 
+  27 apk add --update --no-cache automake
+  28 ./autogen.sh 
+  29 apk add --update --no-cache libtool-doc
+  30 ./autogen.sh 
+  31 apk add --update --no-cache libtool
+  32 ./autogen.sh
+  34 ./configure
+  35 make
+  36 make install
+  38 cd openbsd-ldapd-portable/
+  39 ./bootstrap 
+  40 ./configure
+  41 make
+  42 find / -name ber.h
+  43 cd ldapd/
+  44 vi ber.h
+  45 apk add --update --no-cache linux-headers
+  46 make
+  47 cd /usr/include/linux/
+  49 vi cdefs.h
+  52 make
+  53 cd ldapd/
+  54 vi ber.h
+  56 make
+ 107 make install
+ 113 link /usr/local/lib/libevent-1.4.so.2 /usr/lib/libevent-1.4.so.2
+ 132 vi ldapd.conf 
+ 133 mkdir ldap
+ 134 cd ldap/
+ 135 mkdir /var/db
+ 136 cd /var/db/
+ 137 mkdir ldap
+ 138 cd /
+ 139 cp core.schema /etc/ldap
+ 140 ldapd
+ 141 netstat -ntlp
+ 142 adduser _ldapd
+ 143 whoami
+ 144 usermod -aG _ldapd root
+ 145 ps aux
+ 146 ldap
+ 147 ldapd
+ 148 vi /etc/ldapd.conf 
+ 149 deluser
+ 150 deluser _ldapd
+ 151 adduser
+ 152 deluser _ldapd
+ 153 rm -r /home/_ldapd/
+ 154 cd /home/
+ 155 ls
+ 156 cd
+ 157 cd /sbin/
+ 158 ls
+ 159 adduser -h /var/db/ldap/ -s /sbin/nologin -G root
+ 160 adduser -h /var/db/ldap/ -s /sbin/nologin -G root _ldapd
+ 161 su _ldapd
+ 162 adduser -h /var/db/ldap/ -s /sbin/nologin -G root _ldapd
+ 163 su _ldapd
+ 164 cd
+ 165 ldapd
+ 166 netstat -ntlp
+ 167 ldapd
+ 168 ls
+ 169 cd openbsd-ldapd-portable/
+ 170 ls
+ 171 cd ..
+ 172 ldapd
+ 173 netstat -ntlp
+ 174 ps aux
+ 175 apk add --update --no-cache rsyslog
+ 176 rsyslogd
+ 177 sudo rsyslogd
+ 178 whoami
+ 179 cd /etc/
+ 180 ls
+ 181 cd ldap/
+ 182 ls
+ 183 vi core.schema 
+ 184 cd
+ 185 find / -name ldap
+ 186 cd /var/db/ldap/
+ 187 ls
+ 188 cd 
+ 189 ls
+ 190 cd openbsd-ldapd-portable/
+ 191 ls
+ 192 vi install-sh 
+ 193 clear
+ 194 ls
+ 195 cd openbsd-ldapd-portable/
+ 196 ls
+ 197 ldapd -vvv
+ 198 ls -l /etc/ldapd.conf 
+ 199 chmod o= /etc/ldapd.conf
+ 200 ldapd -vvv
+ 201 ls -l /etc/ldapd.conf 
+ 202 chmod g= /etc/ldapd.conf
+ 203 ls -l /etc/ldapd.conf 
+ 204 ldapd -vvv
+ 205 netstat -an | grep TCP
+ 206 netstat -an | grep -i TCP
+ 207 vim /etc/ldapd.conf 
+ 208 vi /etc/ldapd.conf 
+ 209 apk info 
+ 210 apk del --purge byacc git autoconf flex-dev flex perl libcurl build-base bash 
+ 211 apk info
+ 212 apk update
+ 213 apk info
+ 214 apk del --purge bash
+ 215 apk del --purge libtool
+ 216 apk del --purge bash
+ 217 apk del --purge rsyslog
+ 218 apk info
+ 219 apk del --purge automake
+ 220 apk del --purge libtool-doc
+ 221 apk info
+ 222 apk del --purge openldap-clients
+ 223 apk info
+ 224 apk del --purge linux-headers
+ 225 netstat -ntlp
+ 226 which ldapd
+ 227 ldd `which ldapd`
+ 228 apk info 
+ 229 netstat -ntlp
+ 230 ldapd
+ 231 netstat -ntlp
+ 232 ldd `which ldapd`
+ 233 netstat -ntlp
+ 234 apk info
+ 235 apk del --purge python
+ 236 find / -name ldap.conf
+ 237 find / -name ldap.config
+ 238 find / -name *.config
+ 239 find / -name *.conf
+ 240 cd /etc/
+ 241 vi ldapd.conf 
+ 242 apk add --update --no-cache openldap-clients
+ 243 ldapmodify 
+ 244 cd .ssh/
+ 245 vi authorized_keys 
+ 246 ldd ldapd
+ 247 find / -name ldapd
+ 248 ldd /usr/local/sbin/ldapd 
+ 249 cd
+ 250 history > ldap_history
