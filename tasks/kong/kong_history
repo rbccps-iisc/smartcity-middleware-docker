@@ -67,12 +67,12 @@
  194 luarocks install kong-plugin-badrequest-0.1.0-1.all.rock 
  199 su postgres -c "/usr/local/pgsql/bin/postgres -D /usr/local/pgsql/data >/var/lib/postgresql/logfile 2>&1 &"
  201 kong start -c /etc/kong/kong.conf
- 203 curl -XPOST "http://localhost:8001/apis/" -d 'name=catGET&methods=GET&upstream_url=http://hypercat:8000/cat&uris=/api/1.0.0/cat'
+ 203 curl -XPOST "http://localhost:8001/apis/" -d 'name=catGET&methods=GET&upstream_url=http://catalogue:8000/cat&uris=/api/1.0.0/cat'
  204 curl -XDELETE "localhost:8001/apis/catGET"
- 205 curl -XPOST "http://localhost:8001/apis/" -d 'name=catGET&methods=GET&upstream_url=http://hypercat:8000/cat&uris=/api/1.0.0/cat'
- 206 curl -XPOST "http://localhost:8001/apis/" -d 'name=catPOST&methods=POST&upstream_url=http://hypercat:8000/cat&uris=/api/1.0.0/cat'
+ 205 curl -XPOST "http://localhost:8001/apis/" -d 'name=catGET&methods=GET&upstream_url=http://catalogue:8000/cat&uris=/api/1.0.0/cat'
+ 206 curl -XPOST "http://localhost:8001/apis/" -d 'name=catPOST&methods=POST&upstream_url=http://catalogue:8000/cat&uris=/api/1.0.0/cat'
  207 curl -XDELETE "localhost:8001/apis/catPOST"
- 208 curl -XPOST "http://localhost:8001/apis/" -d 'name=catPOST&methods=POST&upstream_url=http://hypercat:8000/cat&uris=/api/1.0.0/cat'
+ 208 curl -XPOST "http://localhost:8001/apis/" -d 'name=catPOST&methods=POST&upstream_url=http://catalogue:8000/cat&uris=/api/1.0.0/cat'
  232 apk add --update --no-cache openldap-clients
  233 chmod -R 777 /tmp
  248 rm .s.PGSQL.5432.lock 

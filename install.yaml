@@ -137,12 +137,12 @@
   - name: Block SSH access into containers from outside machines
     shell: sed -i "$ a sshd {{":"}} ALL {{":"}} deny" /etc/hosts.allow
 
-## Set up hypercat environment
-- hosts: hypercat
+## Set up catalogue environment
+- hosts: catalogue
   remote_user: root
   vars_files:
     - host_vars/all
-    - host_vars/hypercat
+    - host_vars/catalogue
   tasks:
   - include: tasks/create_user.yml
   - include: tasks/add_local_repository.yml
@@ -170,7 +170,7 @@
     file: path=/data/db state=directory
 
   - name: Copy mongod init script
-    copy: src=./config/hypercat/mongod dest=/etc/init.d/mongod owner=root group=root mode=0644
+    copy: src=./config/catalogue/mongod dest=/etc/init.d/mongod owner=root group=root mode=0644
 
   - name: Change permissions of "mongod", adding "+x"
     file: dest=/etc/init.d/mongod mode=a+x
@@ -210,7 +210,7 @@
 
   - name: Copy supervisor-cat-server.conf
     copy:
-      src: config/hypercat/supervisor-cat-server.conf
+      src: config/catalogue/supervisor-cat-server.conf
       dest: /etc/supervisor/conf.d/supervisor-cat-server.conf
       mode: 0644
 
@@ -230,7 +230,7 @@
   - name: Block SSH access into containers from outside machines
     shell: sed -i "$ a sshd {{":"}} ALL {{":"}} deny" /etc/hosts.allow
 
-- hosts: hypercat
+- hosts: catalogue
   remote_user: ideam
   vars_files:
   - host_vars/all
@@ -243,7 +243,7 @@
 
   - name: Copy create_db.js
     copy:
-      src: config/hypercat/create_db.js
+      src: config/catalogue/create_db.js
       dest: /home/ideam/create_db.js
       mode: 0644
 
@@ -260,7 +260,7 @@
 
   - name: Copy config.js
     copy:
-      src: config/hypercat/config_new.js
+      src: config/catalogue/config_new.js
       dest: /home/ideam/cat-json-schema-server/lib/config.js
       mode: 0644
 
@@ -276,7 +276,7 @@
 
   - name: Copy api.js
     copy:
-      src: config/hypercat/api.js
+      src: config/catalogue/api.js
       dest: /home/ideam/cat-json-schema-server/lib/api.js
       mode: 0644
 

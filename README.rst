@@ -156,7 +156,7 @@ If you want to install IDEAM for contributing to the project (or if you just wan
 
   ``python ideam.py start -l <comma separated list of containers>``
   
-  For e.g. ``python ideam.py start -l pushpin,hypercat``
+  For e.g. ``python ideam.py start -l pushpin,catalogue``
   
 Using the quick install option
 ==============================

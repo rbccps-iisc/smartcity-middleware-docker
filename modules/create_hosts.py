@@ -12,9 +12,9 @@ def create_hosts():
     hosts = ""
     subprocess.call("docker start kong", shell=True)
     hosts += "kong ansible_host=localhost ansible_port={0} ansible_user=root\n".format(get_port("kong").rstrip())
-    subprocess.call("docker start hypercat", shell=True)
-    hosts += "hypercat ansible_host=localhost ansible_port={0} ansible_user=root\n".format(
-        get_port("hypercat").rstrip())
+    subprocess.call("docker start catalogue", shell=True)
+    hosts += "catalogue ansible_host=localhost ansible_port={0} ansible_user=root\n".format(
+        get_port("catalogue").rstrip())
     subprocess.call("docker start apt_repo", shell=True)
     hosts += "apt_repo ansible_host=localhost ansible_port={0} ansible_user=root\n".format(
         get_port("apt_repo").rstrip())

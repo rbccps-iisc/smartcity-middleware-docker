@@ -5,15 +5,15 @@ NC='\033[0m'
 YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
 
-echo -e "${YELLOW}[  INFO  ]${NC} Copying CA user certifiate key"
+#echo -e "${YELLOW}[  INFO  ]${NC} Copying CA user certifiate key"
 
-docker cp config/certificate_authority/keys/ca-user-certificate-key.pub tomcat:/etc/ssh/ca-user-certificate-key.pub
+#docker cp config/certificate_authority/keys/ca-user-certificate-key.pub tomcat:/etc/ssh/ca-user-certificate-key.pub
 
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}[   OK   ] ${NC}Copied certificate key"
-else
-    echo -e "${RED}[ ERROR ] ${NC}Failed to copied certificate key"
-fi
+#if [ $? -eq 0 ]; then
+#    echo -e "${GREEN}[   OK   ] ${NC}Copied certificate key"
+#else
+#    echo -e "${RED}[ ERROR ] ${NC}Failed to copied certificate key"
+#fi
 
 docker exec -i tomcat mkdir -p /root/.ssh/ 
 

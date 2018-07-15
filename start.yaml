@@ -1,8 +1,8 @@
 ---
-- hosts: hypercat
+- hosts: catalogue
   remote_user: ideam
   tasks:
-  - include: tasks/hypercat/start_hypercat.yaml
+  - include: tasks/catalogue/start_catalogue.yaml
 
 - hosts: rabbitmq
   remote_user: ideam

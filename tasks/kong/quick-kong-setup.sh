@@ -5,17 +5,17 @@ NC='\033[0m'
 YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
 
-echo -e "${YELLOW}[  INFO  ]${NC} Copying CA user certificate keys"
+#echo -e "${YELLOW}[  INFO  ]${NC} Copying CA user certificate keys"
 
-echo "TrustedUserCAKeys /etc/ssh/ca-user-certificate-key.pub" >> /etc/ssh/sshd_config
+#echo "TrustedUserCAKeys /etc/ssh/ca-user-certificate-key.pub" >> /etc/ssh/sshd_config
 
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}[   OK   ]${NC} Copied CA user certificate keys"
-else
-    echo -e "${RED}[ ERROR ]${NC} Failed to copy CA user certificate keys"
-fi
+#if [ $? -eq 0 ]; then
+#    echo -e "${GREEN}[   OK   ]${NC} Copied CA user certificate keys"
+#else
+#    echo -e "${RED}[ ERROR ]${NC} Failed to copy CA user certificate keys"
+#fi
 
-echo -e "${YELLOW}[  INFO  ]${NC} Attempting to remove previous tmux sessions"
+#echo -e "${YELLOW}[  INFO  ]${NC} Attempting to remove previous tmux sessions"
 
 rm -r /tmp/tmux-*
 

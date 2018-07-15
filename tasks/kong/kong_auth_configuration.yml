@@ -298,22 +298,22 @@
     until: (request.status == 201) or (request.status == 409)
     retries: 5
 
-  - name: Creating "/api/1.0.0/cat" at kong (http://hypercat:8000/cat)
+  - name: Creating "/api/1.0.0/cat" at kong (http://catalogue:8000/cat)
     uri:
       url: http://localhost:8001/apis/
       method: POST
-      body: 'name=catGET&methods=GET&upstream_url=http://hypercat:8000/cat&uris=/api/1.0.0/cat'
+      body: 'name=catGET&methods=GET&upstream_url=http://catalogue:8000/cat&uris=/api/1.0.0/cat'
       status_code: [201, 409]
       return_content: yes
     register: request
     until: (request.status == 409) or (request.status == 201)
     retries: 5
 
-  - name: Creating Catalog-POST API "/api/1.0.0/cat" at kong (http://hypercat:8000/cat)
+  - name: Creating Catalog-POST API "/api/1.0.0/cat" at kong (http://catalogue:8000/cat)
     uri:
       url: http://localhost:8001/apis/
       method: POST
-      body: 'name=catPOST&methods=POST&upstream_url=http://hypercat:8000/cat&uris=/api/1.0.0/cat'
+      body: 'name=catPOST&methods=POST&upstream_url=http://catalogue:8000/cat&uris=/api/1.0.0/cat'
       status_code: [201, 409]
       return_content: yes
     register: request

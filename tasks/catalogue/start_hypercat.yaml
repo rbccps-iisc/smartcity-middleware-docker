@@ -1,0 +1,10 @@
+---
+  - name: Start mongodb service
+    command: service mongod start
+    become: yes
+    become_user: root
+
+  - name: Start catalogue server
+    shell: cd /home/ideam/cat-json-schema-server && tmux new-session -d 'npm start'
+    become: yes
+    become_user: root

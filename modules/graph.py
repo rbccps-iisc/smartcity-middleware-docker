@@ -41,7 +41,7 @@ def create_graph(instances):
                _attributes={'color': 'red'})
     group.node('PublicCatalogue',
                '{Publicly available\\nopen catalogue' +
-               ' | {0}:{1}'.format(instances["hypercat"][0], instances["hypercat"][1]) +
+               ' | {0}:{1}'.format(instances["catalogue"][0], instances["catalogue"][1]) +
                '}')
     group.node('Firewall',
                '{API gateway + Firewall cluster \\n (Certificates signed by the CA) | kong + iptables' +

@@ -112,7 +112,7 @@ def video_server_delete(entity):
 
 
 def catalogue_delete(entity):
-    url = 'http://hypercat:8000/cat?id=' + entity
+    url = 'http://catalogue:8000/cat?id=' + entity
     headers = {'pwd': 'local123'}
     r = requests.delete(url, data=json.dumps({}), headers=headers)
     print(r.text)

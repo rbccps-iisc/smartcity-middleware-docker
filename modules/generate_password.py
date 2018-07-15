@@ -23,7 +23,7 @@ def ldap_pass(config):
         password = id_generator(size=16, chars=string.ascii_letters + string.digits)
     write("host_vars/ldapd", "ldapd_password: " + password)
     write("config/tomcat/pwd", password)
-    replace("config/hypercat/config.js", "ldap_pwd", password, "config/hypercat/config_new.js")
+    replace("config/catalogue/config.js", "ldap_pwd", password, "config/catalogue/config_new.js")
     replace("config/ldapd/ldapd.conf", "ldap_pwd", password, "config/ldapd/ldapd_new.conf")
     replace("config/kong/share.py", "ldap_pwd", password, "config/kong/share_new.py")
     config.set('PASSWORDS', 'LDAP', password)
@@ -51,11 +51,11 @@ def kong_pass(config):
 
 
 def catalogue_pass(config):
-    password = config.get('PASSWORDS', 'HYPERCAT')
+    password = config.get('PASSWORDS', 'catalogue')
     if password == "?":
         password = id_generator()
-    write("host_vars/hypercat", "mongodb_password: " + password)
-    config.set('PASSWORDS', 'HYPERCAT', password)
+    write("host_vars/catalogue", "mongodb_password: " + password)
+    config.set('PASSWORDS', 'catalogue', password)
 
 
 def rmq_pass(config):

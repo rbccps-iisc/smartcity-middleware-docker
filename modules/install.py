@@ -38,7 +38,7 @@ def remove_containers(log_file):
                           log_file=log_file,
                           exit_on_fail=False)
 
-    subprocess_with_print("docker rm hypercat",
+    subprocess_with_print("docker rm catalogue",
                           success_msg="Removing Catalogue server",
                           failure_msg="Catalogue server container doesn't exist. SKIPPING THIS ERROR.",
                           log_file=log_file,
@@ -111,7 +111,7 @@ def stop_containers(log_file):
                           log_file=log_file,
                           exit_on_fail=False)
 
-    subprocess_with_print("docker stop hypercat",
+    subprocess_with_print("docker stop catalogue",
                           success_msg="Stopping Catalogue server",
                           failure_msg="Catalogue server container doesn't exist. SKIPPING THIS ERROR.",
                           log_file=log_file,
@@ -153,7 +153,7 @@ def unique_value():
 
 
 def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
-    """ Creates docker instances for kong, ca, hypercat, rabbitmq, elastic search, apache storm, ldap, ntp and bind
+    """ Creates docker instances for kong, ca, catalogue, rabbitmq, elastic search, apache storm, ldap, ntp and bind
     server from an ubuntu-ssh image. First, docker creates certificate authority (CA) instance and then have the CA
     certify Ansible user's public key. A new docker image with this CA's public key in TrustedUserCAKeys is created to
     avoid redundant sending of Ansible's public keys to all hosts.
@@ -307,12 +307,12 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
     instance_details["kong"] = [ip, port]
     output_ok("Created Kong docker instance. \n " + details)
 
-    ip, port, details = create_instance("hypercat", "ansible/ubuntu-certified-catalogue:1.0",
+    ip, port, details = create_instance("catalogue", "ansible/ubuntu-certified-catalogue:1.0",
                                         storage_host=catalogue_storage,
                                         storage_guest="/data/db",
                                         log_file=log_file,
                                         config_path=config_path)
-    instance_details["hypercat"] = [ip, port]
+    instance_details["catalogue"] = [ip, port]
     output_ok("Created Catalogue docker instance. \n " + details)
 
     ip, port, details = create_instance("rabbitmq", "ansible/ubuntu-certified-rabbitmq:1.0",
@@ -441,7 +441,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
                          "\n           Check logs {0} for more details.".format(log_file),
                          error_message=traceback.format_exc())
             exit()
-    elif server == "hypercat":  # separate data storage needed
+    elif server == "catalogue":  # separate data storage needed
         ssh = config.get('CATALOGUE', 'SSH')
         http = config.get('CATALOGUE', 'HTTP')
         cmd = "docker run -d -p {4}:22 -p {5}:8000 --net=mynet --hostname={0} " \
