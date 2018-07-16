@@ -362,7 +362,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     if server == "kong":  # separate kong log storage needed
         ssh = config.get('KONG', 'SSH')
 
-        cmd = "docker run -d -p {4}:22 -p 11000:8000 --net=mynet --hostname={0} " \
+        cmd = "docker run -d -p {4}:22 -p 443:8443 --net=mynet --hostname={0} " \
               "-v {2}:{3} -v {5}:/tmp --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest, ssh, log_storage)
 
