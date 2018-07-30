@@ -18,6 +18,7 @@ import subprocess
 from modules.utils import output_ok, output_error
 import traceback
 import json
+import modules.quickstart as quickstart
 
 
 class MyParser(argparse.ArgumentParser):
@@ -75,6 +76,11 @@ def start(arguments):
 
     else:
         container_start.start_all()
+
+def quick_start(arguments):
+    setup_logging(log_file=arguments.log_file)
+    quickstart.start_containers(arguments.log_file)
+    quickstart.start_services()
 
 
 def restart(arguments):
@@ -229,6 +235,11 @@ if __name__ == '__main__':
                                 default=default_log_file)
 
     install_parser.add_argument("--quick",help="Use Alpine base images for quick installation of IDEAM", action="store_true")
+
+    quickstart_parser=subparsers.add_parser("quickstart",description="Starts all containers and services if quick install was used")
+    quickstart_parser.add_argument("--log-file", help="Path to log file",
+                                default=default_log_file)
+
     # start command
     start_parser = subparsers.add_parser('start', help='Start all the docker containers in the middleware')
     start_parser.add_argument("-l",
@@ -260,6 +271,8 @@ if __name__ == '__main__':
         install(args)
     elif args.command == "start":
         start(args)
+    elif args.command == "quickstart":
+        quick_start(args)
     elif args.command == "restart":
         start(args)
     elif args.command == "rmdata":

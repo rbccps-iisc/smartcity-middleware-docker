@@ -286,58 +286,44 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
 
     # create_ansible_host_file(instance_details)
     
-    print("")
+    print("") #Just to separate out the individual installations
     output_info("Starting Kong quick install")
-    subprocess.call('tasks/kong/quick-kong.sh ' + str(
-        subprocess.check_output("docker port kong | grep 22 | cut -d : -f 2", shell=True)).strip(),
-                    shell=True)
+    subprocess.call('tasks/kong/quick-kong.sh', shell=True)
     
     output_ok("Installed Kong")
     
     print("")
     output_info("Starting RabbitMQ quick install")
-    subprocess.call('tasks/rabbitmq/quick-rmq.sh ' + str(
-        subprocess.check_output("docker port rabbitmq | grep 22 | cut -d : -f 2", shell=True)).strip(),
-                    shell=True)
+    subprocess.call('tasks/rabbitmq/quick-rmq.sh ', shell=True)
 
     output_ok("Installed RabbitMQ")
     
     print("")
     output_info("Starting Catalogue quick install")
-    subprocess.call('tasks/catalogue/quick-catalogue.sh ' + str(
-        subprocess.check_output("docker port catalogue | grep 22 | cut -d : -f 2", shell=True)).strip(),
-                    shell=True)
+    subprocess.call('tasks/catalogue/quick-catalogue.sh ', shell=True)
 
     output_ok("Installed Catalogue")
     
     print("")
     output_info("Starting Tomcat quick install")
-    subprocess.call('tasks/tomcat/quick-tomcat.sh ' + str(
-        subprocess.check_output("docker port tomcat | grep 22 | cut -d : -f 2", shell=True)).strip(),
-                    shell=True)
+    subprocess.call('tasks/tomcat/quick-tomcat.sh ', shell=True)
 
     output_ok("Installed Tomcat")
     
     print("")
     output_info("Starting Elasticsearch quick install")
-    subprocess.call('tasks/elasticsearch/quick-elk.sh ' + str(
-        subprocess.check_output("docker port elasticsearch | grep 22 | cut -d : -f 2", shell=True)).strip(),
-                    shell=True)
+    subprocess.call('tasks/elasticsearch/quick-elk.sh ', shell=True)
 
     output_ok("Installed Elasticsearch")
     
     print("")
     output_info("Starting LDAPD quick install")
-    subprocess.call('tasks/ldapd/quick-ldapd.sh ' + str(
-        subprocess.check_output("docker port ldapd | grep 22 | cut -d : -f 2", shell=True)).strip(),
-                    shell=True)
+    subprocess.call('tasks/ldapd/quick-ldapd.sh ', shell=True)
     output_ok("Installed LDAPD")
     
     print("")
     output_info("Starting Videoserver quick install")
-    subprocess.call('tasks/videoserver/quick-vs.sh ' + str(
-        subprocess.check_output("docker port videoserver | grep 22 | cut -d : -f 2", shell=True)).strip(),
-                    shell=True)
+    subprocess.call('tasks/videoserver/quick-vs.sh ', shell=True)
     output_ok("Installed Videoserver")
 
 
