@@ -17,7 +17,8 @@ GREEN='\033[0;32m'
 
 #echo -e "${YELLOW}[  INFO  ]${NC} Attempting to remove previous tmux sessions"
 
-rm -r /tmp/tmux-*
+#TODO Get rid of this!
+rm -r /tmp/tmux-* > /dev/null 2>&1
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ]${NC} Removed old tmux sessions"
@@ -34,6 +35,8 @@ if [ $? -eq 0 ]; then
 else
     echo -e "${RED}[ ERROR ]${NC} Failed to start postgres. Check /var/lib/postgresql/logfile for more details"
 fi
+
+#TODO set a timeout
 
 echo -e "${YELLOW}[  INFO  ]${NC} Waiting for the database system to start up"
 

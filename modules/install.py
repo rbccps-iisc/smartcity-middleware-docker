@@ -590,6 +590,7 @@ def check_dependencies(log_file):
     Args:
         log_file      (string): log file path
     """
+    #TODO  check if ansible and passlib have been installed
     subprocess_with_print("docker -v",
                           success_msg="Docker is installed. ",
                           failure_msg="Docker is not installed. Please install docker",

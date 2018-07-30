@@ -224,7 +224,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
     # subprocess_popen(cmd, log_file, "Copying Certificate Authority's cert file to ansible's .ssh/ failed.")
     # output_ok("Copied Certificate Authority's cert file to Ansible's .ssh. ")
 
-
+#TODO change data folder of postgres
     ip, port, details = create_instance("kong", "ideam/kong",
                                         storage_host=kong_storage,
                                         storage_guest="/var/lib/postgresql",
@@ -348,7 +348,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     if server == "kong":  # separate kong log storage needed
         ssh = config.get('KONG', 'SSH')
 
-        cmd = "docker run -d -p {4}:22 -p 11000:8000 --net=mynet --hostname={0} " \
+        cmd = "docker run -d -p {4}:22 -p 80:8000 --net=mynet --hostname={0} " \
               "-v {2}:{3} -v {5}:/tmp --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest, ssh, log_storage)
 
@@ -363,6 +363,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
                          error_message=traceback.format_exc())
             exit()
     elif server == "rabbitmq":  # separate rabbitmq log storage needed
+        #TODO only amqps, mqtts and https
         ssh = config.get('RABBITMQ', 'SSH')
         http = config.get('RABBITMQ', 'HTTP')
         amqp = config.get('RABBITMQ', 'AMQP')
@@ -656,6 +657,13 @@ def subprocess_popen(cmd, log_file, failure_msg):
         log_file    (string): log file path
         failure_msg (string): failure text
     """
+
+    cmd = cmd.replace(";","")
+    cmd = cmd.replace("|","")
+    cmd = cmd.replace("$","")
+    cmd = cmd.replace("{","")
+    cmd = cmd.replace("}","")
+
     p = subprocess.Popen(cmd.split(" "), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
     if p.returncode != 0:

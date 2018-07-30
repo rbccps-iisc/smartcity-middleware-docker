@@ -56,81 +56,98 @@ def start_containers(log_file):
                           log_file=log_file,
                           exit_on_fail=False)
 
-def start_services():
+def start_services(limit):
 
-    print("")  # Just to separate out the individual start scripts
-    output_info("Starting Kong container")
+    #TODO commit docker images along with start scripts
 
-    try:
-        subprocess.call('docker cp tasks/kong/quick_start_kong.sh kong:/etc/', shell=True)
-        subprocess.call('docker exec kong /etc/quick_start_kong.sh', shell=True)
-    except Exception as e:
-        print(e)
+    if "kong" in limit:
 
-    output_ok("Started Kong container")
+        print("")  # Just to separate out the individual start scripts
+        output_info("Starting Kong container")
 
-    print("")
+        try:
+            subprocess.call('docker cp tasks/kong/quick_start_kong.sh kong:/etc/', shell=True)
+            subprocess.call('docker exec kong /etc/quick_start_kong.sh', shell=True)
+        except Exception as e:
+            print(e)
 
-    output_info("Starting RabbitMQ container")
+        output_ok("Started Kong container")
 
-    try:
-        subprocess.call('docker cp tasks/rabbitmq/quick_start_rmq.sh rabbitmq:/etc/', shell=True)
-        subprocess.call('docker exec rabbitmq /etc/quick_start_rmq.sh', shell=True)
-    except Exception as e:
-        print(e)
 
-    output_ok("Started RabbitMQ container")
 
-    print("")
-    output_info("Starting Catalogue container")
+    if "rabbitmq" in limit:
 
-    try:
-        subprocess.call('docker cp tasks/catalogue/quick_start_catalogue.sh catalogue:/etc/', shell=True)
-        subprocess.call('docker exec catalogue /etc/quick_start_catalogue.sh', shell=True)
-    except Exception as e:
-        print(e)
+        print("")
+        output_info("Starting RabbitMQ container")
 
-    output_ok("Started Catalogue container")
+        try:
+            subprocess.call('docker cp tasks/rabbitmq/quick_start_rmq.sh rabbitmq:/etc/', shell=True)
+            subprocess.call('docker exec rabbitmq /etc/quick_start_rmq.sh', shell=True)
+        except Exception as e:
+            print(e)
 
-    print("")
-    output_info("Starting Tomcat container")
+        output_ok("Started RabbitMQ container")
 
-    try:
-        subprocess.call('docker cp tasks/tomcat/quick_start_tomcat.sh tomcat:/etc/', shell=True)
-        subprocess.call('docker exec tomcat /etc/quick_start_tomcat.sh', shell=True)
-    except Exception as e:
-        print(e)
+    if "catalogue" in limit:
 
-    output_ok("Started Tomcat container")
+        print("")
+        output_info("Starting Catalogue container")
 
-    print("")
-    output_info("Starting Elasticsearch container")
+        try:
+            subprocess.call('docker cp tasks/catalogue/quick_start_catalogue.sh catalogue:/etc/', shell=True)
+            subprocess.call('docker exec catalogue /etc/quick_start_catalogue.sh', shell=True)
+        except Exception as e:
+            print(e)
 
-    try:
-        subprocess.call('docker cp tasks/elasticsearch/quick_start_elk.sh elasticsearch:/etc/', shell=True)
-        subprocess.call('docker exec elasticsearch /etc/quick_start_elk.sh', shell=True)
-    except Exception as e:
-        print(e)
+        output_ok("Started Catalogue container")
 
-    output_ok("Started Elasticsearch container")
+    if "tomcat" in limit:
 
-    print("")
-    output_info("Starting LDAPD container")
+        print("")
+        output_info("Starting Tomcat container")
 
-    try:
-        subprocess.call('docker cp tasks/ldapd/quick_start_ldapd.sh ldapd:/etc/', shell=True)
-        subprocess.call('docker exec ldapd /etc/quick_start_ldapd.sh', shell=True)
-    except Exception as e:
-        print(e)
+        try:
+            subprocess.call('docker cp tasks/tomcat/quick_start_tomcat.sh tomcat:/etc/', shell=True)
+            subprocess.call('docker exec tomcat /etc/quick_start_tomcat.sh', shell=True)
+        except Exception as e:
+            print(e)
 
-    output_ok("Started LDAPD container")
+        output_ok("Started Tomcat container")
 
-    print("")
-    output_info("Starting Videoserver container")
+    if "elasticsearch" in limit:
 
-    try:
-        subprocess.call('docker exec videoserver /etc/quick-vs-setup.sh', shell=True)
-    except Exception as e:
-        print(e)
+        print("")
+        output_info("Starting Elasticsearch container")
 
-    output_ok("Started Videoserver container")
+        try:
+            subprocess.call('docker cp tasks/elasticsearch/quick_start_elk.sh elasticsearch:/etc/', shell=True)
+            subprocess.call('docker exec elasticsearch /etc/quick_start_elk.sh', shell=True)
+        except Exception as e:
+            print(e)
+
+        output_ok("Started Elasticsearch container")
+
+    if "ldapd" in limit:
+
+        print("")
+        output_info("Starting LDAPD container")
+
+        try:
+            subprocess.call('docker cp tasks/ldapd/quick_start_ldapd.sh ldapd:/etc/', shell=True)
+            subprocess.call('docker exec ldapd /etc/quick_start_ldapd.sh', shell=True)
+        except Exception as e:
+            print(e)
+
+        output_ok("Started LDAPD container")
+
+    if "videoserver" in limit:
+
+        print("")
+        output_info("Starting Videoserver container")
+
+        try:
+            subprocess.call('docker exec videoserver /etc/quick-vs-setup.sh', shell=True)
+        except Exception as e:
+            print(e)
+
+        output_ok("Started Videoserver container")

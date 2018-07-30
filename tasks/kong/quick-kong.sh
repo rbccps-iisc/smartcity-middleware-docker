@@ -54,6 +54,7 @@ else
 fi
 
 echo -e "${YELLOW}[  INFO  ] ${NC}Adding necessary permissions to files and folders needed by kong"
+#TODO give necessary permissions only to the required user
 
 docker exec kong chmod 777 /etc/quick-kong-setup.sh
 docker exec kong chmod -R 777 /var/lib/postgresql 
