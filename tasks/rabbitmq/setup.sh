@@ -47,7 +47,7 @@ fi
 
 echo -e "${YELLOW}[  INFO  ]${NC} Copying setup script into RabbitMQ container"
 
-docker cp tasks/rabbitmq/quick-rmq-setup.sh rabbitmq:/etc/
+docker cp tasks/rabbitmq/install.sh rabbitmq:/etc/
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ]${NC} Copied setup script"
@@ -57,7 +57,7 @@ fi
 
 echo -e "${YELLOW}[  INFO  ]${NC} Adding necessary permissions to files and folders needed by RabbitMQ"
 
-docker exec rabbitmq chmod +x /etc/quick-rmq-setup.sh
+docker exec rabbitmq chmod +x /etc/install.sh
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ]${NC} Added permissions"
@@ -67,7 +67,7 @@ fi
 
 echo -e "${YELLOW}[  INFO  ]${NC} Starting setup script"
 
-docker exec rabbitmq /etc/quick-rmq-setup.sh 
+docker exec rabbitmq /etc/install.sh
 
 echo -e "${YELLOW}[  INFO  ]${NC} Starting Go HTTP plugin"
 

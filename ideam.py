@@ -6,10 +6,9 @@ VERSION = '0.0-1'
 if os.path.exists("/etc/ideam/ideam.conf"):
     sys.path.append("/usr/share/ideam")
     os.chdir("/usr/share/ideam")
-import modules.download_packages as download_packages
+
 import modules.start as container_start
 import modules.install as container_setup
-import modules.quick_install as quick_setup
 from modules.generate_password import set_passwords
 from datetime import datetime
 from modules.utils import setup_logging
@@ -18,7 +17,6 @@ import subprocess
 from modules.utils import output_ok, output_error
 import traceback
 import json
-import modules.quickstart as quickstart
 
 
 class MyParser(argparse.ArgumentParser):
@@ -34,71 +32,37 @@ def install(arguments):
     setup_logging(log_file=arguments.log_file)
 
     if arguments.limit:
+        container_setup.limit_install([arguments.limit])
 
-        if arguments.quick:
-            quick_setup.limit_install(arguments.limit)
-        else:
-            container_setup.ansible_installation(arguments.limit)
     else:
-
         container_setup.check_dependencies(log_file=arguments.log_file)
-
-        if not arguments.quick:
-            container_setup.stop_containers(log_file=arguments.log_file)
-            container_setup.remove_containers(log_file=arguments.log_file)
-
-        else:
-            quick_setup.stop_containers(log_file=arguments.log_file)
-            quick_setup.remove_containers(log_file=arguments.log_file)
-
-        if not arguments.quick:
-            download_packages.download(arguments.log_file)
+        container_setup.stop_containers(["kong","rabbitmq","ldapd","catalogue","videoserver","tomcat","elasticsearch"],log_file=arguments.log_file)
+        container_setup.remove_containers(["kong","rabbitmq","ldapd","catalogue","videoserver","tomcat","elasticsearch"],log_file=arguments.log_file)
 
         set_passwords(arguments.config_file)
-
-        if arguments.quick:
-            quick_setup.docker_setup(log_file=arguments.log_file,config_path=arguments.config_file)
-        else:
-            container_setup.docker_setup(log_file=arguments.log_file, config_path=arguments.config_file)
-            subprocess.call('ansible-playbook -i hosts install.yaml '
-                        '--limit "kong, rabbitmq, elasticsearch, apt_repo, tomcat, ldapd,'
-                        ' catalogue, videoserver, pushpin"', shell=True)
-
+        container_setup.docker_setup(log_file=arguments.log_file,config_path=arguments.config_file)
 
 def start(arguments):
+
     """ Starts all docker containers. """
-    if arguments.limit:
-        container_start.ansible_start(arguments.limit)
-        if arguments.with_idps:
-            container_start.start_idps()
-
-    elif arguments.with_idps:
-        container_start.start_all()
-        container_start.start_idps()
-
-    else:
-        container_start.start_all()
-
-def quick_start(arguments):
-
     setup_logging(log_file=arguments.log_file)
-    quickstart.start_containers(arguments.log_file)
+    container_start.start_containers(arguments.log_file)
 
     if arguments.limit:
-        quickstart.start_services(arguments.limit)
-    else:
-        quickstart.start_services("kong,rabbitmq,ldapd,elasticsearch,videoserver,tomcat,catalogue")
+        container_start.start_services(arguments.limit)
 
+    else:
+        container_start.start_services("kong,rabbitmq,ldapd,elasticsearch,videoserver,tomcat,catalogue")
 
 def restart(arguments):
     """ Stops and starts all docker containers. """
     if arguments.limit:
         container_setup.stop_containers(log_file=arguments.log_file)
-        container_start.ansible_start(arguments.limit)
+        container_start.start_services(arguments.limit)
 
     else:
         container_setup.stop_containers(log_file=arguments.log_file)  # Stops all containers
-        container_start.start_all()
+        container_start.start_services("kong,rabbitmq,ldapd,elasticsearch,videoserver,tomcat,catalogue")
 
 
 def str2bool(v):
@@ -241,17 +205,6 @@ if __name__ == '__main__':
     install_parser.add_argument("--log-file", help="Path to log file",
                                 default=default_log_file)
 
-    install_parser.add_argument("--quick",help="Use Alpine base images for quick installation of IDEAM", action="store_true")
-
-    quickstart_parser=subparsers.add_parser("quickstart",description="Starts all containers and services if quick install was used")
-    quickstart_parser.add_argument("-l", "--limit",
-                                help="Limits the startup to the servers mentioned. A comma separated list"
-                                     " of servers like --limit kong,rabbitmq",
-                                required=False,
-                                default="")
-    quickstart_parser.add_argument("--log-file", help="Path to log file",
-                                default=default_log_file)
-
     # start command
     start_parser = subparsers.add_parser('start', help='Start all the docker containers in the middleware')
     start_parser.add_argument("-l",
@@ -283,8 +236,6 @@ if __name__ == '__main__':
         install(args)
     elif args.command == "start":
         start(args)
-    elif args.command == "quickstart":
-        quick_start(args)
     elif args.command == "restart":
         start(args)
     elif args.command == "rmdata":

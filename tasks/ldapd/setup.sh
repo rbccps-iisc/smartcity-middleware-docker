@@ -7,15 +7,15 @@ GREEN='\033[0;32m'
 
 #echo -e "${YELLOW}[  INFO  ]${NC} Copying CA user certifiate key"
 
-#docker cp config/certificate_authority/keys/ca-user-certificate-key.pub catalogue:/etc/ssh/ca-user-certificate-key.pub
+#docker cp config/certificate_authority/keys/ca-user-certificate-key.pub ldapd:/etc/ssh/ca-user-certificate-key.pub
 
 #if [ $? -eq 0 ]; then
-#    echo -e "${GREEN}[   OK   ]${NC} Copied CA user certificate keys"
+#    echo -e "${GREEN}[   OK   ] ${NC}Copied certificate key"
 #else
-#    echo -e "${RED}[ ERROR ]${NC} Failed to copy CA user certificate keys"
+#    echo -e "${RED}[ ERROR ] ${NC}Failed to copied certificate key"
 #fi
 
-docker exec -i catalogue mkdir -p /root/.ssh/ 
+docker exec -i ldapd mkdir -p /root/.ssh/ 
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ] ${NC}Created .ssh directory in /root"
@@ -25,7 +25,7 @@ fi
 
 echo -e "${YELLOW}[  INFO  ]${NC} Adding user's SSH public key into authorised keys"
 
-docker exec -i catalogue dd of=/root/.ssh/authorized_keys < ~/.ssh/id_rsa.pub > /dev/null 2>&1
+docker exec -i ldapd dd of=/root/.ssh/authorized_keys < ~/.ssh/id_rsa.pub > /dev/null 2>&1
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ] ${NC}Added user's SSH public key"
@@ -35,21 +35,27 @@ fi
 
 echo -e "${YELLOW}[  INFO  ]${NC} Copying LDAP password"
 
-docker cp host_vars/ldapd catalogue:/etc/
+docker cp host_vars/ldapd ldapd:/etc/
 
 if [ $? -eq 0 ]; then
-    echo -e "${GREEN}[   OK   ] ${NC}Copied password file"
+    echo -e "${GREEN}[   OK   ] ${NC}Copied passwords"
 else
-    echo -e "${RED}[ ERROR ] ${NC}Failed to copy password file"
+    echo -e "${RED}[ ERROR ] ${NC}Failed to copy RabbitMQ and LDAP passwords"
 fi
 
 echo -e "${YELLOW}[  INFO  ]${NC} Copying setup script"
 
-docker cp tasks/catalogue/quick-catalogue-setup.sh catalogue:/etc/
+docker cp tasks/ldapd/install.sh ldapd:/etc/
 
-echo -e "${YELLOW}[  INFO  ]${NC} Adding necessary permissions to files and folders needed by catalogue"
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}[   OK   ] ${NC}Copied setup script"
+else
+    echo -e "${RED}[ ERROR ] ${NC}Failed to copy setup script into Kong container"
+fi
 
-docker exec catalogue chmod +x /etc/quick-catalogue-setup.sh
+echo -e "${YELLOW}[  INFO  ]${NC} Adding necessary permissions to files and folders needed by LDAP"
+
+docker exec ldapd chmod +x /etc/install.sh
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ] ${NC}Added necessary permissions"
@@ -58,4 +64,4 @@ else
 fi
 
 echo -e "${YELLOW}[  INFO  ]${NC} Starting setup script"
-docker exec catalogue /etc/quick-catalogue-setup.sh 
+docker exec ldapd /etc/install.sh

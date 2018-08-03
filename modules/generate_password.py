@@ -25,7 +25,6 @@ def ldap_pass(config):
     write("config/tomcat/pwd", password)
     replace("config/catalogue/config.js", "ldap_pwd", password, "config/catalogue/config_new.js")
     replace("config/ldapd/ldapd.conf", "ldap_pwd", password, "config/ldapd/ldapd_new.conf")
-    replace("config/kong/share.py", "ldap_pwd", password, "config/kong/share_new.py")
     config.set('PASSWORDS', 'LDAP', password)
 
 
@@ -68,8 +67,8 @@ def rmq_pass(config):
             "config/elasticsearch/logstash-input-rabbitmq_new.conf")
     replace("config/elasticsearch/logstash-input-rabbitmq_new.conf", "rmq_user", "admin.ideam",
             "config/elasticsearch/logstash-input-rabbitmq_new.conf")
-    replace("config/kong/share_new.py", "rmq_pwd", password, "config/kong/share_new.py")
-    replace("config/kong/share_new.py", "rmq_user", "admin.ideam", "config/kong/share_new.py")
+    # replace("config/kong/share_new.py", "rmq_pwd", password, "config/kong/share_new.py")
+    # replace("config/kong/share_new.py", "rmq_user", "admin.ideam", "config/kong/share_new.py")
     config.set('PASSWORDS', 'RABBITMQ', password)
 
 

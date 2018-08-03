@@ -6,7 +6,7 @@ before_install:
   - ./tests/install.sh
 language: python
 install:
-  - ideam install --quick
+  - ideam install
   #- ideam start --with-idps
 script:
   - ideam test

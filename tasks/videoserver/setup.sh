@@ -7,7 +7,7 @@ GREEN='\033[0;32m'
 
 #echo -e "${YELLOW}[  INFO  ]${NC} Copying CA user certifiate key"
 
-#docker cp config/certificate_authority/keys/ca-user-certificate-key.pub elasticsearch:/etc/ssh/ca-user-certificate-key.pub
+#docker cp config/certificate_authority/keys/ca-user-certificate-key.pub videoserver:/etc/ssh/ca-user-certificate-key.pub
 
 #if [ $? -eq 0 ]; then
 #    echo -e "${GREEN}[   OK   ] ${NC}Copied certificate key"
@@ -15,7 +15,7 @@ GREEN='\033[0;32m'
 #    echo -e "${RED}[ ERROR ] ${NC}Failed to copied certificate key"
 #fi
 
-docker exec -i elasticsearch mkdir -p /root/.ssh/ 
+docker exec videoserver mkdir -p /root/.ssh/
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ] ${NC}Created .ssh directory in /root"
@@ -25,7 +25,7 @@ fi
 
 echo -e "${YELLOW}[  INFO  ]${NC} Adding user's SSH public key into authorised keys"
 
-docker exec -i elasticsearch dd of=/root/.ssh/authorized_keys < ~/.ssh/id_rsa.pub > /dev/null 2>&1
+docker exec -i videoserver dd of=/root/.ssh/authorized_keys < ~/.ssh/id_rsa.pub > /dev/null 2>&1
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ] ${NC}Added user's SSH public key"
@@ -33,19 +33,9 @@ else
     echo -e "${RED}[ ERROR ] ${NC}Failed to add user's SSH public key into authorised keys"
 fi
 
-echo -e "${YELLOW}[  INFO  ]${NC} Copying RabbitMQ password"
+echo -e "${YELLOW}[  INFO  ]${NC} Copying setup script"
 
-docker cp host_vars/rabbitmq elasticsearch:/etc/
-
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}[   OK   ] ${NC}Copied RabbitMQ password file"
-else
-    echo -e "${RED}[ ERROR ] ${NC}Failed to copy password file"
-fi
-
-echo -e "${YELLOW}[  INFO  ]${NC} Copying setup script into elasticsearch container"
-
-docker cp tasks/elasticsearch/quick-elk-setup.sh elasticsearch:/etc/
+docker cp tasks/videoserver/install.sh videoserver:/etc/
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ] ${NC}Copied setup script"
@@ -53,9 +43,9 @@ else
     echo -e "${RED}[ ERROR ] ${NC}Failed to copy setup script into Kong container"
 fi
 
-echo -e "${YELLOW}[  INFO  ]${NC} Adding necessary permissions to files and folders needed by elasticsearch"
+echo -e "${YELLOW}[  INFO  ]${NC} Adding necessary permissions to files and folders needed by videoserver"
 
-docker exec elasticsearch chmod +x /etc/quick-elk-setup.sh 
+docker exec videoserver chmod 777 /etc/install.sh
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ] ${NC}Added necessary permissions"
@@ -64,4 +54,4 @@ else
 fi
 
 echo -e "${YELLOW}[  INFO  ]${NC} Starting setup script"
-docker exec elasticsearch /etc/quick-elk-setup.sh
+docker exec videoserver /etc/install.sh
