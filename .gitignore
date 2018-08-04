@@ -11,12 +11,15 @@ config/certificate_authority/keys/id_rsa-cert.pub
 ./hosts
 config/certificate_authority/keys/id_rsa.pub
 config/certificate_authority/keys/ca-user-certificate-key.pub
-config/hypercat/config_new.js
+config/catalogue/config_new.js
 config/kong/kong_new.conf
 config/kong/share_new.py
 config/ldapd/ldapd_new.conf
+config/tomcat/pwd
+config/tomcat/rmqpwd
+config/elasticsearch/logstash-input-rabbitmq_new.conf
 host_vars/all
-host_vars/hypercat
+host_vars/catalogue
 host_vars/idps
 host_vars/kong
 host_vars/ldapd

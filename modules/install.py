@@ -56,7 +56,6 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
                This should be used only for fresh installation.
 
     """
-    instance_details = {}
     config = ConfigParser.ConfigParser()
     config.readfp(open(config_path))
 
@@ -119,54 +118,53 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
     # output_ok("Copied Certificate Authority's cert file to Ansible's .ssh. ")
 
 #TODO change data folder of postgres
-    ip, port, details = create_instance("kong", "ideam/kong",
+    ip, details = create_instance("kong", "ideam/kong",
                                         storage_host=kong_storage,
                                         storage_guest="/var/lib/postgresql",
                                         log_file=log_file,
                                         config_path=config_path,
                                         log_storage=kong_log_location)
 
-    instance_details["kong"] = [ip, port]
     output_ok("Created Kong docker instance. \n " + details)
 
-    ip, port, details = create_instance("catalogue", "ideam/catalogue",
+    ip, details = create_instance("catalogue", "ideam/catalogue",
                                         storage_host=catalogue_storage,
                                         storage_guest="/data/db",
                                         log_file=log_file,
                                         config_path=config_path)
-    instance_details["catalogue"] = [ip, port]
+
     output_ok("Created Catalogue docker instance. \n " + details)
 
-    ip, port, details = create_instance("rabbitmq", "ideam/rabbitmq",
+    ip, details = create_instance("rabbitmq", "ideam/rabbitmq",
                                         storage_host=rabbitmq_storage,
                                         storage_guest="/var/lib/rabbitmq",
                                         log_file=log_file,
                                         config_path=config_path)
-    instance_details["rabbitmq"] = [ip, port]
+
     output_ok("Created RabbitMQ docker instance. \n " + details)
 
-    ip, port, details = create_instance("elasticsearch", "ideam/elasticsearch-nokibana", log_file=log_file, config_path=config_path)
-    instance_details["elasticsearch"] = [ip, port]
+    ip, details = create_instance("elasticsearch", "ideam/elasticsearch-nokibana", log_file=log_file, config_path=config_path)
+
     output_ok("Created Elastic Search docker instance. \n " + details)
 
-    ip, port, details = create_instance("tomcat", "ideam/tomcat",
+    ip, details = create_instance("tomcat", "ideam/tomcat",
                                         storage_host=tomcat_storage,
                                         storage_guest="/usr/local/tomcat/webapps",
                                         log_file=log_file,
                                         config_path=config_path)
-    instance_details["tomcat"] = [ip, port]
+
     output_ok("Created Tomcat docker instance. \n " + details)
 
-    ip, port, details = create_instance("ldapd", "ideam/ldapd",
+    ip, details = create_instance("ldapd", "ideam/ldapd",
                                         storage_host="ldapd-data",
                                         storage_guest="/var/db",
                                         log_file=log_file,
                                         config_path=config_path)
-    instance_details["ldapd"] = [ip, port]
+
     output_ok("Created LDAP docker instance. \n " + details)
 
-    ip, port, details = create_instance("videoserver", "ideam/videoserver", log_file=log_file, config_path=config_path)
-    instance_details["videoserver"] = [ip, port]
+    ip, details = create_instance("videoserver", "ideam/videoserver", log_file=log_file, config_path=config_path)
+
     output_ok("Created Videoserver docker instance. \n " + details)
 
     konga = config.get('KONGA', 'HTTP')
@@ -205,7 +203,6 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     config.readfp(open(config_path))
 
     if server == "kong":  # separate kong log storage needed
-        ssh = config.get('KONG', 'SSH')
 
         cmd = "docker run -d -p 80:8000 --net=mynet --hostname={0} " \
               "-v {2}:{3} -v {4}:/tmp --cap-add=NET_ADMIN --name={0} {1}".\
@@ -222,8 +219,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
                          error_message=traceback.format_exc())
             exit()
     elif server == "rabbitmq":  # separate rabbitmq log storage needed
-        #TODO only amqps, mqtts and https
-        ssh = config.get('RABBITMQ', 'SSH')
+        #TODO: have only amqps, mqtts and https
         http = config.get('RABBITMQ', 'HTTP')
         amqp = config.get('RABBITMQ', 'AMQP')
         mqtt = config.get('RABBITMQ', 'MQTT')
@@ -245,7 +241,6 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
                          error_message=traceback.format_exc())
             exit()
     elif server == "tomcat":  # separate tomcat log storage needed
-        ssh = config.get('TOMCAT', 'SSH')
         http = config.get('TOMCAT', 'HTTP')
         log_storage = config.get('TOMCAT', 'LOG_LOCATION')
         cmd = "docker run -d -p {4}:8080 --net=mynet --hostname={0} -v {2}:{3}" \
@@ -263,7 +258,6 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
                          error_message=traceback.format_exc())
             exit()
     elif server == "catalogue":  # separate data storage needed
-        ssh = config.get('CATALOGUE', 'SSH')
         http = config.get('CATALOGUE', 'HTTP')
         cmd = "docker run -d -p {4}:8000 --net=mynet --hostname={0} " \
               "-v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
@@ -280,11 +274,10 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
                          error_message=traceback.format_exc())
             exit()
     elif server == "ldapd":  # separate data storage needed
-        ssh = config.get('LDAP', 'SSH')
         ldap = config.get('LDAP', 'LDAP')
         cmd = "docker run -d -p {4}:8389 --net=mynet --hostname={0} " \
               "-v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
-            format(server, image, storage_host, storage_guest, ssh, ldap)
+            format(server, image, storage_host, storage_guest, ldap)
 
         try:
             out, err = subprocess_popen(cmd,
@@ -298,7 +291,6 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
             exit()
 
     elif server == "elasticsearch":
-        ssh = config.get('ELASTICSEARCH', 'SSH')
         kibana = config.get('ELASTICSEARCH', 'KIBANA')
         cmd = "docker run -d -p {2}:5601 --net=mynet " \
               "--hostname={0} --cap-add=NET_ADMIN --name={0} {1}".format(server, image, kibana)
@@ -313,7 +305,6 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
                          error_message=traceback.format_exc())
             exit()
     elif server == "videoserver":
-        ssh = config.get('VIDEOSERVER', 'SSH')
         rtmp = config.get('VIDEOSERVER', 'RTMP')
         hls = config.get('VIDEOSERVER', 'HLS')
         http = config.get('VIDEOSERVER', 'HTTP')
@@ -367,10 +358,8 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     details += " DOCKER INSTANCE\n"
     details += " {0} docker name         : {1}\n".format(server, server)
     details += " {0} docker container ID : {1}\n".format(server, container_id.rstrip())
-    details += " {0} IP address          : 'localhost' \n".format(server)
-    details += " {0} SSH Port            : {1} \n".format(server, str(port))
 
-    return "localhost", port.rstrip(), details
+    return "localhost", details
 
 
 # def create_ansible_host_file(instances):

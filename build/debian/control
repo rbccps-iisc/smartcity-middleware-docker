@@ -3,7 +3,7 @@ Version: 0.0-1
 Section: devel
 Priority: optional
 Architecture: all
-Depends: ansible, python-pkg-resources, python-setuptools, docker-ce
+Depends: docker-ce
 Maintainer: Harish Anand <harishanand95@gmail.com>
 Description: IoT Data Exchange And Middleware
  (IDEAM) for smartcities.
