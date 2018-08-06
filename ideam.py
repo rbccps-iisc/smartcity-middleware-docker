@@ -36,8 +36,8 @@ def install(arguments):
 
     else:
         container_setup.check_dependencies(log_file=arguments.log_file)
-        container_setup.stop_containers(["kong","rabbitmq","ldapd","catalogue","videoserver","tomcat","elasticsearch","konga"],log_file=arguments.log_file)
-        container_setup.remove_containers(["kong","rabbitmq","ldapd","catalogue","videoserver","tomcat","elasticsearch","konga"],log_file=arguments.log_file)
+        container_setup.stop_containers(["kong","rabbitmq","ldapd","catalogue","videoserver","webserver","elasticsearch","konga"],log_file=arguments.log_file)
+        container_setup.remove_containers(["kong","rabbitmq","ldapd","catalogue","videoserver","webserver","elasticsearch","konga"],log_file=arguments.log_file)
 
         set_passwords(arguments.config_file)
         container_setup.docker_setup(log_file=arguments.log_file,config_path=arguments.config_file)
@@ -52,7 +52,7 @@ def start(arguments):
         container_start.start_services(arguments.limit)
 
     else:
-        container_start.start_services("kong,rabbitmq,ldapd,elasticsearch,videoserver,tomcat,catalogue")
+        container_start.start_services("kong,rabbitmq,ldapd,elasticsearch,videoserver,webserver,catalogue")
 
 def restart(arguments):
     """ Stops and starts all docker containers. """
@@ -62,7 +62,7 @@ def restart(arguments):
 
     else:
         container_setup.stop_containers(log_file=arguments.log_file)  # Stops all containers
-        container_start.start_services("kong,rabbitmq,ldapd,elasticsearch,videoserver,tomcat,catalogue")
+        container_start.start_services("kong,rabbitmq,ldapd,elasticsearch,videoserver,webserver,catalogue")
 
 
 def str2bool(v):

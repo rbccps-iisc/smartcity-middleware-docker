@@ -28,7 +28,7 @@ def remove_containers(list,log_file):
 
 
 def stop_containers(list,log_file):
-    """ Stops all existing docker containers like kong, rabbitmq, tomcat .
+    """ Stops all existing docker containers like kong, rabbitmq, webserver .
 
     Args:
         log_file      (string): log file path
@@ -72,8 +72,8 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
     output_info("Using {0} as Kong's config persistent storage. ".format(kong_config_storage))
     rabbitmq_storage = config.get('RABBITMQ', 'DATA_STORAGE')
     output_info("Using {0} as RabbitMQ's persistent storage. ".format(rabbitmq_storage))
-    tomcat_storage = config.get('TOMCAT', 'DATA_STORAGE')
-    output_info("Using {0} as Apache Tomcat's persistent storage. ".format(tomcat_storage))
+    webserver_storage = config.get('WEBSERVER', 'DATA_STORAGE')
+    output_info("Using {0} as webserver's persistent storage. ".format(webserver_storage))
     catalogue_storage = config.get('CATALOGUE', 'DATA_STORAGE')
     output_info("Using {0} as Catalogue's persistent storage. ".format(catalogue_storage))
 
@@ -147,13 +147,13 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
 
     output_ok("Created Elastic Search docker instance. \n " + details)
 
-    ip, details = create_instance("tomcat", "ideam/tomcat",
-                                        storage_host=tomcat_storage,
-                                        storage_guest="/usr/local/tomcat/webapps",
+    ip, details = create_instance("webserver", "ideam/webserver",
+                                        storage_host=webserver_storage,
+                                        storage_guest="/usr/local/webserver/webapps",
                                         log_file=log_file,
                                         config_path=config_path)
 
-    output_ok("Created Tomcat docker instance. \n " + details)
+    output_ok("Created Webserver docker instance. \n " + details)
 
     ip, details = create_instance("ldapd", "ideam/ldapd",
                                         storage_host="ldapd-data",
@@ -176,7 +176,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
                           log_file=log_file,
                           exit_on_fail=True)
 
-    for container in ["kong","rabbitmq","ldapd","catalogue","videoserver","tomcat","elasticsearch"]:
+    for container in ["kong","rabbitmq","ldapd","catalogue","videoserver","webserver","elasticsearch"]:
 
         print("") #Just to separate out the individual installations
         output_info("Starting {0} installation".format(container))
@@ -240,9 +240,9 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
                          "\n           Check logs {0} for more details.".format(log_file),
                          error_message=traceback.format_exc())
             exit()
-    elif server == "tomcat":  # separate tomcat log storage needed
-        http = config.get('TOMCAT', 'HTTP')
-        log_storage = config.get('TOMCAT', 'LOG_LOCATION')
+    elif server == "webserver":  # separate webserver log storage needed
+        http = config.get('WEBSERVER', 'HTTP')
+        log_storage = config.get('WEBSERVER', 'LOG_LOCATION')
         cmd = "docker run -d -p {4}:8080 --net=mynet --hostname={0} -v {2}:{3}" \
               " --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest, http, log_storage)

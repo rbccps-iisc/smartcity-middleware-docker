@@ -766,8 +766,8 @@
   - name: Install bind
     apt: pkg=bind9 state=present
 
-# Set up tomcat environment
-- hosts: tomcat
+# Set up webserver environment
+- hosts: webserver
   remote_user: root
   vars_files:
     - host_vars/all
@@ -784,21 +784,21 @@
       src: config/apt_repo/supervisor.conf
       dest: /etc/supervisor/supervisord.conf
 
-  - name: Copy tomcat.conf
+  - name: Copy webserver.conf
     copy:
-      src: config/tomcat/tomcat.conf
-      dest: /etc/supervisor/conf.d/tomcat.conf
+      src: config/webserver/webserver.conf
+      dest: /etc/supervisor/conf.d/webserver.conf
       mode: 0644
 
   - name: Copy pwd
     copy:
-      src: config/tomcat/pwd
+      src: config/webserver/pwd
       dest: /etc/pwd
       mode: 0644
 
   - name: Copy rmqpwd
     copy:
-      src: config/tomcat/rmqpwd
+      src: config/webserver/rmqpwd
       dest: /etc/rmqpwd
       mode: 0644
 

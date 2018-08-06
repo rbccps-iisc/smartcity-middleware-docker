@@ -67,11 +67,11 @@
     until: (request.status == 201) or (request.status == 409) or (request.status == 400)
     retries: 5
 
-  - name: Creating "/api/1.0.0/register" at kong (http://tomcat:8080)
+  - name: Creating "/api/1.0.0/register" at kong (http://webserver:8080)
     uri:
       url: http://localhost:8001/apis/
       method: POST
-      body: 'name=register&upstream_url=http://tomcat:8080/RegisterAPI/rest/newregister&uris=/api/1.0.0/register&methods=POST'
+      body: 'name=register&upstream_url=http://webserver:8080/RegisterAPI/rest/newregister&uris=/api/1.0.0/register&methods=POST'
       status_code: [201, 409]
       return_content: yes
     register: request
@@ -375,11 +375,11 @@
     until: (request.status == 201) or (request.status == 409)
     retries: 5
 
-  - name: Creating "/" at kong (http://tomcat:8080/)
+  - name: Creating "/" at kong (http://webserver:8080/)
     uri:
       url: http://localhost:8001/apis/
       method: POST
-      body: 'name=landing&methods=GET&upstream_url=http://tomcat:8080/RegisterAPI/rest/redirect&uris='
+      body: 'name=landing&methods=GET&upstream_url=http://webserver:8080/RegisterAPI/rest/redirect&uris='
       status_code: [201, 409]
       return_content: yes
     register: request

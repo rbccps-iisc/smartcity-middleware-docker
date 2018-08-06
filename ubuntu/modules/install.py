@@ -50,7 +50,7 @@ def remove_containers(log_file):
                           log_file=log_file,
                           exit_on_fail=False)
 
-    subprocess_with_print("docker rm tomcat",
+    subprocess_with_print("docker rm webserver",
                           success_msg="Removing Tomcat",
                           failure_msg="Tomcat container doesn't exist. SKIPPING THIS ERROR.",
                           log_file=log_file,
@@ -82,7 +82,7 @@ def remove_containers(log_file):
 
 
 def stop_containers(log_file):
-    """ Stops all existing docker containers like kong, rabbitmq, tomcat .
+    """ Stops all existing docker containers like kong, rabbitmq, webserver .
 
     Args:
         log_file      (string): log file path
@@ -123,7 +123,7 @@ def stop_containers(log_file):
                           log_file=log_file,
                           exit_on_fail=False)
 
-    subprocess_with_print("docker stop tomcat",
+    subprocess_with_print("docker stop webserver",
                           success_msg="Stopping Tomcat",
                           failure_msg="Tomcat container doesn't exist. SKIPPING THIS ERROR.",
                           log_file=log_file,
@@ -263,10 +263,10 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
                           log_file=log_file,
                           exit_on_fail=True)
 
-    subprocess_with_print("docker build -t ansible/tomcat --build-arg CACHEBUST={0} "
-                          "-f images/Dockerfile.tomcat .".format(unique_value()),
-                          success_msg="Created ansible/tomcat docker image. ",
-                          failure_msg="Building ansible/tomcat image from images/Dockerfile.tomcat failed.",
+    subprocess_with_print("docker build -t ansible/webserver --build-arg CACHEBUST={0} "
+                          "-f images/Dockerfile.webserver .".format(unique_value()),
+                          success_msg="Created ansible/webserver docker image. ",
+                          failure_msg="Building ansible/webserver image from images/Dockerfile.webserver failed.",
                           log_file=log_file,
                           exit_on_fail=True)
 
@@ -327,12 +327,12 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
     instance_details["elasticsearch"] = [ip, port]
     output_ok("Created Elastic Search docker instance. \n " + details)
 
-    ip, port, details = create_instance("tomcat", "ansible/tomcat",
+    ip, port, details = create_instance("webserver", "ansible/webserver",
                                         storage_host=tomcat_storage,
-                                        storage_guest="/opt/tomcat/webapps",
+                                        storage_guest="/opt/webserver/webapps",
                                         log_file=log_file,
                                         config_path=config_path)
-    instance_details["tomcat"] = [ip, port]
+    instance_details["webserver"] = [ip, port]
     output_ok("Created Tomcat docker instance. \n " + details)
 
     ip, port, details = create_instance("ldapd", "ansible/ubuntu-certified-ldapd:1.0",
@@ -351,7 +351,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
     instance_details["videoserver"] = [ip, port]
     output_ok("Created Videoserver docker instance. \n " + details)
 
-    cmd = "cp config/tomcat/RegisterAPI.war " + tomcat_storage + "/RegisterAPI.war"
+    cmd = "cp config/webserver/RegisterAPI.war " + tomcat_storage + "/RegisterAPI.war"
     subprocess_popen(cmd, log_file, "Copying RegisterAPI.war file to {0} failed.".format(tomcat_storage))
     output_ok("Copied  RegisterAPI.war file to {0}. ".format(tomcat_storage))
 
@@ -423,7 +423,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
                          "\n           Check logs {0} for more details.".format(log_file),
                          error_message=traceback.format_exc())
             exit()
-    elif server == "tomcat":  # separate tomcat log storage needed
+    elif server == "webserver":  # separate webserver log storage needed
         ssh = config.get('TOMCAT', 'SSH')
         http = config.get('TOMCAT', 'HTTP')
         log_storage = config.get('TOMCAT', 'LOG_LOCATION')

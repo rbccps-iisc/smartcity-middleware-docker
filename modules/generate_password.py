@@ -22,7 +22,7 @@ def ldap_pass(config):
     if password == "?":
         password = id_generator(size=16, chars=string.ascii_letters + string.digits)
     write("host_vars/ldapd", "ldapd_password: " + password)
-    write("config/tomcat/pwd", password)
+    write("config/webserver/pwd", password)
     replace("config/catalogue/config.js", "ldap_pwd", password, "config/catalogue/config_new.js")
     replace("config/ldapd/ldapd.conf", "ldap_pwd", password, "config/ldapd/ldapd_new.conf")
     config.set('PASSWORDS', 'LDAP', password)
@@ -61,7 +61,7 @@ def rmq_pass(config):
     password = config.get('PASSWORDS', 'RABBITMQ')
     if password == "?":
         password = id_generator(size=16, chars=string.ascii_letters + string.digits)
-    write("config/tomcat/rmqpwd", password)
+    write("config/webserver/rmqpwd", password)
     write("host_vars/rabbitmq", "password: " + password)
     replace("config/elasticsearch/logstash-input-rabbitmq.conf", "rmq_pwd", password,
             "config/elasticsearch/logstash-input-rabbitmq_new.conf")

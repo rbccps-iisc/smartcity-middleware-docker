@@ -11,10 +11,10 @@
   tasks:
   - include: tasks/rabbitmq/start_rabbitmq.yaml
 
-- hosts: tomcat
+- hosts: webserver
   remote_user: ideam
   tasks:
-  - include: tasks/tomcat/start_tomcat.yaml
+  - include: tasks/webserver/start_tomcat.yaml
 
 - hosts: ldapd
   remote_user: ideam
