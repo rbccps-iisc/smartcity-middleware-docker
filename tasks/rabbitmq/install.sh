@@ -58,7 +58,7 @@ fi
 
 echo -e "${YELLOW}[  INFO  ]${NC} Deleting guest user" 
 
-/home/ideam/rabbitmq_server-3.7.5/sbin/rabbitmqctl delete_user guest 
+/home/ideam/rabbitmq_server-3.7.5/sbin/rabbitmqctl delete_user guest > /dev/null 2>&1 
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ]${NC} Deleted guest user"
@@ -68,8 +68,8 @@ fi
 
 echo -e "${YELLOW}[  INFO  ]${NC} Restarting RabbitMQ"
 
-/home/ideam/rabbitmq_server-3.7.5/sbin/rabbitmqctl stop_app 
-/home/ideam/rabbitmq_server-3.7.5/sbin/rabbitmqctl start_app 
+/home/ideam/rabbitmq_server-3.7.5/sbin/rabbitmqctl stop_app > /dev/null 2>&1
+/home/ideam/rabbitmq_server-3.7.5/sbin/rabbitmqctl start_app > /dev/null 2>&1
 
 while ! nc -z localhost 15672
 do
