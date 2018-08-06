@@ -36,8 +36,8 @@ def install(arguments):
 
     else:
         container_setup.check_dependencies(log_file=arguments.log_file)
-        container_setup.stop_containers(["kong","rabbitmq","ldapd","catalogue","videoserver","tomcat","elasticsearch"],log_file=arguments.log_file)
-        container_setup.remove_containers(["kong","rabbitmq","ldapd","catalogue","videoserver","tomcat","elasticsearch"],log_file=arguments.log_file)
+        container_setup.stop_containers(["kong","rabbitmq","ldapd","catalogue","videoserver","tomcat","elasticsearch","konga"],log_file=arguments.log_file)
+        container_setup.remove_containers(["kong","rabbitmq","ldapd","catalogue","videoserver","tomcat","elasticsearch","konga"],log_file=arguments.log_file)
 
         set_passwords(arguments.config_file)
         container_setup.docker_setup(log_file=arguments.log_file,config_path=arguments.config_file)

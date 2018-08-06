@@ -55,3 +55,25 @@ if [ $? -eq 0 ]; then
 else
     echo -e "${RED}[ ERROR ]${NC} Failed to delete password file"
 fi
+
+echo -e "${YELLOW}[  INFO  ]${NC} Deleting guest user" 
+
+/home/ideam/rabbitmq_server-3.7.5/sbin/rabbitmqctl delete_user guest 
+
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}[   OK   ]${NC} Deleted guest user"
+else
+    echo -e "${RED}[ ERROR ]${NC} Failed to delete guest user"
+fi
+
+echo -e "${YELLOW}[  INFO  ]${NC} Restarting RabbitMQ"
+
+/home/ideam/rabbitmq_server-3.7.5/sbin/rabbitmqctl stop_app 
+/home/ideam/rabbitmq_server-3.7.5/sbin/rabbitmqctl start_app 
+
+while ! nc -z localhost 15672
+do
+sleep 0.1
+done
+
+echo -e "${GREEN}[   OK   ]${NC} Restarted RabbitMQ" 

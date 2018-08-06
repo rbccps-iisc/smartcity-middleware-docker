@@ -168,7 +168,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
     output_ok("Created Videoserver docker instance. \n " + details)
 
     konga = config.get('KONGA', 'HTTP')
-    cmd = 'docker run -d -p {0}:1337 --net mynet --link kong:kong --name konga -e "NODE_ENV=production" pantsel/konga'.\
+    cmd = 'docker run -d -p 127.0.0.1:{0}:1337 --net mynet --link kong:kong --name konga -e "NODE_ENV=production" pantsel/konga'.\
         format(konga)
     subprocess_with_print(cmd,
                           success_msg="Created KONGA docker instance. ",
@@ -226,7 +226,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
         log_storage = config.get('RABBITMQ', 'LOG_LOCATION')
         management = config.get('RABBITMQ', 'MANAGEMENT')
 
-        cmd = "docker run -d -p {4}:8000 -p {5}:5672 -p {6}:1883 -p {7}:15672 --net=mynet --hostname={0}" \
+        cmd = "docker run -d -p {4}:8000 -p {5}:5672 -p {6}:1883 -p 127.0.0.1:{7}:15672 --net=mynet --hostname={0}" \
               " -v {2}:{3} -v {8}:/var/log/rabbitmq -v {8}:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest, http, amqp, mqtt, management, log_storage)
 
