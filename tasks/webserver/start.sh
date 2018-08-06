@@ -10,7 +10,7 @@ then
 
 echo -e "${YELLOW}[  INFO  ]${NC} Starting Webserver"
 
-'java -jar /usr/local/webserver/cdxapis.jar > /dev/null & 2>&1'
+tmux new-session -d -s my_session 'java -jar /usr/local/webserver/cdxapis.jar'
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ]${NC} Started Webserver"

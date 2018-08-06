@@ -55,7 +55,7 @@ fi
 
 echo -e "${YELLOW}[  INFO  ]${NC} Starting setup script"
 
-docker exec -it webserver /etc/install.sh
+docker exec webserver /etc/install.sh
 
 echo -e "${YELLOW}[  INFO  ]${NC} Copying RabbitMQ and LDAP passwords"
 
