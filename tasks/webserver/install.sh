@@ -7,7 +7,7 @@ GREEN='\033[0;32m'
 
 echo -e "${YELLOW}[  INFO  ]${NC} Starting Webserver"
 
-tmux new-session -d -s my_session 'java -jar /usr/local/webserver/cdxapis.jar'
+nohup java -jar /usr/local/webserver/cdxapis.jar 2>/dev/null >/dev/null &
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ]${NC} Started Webserver"
