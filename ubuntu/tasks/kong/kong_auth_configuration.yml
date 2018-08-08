@@ -71,7 +71,7 @@
     uri:
       url: http://localhost:8001/apis/
       method: POST
-      body: 'name=register&upstream_url=http://webserver:8080/RegisterAPI/rest/newregister&uris=/api/1.0.0/register&methods=POST'
+      body: 'name=register&upstream_url=http://webserver:8080/cdx/register&uris=/api/1.0.0/register&methods=POST'
       status_code: [201, 409]
       return_content: yes
     register: request
@@ -379,7 +379,7 @@
     uri:
       url: http://localhost:8001/apis/
       method: POST
-      body: 'name=landing&methods=GET&upstream_url=http://webserver:8080/RegisterAPI/rest/redirect&uris='
+      body: 'name=landing&methods=GET&upstream_url=http://webserver:8080/cdx/redirect&uris='
       status_code: [201, 409]
       return_content: yes
     register: request
