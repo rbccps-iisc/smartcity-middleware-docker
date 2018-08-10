@@ -259,7 +259,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
             exit()
     elif server == "catalogue":  # separate data storage needed
         http = config.get('CATALOGUE', 'HTTP')
-        cmd = "docker run -d -p {4}:8000 --net=mynet --hostname={0} " \
+        cmd = "docker run -d -p {4}:8000 -p 27017:27017 --net=mynet --hostname={0} " \
               "-v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
             format(server, image, storage_host, storage_guest, http)
 
