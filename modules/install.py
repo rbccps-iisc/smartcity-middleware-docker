@@ -120,7 +120,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
 #TODO change data folder of postgres
     ip, details = create_instance("kong", "ideam/kong",
                                         storage_host=kong_storage,
-                                        storage_guest="/var/lib/postgresql",
+                                        storage_guest="/usr/local/pgsql/data",
                                         log_file=log_file,
                                         config_path=config_path,
                                         log_storage=kong_log_location)
@@ -137,7 +137,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
 
     ip, details = create_instance("rabbitmq", "ideam/rabbitmq",
                                         storage_host=rabbitmq_storage,
-                                        storage_guest="/var/lib/rabbitmq",
+                                        storage_guest="/home/ideam/rabbitmq_server-3.7.5/var/lib/rabbitmq/",
                                         log_file=log_file,
                                         config_path=config_path)
 
