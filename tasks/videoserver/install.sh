@@ -5,7 +5,7 @@ NC='\033[0m'
 YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
 
-rm -r /tmp/tmux-*
+rm -r /tmp/tmux-* > /dev/null 2>&1
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ]${NC} Removed old tmux sessions"

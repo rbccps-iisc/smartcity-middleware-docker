@@ -29,10 +29,18 @@ def start_services(list):
     for container in list:
         output_info("Starting {0} container".format(container))
 
-        try:
-            subprocess.call('docker cp tasks/{0}/start.sh {0}:/etc/'.format(container), shell=True)
-            subprocess.call('docker exec {0} /etc/start.sh'.format(container), shell=True)
-        except Exception as e:
-            print(e)
+        if container == "videoserver":
+            try:
+                subprocess.call('docker cp tasks/{0}/install.sh {0}:/etc/'.format(container), shell=True)
+                subprocess.call('docker exec {0} /etc/install.sh'.format(container), shell=True)
+            except Exception as e:
+                print(e)
+        else:
+            try:
+                subprocess.call('docker cp tasks/{0}/start.sh {0}:/etc/'.format(container), shell=True)
+                subprocess.call('docker exec {0} /etc/start.sh'.format(container), shell=True)
+            except Exception as e:
+                print(e)
 
         output_ok("Started {0} container".format(container))
+        print("")

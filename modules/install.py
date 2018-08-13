@@ -120,7 +120,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
 #TODO change data folder of postgres
     ip, details = create_instance("kong", "ideam/kong",
                                         storage_host=kong_storage,
-                                        storage_guest="/var/lib/postgresql",
+                                        storage_guest="/usr/local/pgsql/data",
                                         log_file=log_file,
                                         config_path=config_path,
                                         log_storage=kong_log_location)
@@ -137,7 +137,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
 
     ip, details = create_instance("rabbitmq", "ideam/rabbitmq",
                                         storage_host=rabbitmq_storage,
-                                        storage_guest="/var/lib/rabbitmq",
+                                        storage_guest="/home/ideam/rabbitmq_server-3.7.5/var/lib/rabbitmq/",
                                         log_file=log_file,
                                         config_path=config_path)
 
@@ -204,8 +204,23 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
 
     if server == "kong":  # separate kong log storage needed
 
+        # cmd = "docker run -d -p 80:8000 --net=mynet --hostname={0} " \
+        #       "-v {2}:{3} -v {4}:/tmp --cap-add=NET_ADMIN --name={0} {1}".\
+        #     format(server, image, storage_host, storage_guest, log_storage)
+        #
+        # try:
+        #     out, err = subprocess_popen(cmd,
+        #                                 log_file,
+        #                                 failure_msg="Creation of {0} docker instance failed.".format(server))
+        #     container_id = out
+        # except OSError:
+        #     output_error("Creation of {0} docker instance failed.".format(server) +
+        #                  "\n           Check logs {0} for more details.".format(log_file),
+        #                  error_message=traceback.format_exc())
+        #     exit()
+
         cmd = "docker run -d -p 80:8000 --net=mynet --hostname={0} " \
-              "-v {2}:{3} -v {4}:/tmp --cap-add=NET_ADMIN --name={0} {1}".\
+              "--cap-add=NET_ADMIN --name={0} {1}". \
             format(server, image, storage_host, storage_guest, log_storage)
 
         try:
@@ -226,8 +241,23 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
         log_storage = config.get('RABBITMQ', 'LOG_LOCATION')
         management = config.get('RABBITMQ', 'MANAGEMENT')
 
-        cmd = "docker run -d -p {4}:8000 -p {5}:5672 -p {6}:1883 -p 127.0.0.1:{7}:15672 --net=mynet --hostname={0}" \
-              " -v {2}:{3} -v {8}:/var/log/rabbitmq -v {8}:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
+        # cmd = "docker run -d -p {4}:8000 -p {5}:5672 -p {6}:1883 -p 127.0.0.1:{7}:15672 --net=mynet --hostname={0}" \
+        #       " -v {2}:{3} -v {8}:/var/log/rabbitmq -v {8}:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
+        #     format(server, image, storage_host, storage_guest, http, amqp, mqtt, management, log_storage)
+        #
+        # try:
+        #     out, err = subprocess_popen(cmd,
+        #                                 log_file,
+        #                                 failure_msg="Creation of {0} docker instance failed.".format(server))
+        #     container_id = out
+        # except OSError:
+        #     output_error("Creation of {0} docker instance failed.".format(server) +
+        #                  "\n           Check logs {0} for more details.".format(log_file),
+        #                  error_message=traceback.format_exc())
+        #     exit()
+
+        cmd = "docker run -d -p 127.0.0.1:{4}:8000 -p {5}:5672 -p {6}:1883 -p 127.0.0.1:{7}:15672 --net=mynet --hostname={0}" \
+              "--cap-add=NET_ADMIN --name={0} {1}". \
             format(server, image, storage_host, storage_guest, http, amqp, mqtt, management, log_storage)
 
         try:
@@ -240,12 +270,14 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
                          "\n           Check logs {0} for more details.".format(log_file),
                          error_message=traceback.format_exc())
             exit()
+
     elif server == "webserver":  # separate webserver log storage needed
         http = config.get('WEBSERVER', 'HTTP')
         log_storage = config.get('WEBSERVER', 'LOG_LOCATION')
-        cmd = "docker run -d -p {4}:8080 --net=mynet --hostname={0} -v {2}:{3}" \
-              " --cap-add=NET_ADMIN --name={0} {1}".\
-            format(server, image, storage_host, storage_guest, http, log_storage)
+        
+        
+        cmd = "docker run -d -p 127.0.0.1:{4}:8080 --net=mynet --hostname={0}" \
+              " --cap-add=NET_ADMIN --name={0} {1}".format(server, image, storage_host, storage_guest, http, log_storage)
 
         try:
             out, err = subprocess_popen(cmd,
@@ -257,10 +289,27 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
                          "\n           Check logs {0} for more details.".format(log_file),
                          error_message=traceback.format_exc())
             exit()
+
     elif server == "catalogue":  # separate data storage needed
         http = config.get('CATALOGUE', 'HTTP')
-        cmd = "docker run -d -p {4}:8000 --net=mynet --hostname={0} " \
-              "-v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
+
+        # cmd = "docker run -d -p {4}:8000 --net=mynet --hostname={0} " \
+        #       "-v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
+        #     format(server, image, storage_host, storage_guest, http)
+        #
+        # try:
+        #     out, err = subprocess_popen(cmd,
+        #                                 log_file,
+        #                                 failure_msg="Creation of {0} docker instance failed.".format(server))
+        #     container_id = out
+        # except OSError:
+        #     output_error("Creation of {0} docker instance failed.".format(server) +
+        #                  "\n           Check logs {0} for more details.".format(log_file),
+        #                  error_message=traceback.format_exc())
+        #     exit()
+
+        cmd = "docker run -d -p 127.0.0.1:{4}:8000 --net=mynet --hostname={0} " \
+              "--cap-add=NET_ADMIN --name={0} {1}". \
             format(server, image, storage_host, storage_guest, http)
 
         try:
@@ -273,10 +322,28 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
                          "\n           Check logs {0} for more details.".format(log_file),
                          error_message=traceback.format_exc())
             exit()
+
+
     elif server == "ldapd":  # separate data storage needed
         ldap = config.get('LDAP', 'LDAP')
-        cmd = "docker run -d -p {4}:8389 --net=mynet --hostname={0} " \
-              "-v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
+
+        # cmd = "docker run -d -p {4}:8389 --net=mynet --hostname={0} " \
+        #       "-v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
+        #     format(server, image, storage_host, storage_guest, ldap)
+        #
+        # try:
+        #     out, err = subprocess_popen(cmd,
+        #                                 log_file,
+        #                                 failure_msg="Creation of {0} docker instance failed.".format(server))
+        #     container_id = out
+        # except OSError:
+        #     output_error("Creation of {0} docker instance failed.".format(server) +
+        #                  "\n           Check logs {0} for more details.".format(log_file),
+        #                  error_message=traceback.format_exc())
+        #     exit()
+
+        cmd = "docker run -d -p 127.0.0.1:{4}:8389 --net=mynet --hostname={0} " \
+              "-v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}". \
             format(server, image, storage_host, storage_guest, ldap)
 
         try:
@@ -292,7 +359,21 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
 
     elif server == "elasticsearch":
         kibana = config.get('ELASTICSEARCH', 'KIBANA')
-        cmd = "docker run -d -p {2}:5601 --net=mynet " \
+
+        # cmd = "docker run -d -p {2}:5601 --net=mynet " \
+        #       "--hostname={0} --cap-add=NET_ADMIN --name={0} {1}".format(server, image, kibana)
+        # try:
+        #     out, err = subprocess_popen(cmd,
+        #                                 log_file,
+        #                                 failure_msg="Creation of {0} docker instance failed.".format(server))
+        #     container_id = out
+        # except OSError:
+        #     output_error("Creation of {0} docker instance failed.".format(server) +
+        #                  "\n           Check logs {0} for more details.".format(log_file),
+        #                  error_message=traceback.format_exc())
+        #     exit()
+
+        cmd = "docker run -d --net=mynet " \
               "--hostname={0} --cap-add=NET_ADMIN --name={0} {1}".format(server, image, kibana)
         try:
             out, err = subprocess_popen(cmd,
@@ -304,11 +385,26 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
                          "\n           Check logs {0} for more details.".format(log_file),
                          error_message=traceback.format_exc())
             exit()
+
     elif server == "videoserver":
         rtmp = config.get('VIDEOSERVER', 'RTMP')
         hls = config.get('VIDEOSERVER', 'HLS')
         http = config.get('VIDEOSERVER', 'HTTP')
-        cmd = "docker run -d -p {1}:1935 -p {2}:8080 -p {3}:8088 --net=mynet --hostname={0} --privileged --cap-add=ALL --name={0} {4}". \
+
+        # cmd = "docker run -d -p {1}:1935 -p {2}:8080 -p {3}:8088 --net=mynet --hostname={0} --privileged --cap-add=ALL --name={0} {4}". \
+        #     format("videoserver", rtmp, hls, http, image)
+        # try:
+        #     out, err = subprocess_popen(cmd,
+        #                                 log_file,
+        #                                 failure_msg="Creation of {0} docker instance failed.".format(server))
+        #     container_id = out
+        # except OSError:
+        #     output_error("Creation of {0} docker instance failed.".format(server) +
+        #                  "\n           Check logs {0} for more details.".format(log_file),
+        #                  error_message=traceback.format_exc())
+        #     exit()
+
+        cmd = "docker run -d -p 127.0.0.1:{1}:1935 -p 127.0.0.1:{2}:8080 -p 127.0.0.1:{3}:8088 --net=mynet --hostname={0} --privileged --cap-add=ALL --name={0} {4}". \
             format("videoserver", rtmp, hls, http, image)
         try:
             out, err = subprocess_popen(cmd,
@@ -320,6 +416,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
                          "\n           Check logs {0} for more details.".format(log_file),
                          error_message=traceback.format_exc())
             exit()
+
     else:
         cmd = "docker run -d -P --net=mynet --hostname={0} --cap-add=NET_ADMIN --name={0} {1}".format(server, image)
         try:
