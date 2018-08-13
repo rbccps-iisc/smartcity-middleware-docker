@@ -56,20 +56,8 @@ fi
 echo -e "${YELLOW}[  INFO  ] ${NC}Adding necessary permissions to files and folders needed by kong"
 #TODO give necessary permissions only to the required user
 
-
-echo -e "${YELLOW}[  INFO  ] ${NC}Copying patch script into kong container"
-
-docker cp tasks/kong/patch.sh kong:/etc/
-
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}[   OK   ] ${NC}Copied patch script"
-else
-    echo -e "${RED}[ ERROR ] ${NC}Failed to copy setup script into Kong container"
-fi
-
 docker exec kong chmod 777 /etc/install.sh
-docker exec kong chmod 777 /etc/patch.sh
-docker exec kong chmod -R 777 /var/lib/postgresql 
+docker exec kong chmod -R 777 /var/lib/postgresql
 docker exec kong chmod -R 777 /tmp
 
 if [ $? -eq 0 ]; then
@@ -81,4 +69,3 @@ fi
 echo -e "${YELLOW}[  INFO  ] ${NC}Starting setup script"
 
 docker exec kong /etc/install.sh
-docker exec kong /etc/patch.sh
