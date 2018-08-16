@@ -83,6 +83,36 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
                           log_file=log_file,
                           exit_on_fail=True)
 
+    subprocess_with_print("docker volume create --name kong-data",
+                          success_msg="Created kong-data data container ",
+                          failure_msg="Creation of kong-data data container failed.",
+                          log_file=log_file,
+                          exit_on_fail=True)
+
+    subprocess_with_print("docker volume create --name rabbitmq-data",
+                          success_msg="Created rabbitmq-data data container ",
+                          failure_msg="Creation of rabbitmq-data data container failed.",
+                          log_file=log_file,
+                          exit_on_fail=True)
+
+    subprocess_with_print("docker volume create --name cat-data",
+                          success_msg="Created cat-data data container ",
+                          failure_msg="Creation of cat-data data container failed.",
+                          log_file=log_file,
+                          exit_on_fail=True)
+
+    subprocess_with_print("docker volume create --name elk-data",
+                          success_msg="Created elk-data data container ",
+                          failure_msg="Creation of elk-data data container failed.",
+                          log_file=log_file,
+                          exit_on_fail=True)
+
+    subprocess_with_print("docker volume create --name webserver-data",
+                          success_msg="Created webserver-data data container ",
+                          failure_msg="Creation of webserver-data data container failed.",
+                          log_file=log_file,
+                          exit_on_fail=True)
+
     # key = config.get('SYSTEM_CONFIG', 'SSH_PUBLIC_KEY')
     # output_info("Using {0} as your ssh key for certification. ".format(key))
     # home = os.path.expanduser('~')
@@ -119,7 +149,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
 
 #TODO change data folder of postgres
     ip, details = create_instance("kong", "ideam/kong",
-                                        storage_host=kong_storage,
+                                        storage_host="kong-data",
                                         storage_guest="/usr/local/pgsql/data",
                                         log_file=log_file,
                                         config_path=config_path,
@@ -128,7 +158,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
     output_ok("Created Kong docker instance. \n " + details)
 
     ip, details = create_instance("catalogue", "ideam/catalogue",
-                                        storage_host=catalogue_storage,
+                                        storage_host="cat-data",
                                         storage_guest="/data/db",
                                         log_file=log_file,
                                         config_path=config_path)
@@ -136,20 +166,24 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
     output_ok("Created Catalogue docker instance. \n " + details)
 
     ip, details = create_instance("rabbitmq", "ideam/rabbitmq",
-                                        storage_host=rabbitmq_storage,
+                                        storage_host="rabbitmq-data",
                                         storage_guest="/home/ideam/rabbitmq_server-3.7.5/var/lib/rabbitmq/",
                                         log_file=log_file,
                                         config_path=config_path)
 
     output_ok("Created RabbitMQ docker instance. \n " + details)
 
-    ip, details = create_instance("elasticsearch", "ideam/elasticsearch-nokibana", log_file=log_file, config_path=config_path)
+    ip, details = create_instance("elasticsearch", "ideam/elasticsearch-nokibana",
+                                  storage_host="elk-data",
+                                  storage_guest="/home/ideam/elasticsearch-6.2.4",
+                                  log_file=log_file,
+                                  config_path=config_path)
 
     output_ok("Created Elastic Search docker instance. \n " + details)
 
     ip, details = create_instance("webserver", "ideam/webserver",
-                                        storage_host=webserver_storage,
-                                        storage_guest="/usr/local/webserver/webapps",
+                                        storage_host="webserver-data",
+                                        storage_guest="/usr/local/webserver",
                                         log_file=log_file,
                                         config_path=config_path)
 
@@ -219,7 +253,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
         #                  error_message=traceback.format_exc())
         #     exit()
 
-        cmd = "docker run -d -p 443:8443 --net=mynet --hostname={0} " \
+        cmd = "docker run -d -p 8443:8443 --net=mynet --hostname={0} " \
               "--cap-add=NET_ADMIN --name={0} {1}". \
             format(server, image, storage_host, storage_guest, log_storage)
 
