@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 curl -k -X POST \
-  "https://localhost/api/1.0.0/register" \
+  "https://localhost:8443/api/1.0.0/register" \
   -H 'apikey: guest' \
   -H 'content-type: application/json' \
   -k -d '{
