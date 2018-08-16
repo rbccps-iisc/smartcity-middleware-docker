@@ -257,7 +257,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
         #     exit()
 
         cmd = "docker run -d -p 127.0.0.1:{4}:8000 -p {5}:5672 -p {6}:1883 -p 127.0.0.1:{7}:15672 --net=mynet --hostname={0}" \
-              "--cap-add=NET_ADMIN --name={0} {1}". \
+              " --cap-add=NET_ADMIN --name={0} {1}". \
             format(server, image, storage_host, storage_guest, http, amqp, mqtt, management, log_storage)
 
         try:
