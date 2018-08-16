@@ -106,7 +106,7 @@ def test(arguments):
     cmd = "./tests/publish.sh " + api_testing_streetlight_key
     try:
         process = subprocess.check_output(cmd, shell=True)
-        if "Publish message OK" in process:
+        if "200 OK" in process:
             output_ok("PUBLISH API: Published message as apitestingstreetlight.")
         else:
             output_error(process,
