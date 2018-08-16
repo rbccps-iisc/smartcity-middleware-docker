@@ -219,7 +219,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
         #                  error_message=traceback.format_exc())
         #     exit()
 
-        cmd = "docker run -d -p 80:8000 --net=mynet --hostname={0} " \
+        cmd = "docker run -d -p 443:8443 --net=mynet --hostname={0} " \
               "--cap-add=NET_ADMIN --name={0} {1}". \
             format(server, image, storage_host, storage_guest, log_storage)
 
