@@ -4,7 +4,7 @@ import random
 import ConfigParser
 
 
-def id_generator(size=16, chars=string.ascii_letters + string.digits + "_+^?/"):
+def id_generator(size=16, chars=string.ascii_letters + string.digits + "_+^/"):
     return ''.join(random.choice(chars) for _ in range(size))
 
 

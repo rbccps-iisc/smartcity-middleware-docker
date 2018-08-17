@@ -2,7 +2,6 @@ from japronto import Application
 import json
 import requests
 import tempfile
-import commands
 import os
 from time import gmtime, strftime
 import subprocess
@@ -30,42 +29,42 @@ def deregister(request):
     if check_entity_exists(entity) is False:
         # Remove any entry by the name mentioned
         try:
-            rabbitmq_queue_delete(entity, "admin.ideam", "THmgOZMu2HeQKwP7")
+            rabbitmq_queue_delete(entity, "admin.ideam", "MYUcpYJgtTevAO4L")
         except:
             pass
 
         try:
-            rabbitmq_queue_delete(entity + ".follow", "admin.ideam", "THmgOZMu2HeQKwP7")
+            rabbitmq_queue_delete(entity + ".follow", "admin.ideam", "MYUcpYJgtTevAO4L")
         except:
             pass
 
         try:
-            rabbitmq_exchange_delete(entity, "admin.ideam", "THmgOZMu2HeQKwP7")
+            rabbitmq_exchange_delete(entity, "admin.ideam", "MYUcpYJgtTevAO4L")
         except:
             pass
 
         try:
-            rabbitmq_exchange_delete(entity + ".configure", "admin.ideam", "THmgOZMu2HeQKwP7")
+            rabbitmq_exchange_delete(entity + ".configure", "admin.ideam", "MYUcpYJgtTevAO4L")
         except:
             pass
 
         try:
-            rabbitmq_exchange_delete(entity + ".follow", "admin.ideam", "THmgOZMu2HeQKwP7")
+            rabbitmq_exchange_delete(entity + ".follow", "admin.ideam", "MYUcpYJgtTevAO4L")
         except:
             pass
 
         try:
-            rabbitmq_exchange_delete(entity + ".public", "admin.ideam", "THmgOZMu2HeQKwP7")
+            rabbitmq_exchange_delete(entity + ".public", "admin.ideam", "MYUcpYJgtTevAO4L")
         except:
             pass
 
         try:
-            rabbitmq_exchange_delete(entity + ".protected", "admin.ideam", "THmgOZMu2HeQKwP7")
+            rabbitmq_exchange_delete(entity + ".protected", "admin.ideam", "MYUcpYJgtTevAO4L")
         except:
             pass
 
         try:
-            rabbitmq_exchange_delete(entity + ".private", "admin.ideam", "THmgOZMu2HeQKwP7")
+            rabbitmq_exchange_delete(entity + ".private", "admin.ideam", "MYUcpYJgtTevAO4L")
         except:
             pass
 
@@ -92,14 +91,14 @@ def deregister(request):
     # TODO: remove admin.ideam user to provider and his apikey ( which cant be used now, as its not there in ldap)
     if check_entity_is_video(entity):
         video_server_delete(entity)
-    rabbitmq_queue_delete(entity, "admin.ideam", "THmgOZMu2HeQKwP7")
-    rabbitmq_queue_delete(entity + ".follow", "admin.ideam", "THmgOZMu2HeQKwP7")
-    rabbitmq_exchange_delete(entity, "admin.ideam", "THmgOZMu2HeQKwP7")
-    rabbitmq_exchange_delete(entity + ".configure", "admin.ideam", "THmgOZMu2HeQKwP7")
-    rabbitmq_exchange_delete(entity + ".follow", "admin.ideam", "THmgOZMu2HeQKwP7")
-    rabbitmq_exchange_delete(entity + ".public", "admin.ideam", "THmgOZMu2HeQKwP7")
-    rabbitmq_exchange_delete(entity + ".protected", "admin.ideam", "THmgOZMu2HeQKwP7")
-    rabbitmq_exchange_delete(entity + ".private", "admin.ideam", "THmgOZMu2HeQKwP7")
+    rabbitmq_queue_delete(entity, "admin.ideam", "MYUcpYJgtTevAO4L")
+    rabbitmq_queue_delete(entity + ".follow", "admin.ideam", "MYUcpYJgtTevAO4L")
+    rabbitmq_exchange_delete(entity, "admin.ideam", "MYUcpYJgtTevAO4L")
+    rabbitmq_exchange_delete(entity + ".configure", "admin.ideam", "MYUcpYJgtTevAO4L")
+    rabbitmq_exchange_delete(entity + ".follow", "admin.ideam", "MYUcpYJgtTevAO4L")
+    rabbitmq_exchange_delete(entity + ".public", "admin.ideam", "MYUcpYJgtTevAO4L")
+    rabbitmq_exchange_delete(entity + ".protected", "admin.ideam", "MYUcpYJgtTevAO4L")
+    rabbitmq_exchange_delete(entity + ".private", "admin.ideam", "MYUcpYJgtTevAO4L")
     ldap_entity_delete(entity)
     kong_consumer_delete(entity)
     catalogue_delete(entity)
@@ -122,7 +121,7 @@ def catalogue_delete(entity):
 
 
 def rabbitmq_queue_delete(qname, consumer_id, apikey):
-    url = 'http://webserver:8080/cdx/queue/'+qname
+    url = 'http://webserver:8080/cdx/queue/' + qname
     headers = {'X-Consumer-Username': consumer_id, 'Apikey': apikey}
     r = requests.delete(url, headers=headers)
     print(r.text)
@@ -135,32 +134,33 @@ def kong_consumer_delete(name):
 
 
 def rabbitmq_exchange_delete(ename, consumer_id, apikey):
-    url = 'http://webserver:8080/cdx/exchange/'+ ename
+    url = 'http://webserver:8080/cdx/exchange/' + ename
     headers = {'X-Consumer-Username': consumer_id, 'Apikey': apikey}
     r = requests.delete(url, headers=headers)
     print(r.text)
 
 
 def ldap_entity_delete(uid):
-    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "nIVH9vdn0hyifGuB" """
+    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "XK407yoZmd8ZzsaN" """
     cmd2 = """ "uid={0},cn=devices,dc=smartcity" -r""". \
         format(uid)
     cmd = cmd1 + cmd2
     try:
-        resp = subprocess.check_output(cmd, shell=True)
+        resp = subprocess.check_output(filter(cmd), shell=True)
         print(resp)
     except subprocess.CalledProcessError as e:
         print(e)
 
 
 def check_entity_exists(uid):
-    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "nIVH9vdn0hyifGuB" -b"""
+    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "XK407yoZmd8ZzsaN" -b"""
     cmd2 = """ "uid={0},cn=devices,dc=smartcity" """. \
         format(uid)
     cmd = cmd1 + cmd2
+
     resp = b""
     try:
-        resp = subprocess.check_output(cmd, shell=True)
+        resp = subprocess.check_output(filter(cmd), shell=True)
     except subprocess.CalledProcessError as e:
         print(e)
     check = "result: 0 Success"
@@ -170,13 +170,14 @@ def check_entity_exists(uid):
 
 
 def check_entity_is_video(uid):
-    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w nIVH9vdn0hyifGuB -b"""
+    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w XK407yoZmd8ZzsaN -b"""
     cmd2 = """ "description=video,uid={0},cn=devices,dc=smartcity" """. \
         format(uid)
     cmd = cmd1 + cmd2
+
     resp = b""
     try:
-        resp = subprocess.check_output(cmd, shell=True)
+        resp = subprocess.check_output(filter(cmd), shell=True)
     except subprocess.CalledProcessError as e:
         print(e)
     check = "result: 0 Success"
@@ -186,13 +187,14 @@ def check_entity_is_video(uid):
 
 
 def check_owner(owner, device):
-    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "nIVH9vdn0hyifGuB" -b"""
+    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "XK407yoZmd8ZzsaN" -b"""
     cmd2 = """ "uid={0},cn=devices,dc=smartcity" {1}""". \
         format(device, "owner")
     cmd = cmd1 + cmd2
+
     resp = b""
     try:
-        resp = subprocess.check_output(cmd, shell=True)
+        resp = subprocess.check_output(filter(cmd), shell=True)
     except subprocess.CalledProcessError as e:
         print(e)
     if str(owner) == "":
@@ -263,7 +265,7 @@ def follow(request):
                                                                                          gmtime()) + " Entity " + consumer_id + " made a follow request. Requested access is for " + permission,
                 "payload_encoding": "string"}
         headers = {'Accept': 'application/json'}
-        r = requests.post(url, auth=('admin.ideam', 'THmgOZMu2HeQKwP7'), data=json.dumps(data), headers=headers)
+        r = requests.post(url, auth=('admin.ideam', 'MYUcpYJgtTevAO4L'), data=json.dumps(data), headers=headers)
         print(r.text)
         # publish(data,entity + ".follow", entity + ".follow", consumer_id, apikey)
     return request.Response(text=" A follow request has been made to entity " + entity + " with " + permission +
@@ -271,35 +273,35 @@ def follow(request):
 
 
 def create_queue(qname, consumer_id, apikey):
-    url = 'http://webserver:8080/cdx/queue/'+qname
+    url = 'http://webserver:8080/cdx/queue/' + qname
     headers = {'X-Consumer-Username': consumer_id, 'Apikey': apikey}
     r = requests.get(url, headers=headers)
     print(r.text)
 
 
 def create_exchange(ename, consumer_id, apikey):
-    url = 'http://webserver:8080/cdx/exchange/'+ename
+    url = 'http://webserver:8080/cdx/exchange/' + ename
     headers = {'X-Consumer-Username': consumer_id, 'Apikey': apikey}
     r = requests.get(url, headers=headers)
     print(r.text)
 
 
 def bind(queue, exchange, key, consumer_id, apikey):
-    url = 'http://webserver:8080/cdx/bind/'+queue+'/'+exchange
-    headers = {'X-Consumer-Username': consumer_id, 'Apikey': apikey,'routingKey':key}
+    url = 'http://webserver:8080/cdx/bind/' + queue + '/' + exchange
+    headers = {'X-Consumer-Username': consumer_id, 'Apikey': apikey, 'routingKey': key}
     r = requests.get(url, headers=headers)
     print(r.text)
 
 
 def unbind(queue, exchange, key, consumer_id, apikey):
-    url = 'http://webserver:8080/cdx/cbind/'+queue+'/'+exchange
-    headers = {'X-Consumer-Username': consumer_id, 'Apikey': apikey,'routingKey':key}
+    url = 'http://webserver:8080/cdx/cbind/' + queue + '/' + exchange
+    headers = {'X-Consumer-Username': consumer_id, 'Apikey': apikey, 'routingKey': key}
     r = requests.delete(url, headers=headers)
     print(r.text)
 
 
 def publish(body, exchange, key, consumer_id, apikey):
-    url = 'http://webserver:8080/cdx/publish/'+exchange+'/'+key+'/'
+    url = 'http://webserver:8080/cdx/publish/' + exchange + '/' + key + '/'
     headers = {'X-Consumer-Username': consumer_id, 'Apikey': apikey, 'Accept': 'application/json'}
     data = {"exchange": exchange, "key": key, "body": body}
     r = requests.post(url, data=json.dumps(data), headers=headers)
@@ -333,10 +335,10 @@ def ldap_add_share_entry(device, consumer_id, ttl, read="false", write="false"):
 
     print(valid_until)
 
-    f = tempfile.NamedTemporaryFile(suffix='.ldif',delete=False)
+    f = tempfile.NamedTemporaryFile(suffix='.ldif', delete=False)
 
-    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w nIVH9vdn0hyifGuB -f '+f.name+' -H ldap://ldapd:8389'
-    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w nIVH9vdn0hyifGuB -f '+f.name+' -H ldap://ldapd:8389'
+    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w XK407yoZmd8ZzsaN -f ' + f.name + ' -H ldap://ldapd:8389'
+    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w XK407yoZmd8ZzsaN -f ' + f.name + ' -H ldap://ldapd:8389'
     ldif = """dn: description={0},description=share,description=broker,uid={1},cn=devices,dc=smartcity
 objectClass: broker
 objectClass: exchange
@@ -350,6 +352,7 @@ validity: {4}""".format(device, consumer_id, read, write, valid_until)
     f.write(str.encode(ldif))
     f.close()
     try:
+        add = add.replace(";", "").replace("'", "").replace("|", "").replace("$", "")
         resp = subprocess.check_output(add, shell=True)
         print(resp)
     except subprocess.CalledProcessError as e:
@@ -367,21 +370,20 @@ write: {3}
 replace: validity
 validity: {4}""".format(device, consumer_id, read, write, valid_until)
 
-            f = tempfile.NamedTemporaryFile(suffix='.ldif',delete=False)
+            f = tempfile.NamedTemporaryFile(suffix='.ldif', delete=False)
             f.write(str.encode(ldif))
             f.close()
+            modify = modify.replace(";", "").replace("'", "").replace("|", "").replace("$", "")
             resp = subprocess.check_output(modify, shell=True)
             print(resp)
-
-    os.unlink(f.name)
+            os.unlink(f.name)
 
 
 def ldap_add_exchange_entry(device, consumer_id, read="false", write="false"):
+    f = tempfile.NamedTemporaryFile(suffix='.ldif', delete=False)
 
-    f=tempfile.NamedTemporaryFile(suffix='.ldif',delete=False)
-
-    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w "nIVH9vdn0hyifGuB" -f '+f.name+' -H ldap://ldapd:8389'
-    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w "nIVH9vdn0hyifGuB" -f '+f.name+' -H ldap://ldapd:8389'
+    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w "XK407yoZmd8ZzsaN" -f ' + f.name + ' -H ldap://ldapd:8389'
+    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w "XK407yoZmd8ZzsaN" -f ' + f.name + ' -H ldap://ldapd:8389'
     ldif = """dn: description={0},description=exchange,description=broker,uid={1},cn=devices,dc=smartcity
 objectClass: broker
 objectClass: exchange
@@ -393,6 +395,7 @@ write: {3}""".format(device, consumer_id, read, write)
     f.write(str.encode(ldif))
     f.close()
     try:
+        add = add.replace(";", "").replace("'", "").replace("|", "").replace("$", "")
         resp = subprocess.check_output(add, shell=True)
         print(resp)
     except subprocess.CalledProcessError as e:
@@ -407,9 +410,10 @@ read: {2}
 -
 replace: write
 write: {3}""".format(device, consumer_id, read, write)
-            f = tempfile.NamedTemporaryFile(suffix='.ldif',delete=False)
+            f = tempfile.NamedTemporaryFile(suffix='.ldif', delete=False)
             f.write(str.encode(ldif))
             f.close()
+            modify = modify.replace(";", "").replace("'", "").replace("|", "").replace("$", "")
             resp = subprocess.check_output(modify, shell=True)
             print(resp)
 
@@ -464,7 +468,7 @@ def share(request):
             ldap_add_share_entry(entity, consumer_id, ttl, read="true", write="true")
         else:
             ldap_add_share_entry(entity, consumer_id, ttl, read="true", write="false")
-        bind(entity, consumer_id + ".protected", "#", "admin.ideam", "THmgOZMu2HeQKwP7")
+        bind(entity, consumer_id + ".protected", "#", "admin.ideam", "MYUcpYJgtTevAO4L")
         text = "Read access given to " + entity + " at " + consumer_id + " exchange.\n"
         return request.Response(text=text)
     elif permission == "write":
@@ -477,7 +481,7 @@ def share(request):
         return request.Response(text=text)
     elif permission == "read-write":
         ldap_add_share_entry(entity, consumer_id, ttl, read="true", write="true")
-        bind(entity, consumer_id + ".protected", "#", "admin.ideam", "THmgOZMu2HeQKwP7")
+        bind(entity, consumer_id + ".protected", "#", "admin.ideam", "MYUcpYJgtTevAO4L")
         ldap_add_exchange_entry(exchange, entity, read="false", write="true")
         text = "Read access given to " + entity + " at " + consumer_id + " exchange.\n"
         text += "Write access given to " + entity + " at " + exchange + " exchange.\n"
@@ -547,13 +551,14 @@ def unfollow(request):
 
 
 def check_ldap_entry(desc, uid, attribute, check_parameter):
-    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "nIVH9vdn0hyifGuB" -b"""
+    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "XK407yoZmd8ZzsaN" -b"""
     cmd2 = """ "description={0},description=share,description=broker,uid={1},cn=devices,dc=smartcity" {2}""". \
         format(desc, uid, attribute)
     cmd = cmd1 + cmd2
+
     resp = b""
     try:
-        resp = subprocess.check_output(cmd, shell=True)
+        resp = subprocess.check_output(filter(cmd), shell=True)
         print(resp)
     except subprocess.CalledProcessError as e:
         print(e)
@@ -563,12 +568,13 @@ def check_ldap_entry(desc, uid, attribute, check_parameter):
 
 
 def delete_ldap_entry(desc, uid, entry):
-    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "nIVH9vdn0hyifGuB" """
+    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "XK407yoZmd8ZzsaN" """
     cmd2 = """ "description={0},description={2},description=broker,uid={1},cn=devices,dc=smartcity" """. \
         format(desc, uid, entry)
     cmd = cmd1 + cmd2
+
     try:
-        resp = subprocess.check_output(cmd, shell=True)
+        resp = subprocess.check_output(filter(cmd), shell=True)
         print(resp)
     except subprocess.CalledProcessError as e:
         print(e)
@@ -663,6 +669,13 @@ def video_rtmp(request):
 def video_hls(request):
     return request.Response(code=301, headers={
         'Location': 'https://' + URL.strip('\n') + ':18935/live1/stream?id=device&pass=password'})
+
+
+def filter(cmd):
+    cmd = cmd.replace(";", "").replace("'", "").replace("|", "").replace("$", "").replace("~", "").replace("`",
+                                                                                                           "").replace(
+        ">", "").replace("<", "").replace("*", "").replace("?", "").replace("&", "").replace("!", "")
+    return cmd
 
 
 app = Application()

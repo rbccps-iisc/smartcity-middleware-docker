@@ -2,7 +2,6 @@ from japronto import Application
 import json
 import requests
 import tempfile
-import commands
 import os
 from time import gmtime, strftime
 import subprocess
@@ -146,9 +145,8 @@ def ldap_entity_delete(uid):
     cmd2 = """ "uid={0},cn=devices,dc=smartcity" -r""". \
         format(uid)
     cmd = cmd1 + cmd2
-    cmd = cmd.replace(";","").replace("'","").replace("|","").replace("$","")
     try:
-        resp = subprocess.check_output(cmd, shell=True)
+        resp = subprocess.check_output(filter(cmd), shell=True)
         print(resp)
     except subprocess.CalledProcessError as e:
         print(e)
@@ -160,11 +158,11 @@ def check_entity_exists(uid):
         format(uid)
     cmd = cmd1 + cmd2
     
-    cmd = cmd.replace(";","").replace("'","").replace("|","").replace("$","")
+
     
     resp = b""
     try:
-        resp = subprocess.check_output(cmd, shell=True)
+        resp = subprocess.check_output(filter(cmd), shell=True)
     except subprocess.CalledProcessError as e:
         print(e)
     check = "result: 0 Success"
@@ -178,11 +176,10 @@ def check_entity_is_video(uid):
     cmd2 = """ "description=video,uid={0},cn=devices,dc=smartcity" """. \
         format(uid)
     cmd = cmd1 + cmd2
-    cmd = cmd.replace(";","").replace("'","").replace("|","").replace("$","")
     
     resp = b""
     try:
-        resp = subprocess.check_output(cmd, shell=True)
+        resp = subprocess.check_output(filter(cmd), shell=True)
     except subprocess.CalledProcessError as e:
         print(e)
     check = "result: 0 Success"
@@ -196,11 +193,10 @@ def check_owner(owner, device):
     cmd2 = """ "uid={0},cn=devices,dc=smartcity" {1}""". \
         format(device, "owner")
     cmd = cmd1 + cmd2
-    cmd = cmd.replace(";","").replace("'","").replace("|","").replace("$","")
 
     resp = b""
     try:
-        resp = subprocess.check_output(cmd, shell=True)
+        resp = subprocess.check_output(filter(cmd), shell=True)
     except subprocess.CalledProcessError as e:
         print(e)
     if str(owner) == "":
@@ -382,8 +378,7 @@ validity: {4}""".format(device, consumer_id, read, write, valid_until)
             modify = modify.replace(";","").replace("'","").replace("|","").replace("$","")
             resp = subprocess.check_output(modify, shell=True)
             print(resp)
-
-    os.unlink(f.name)
+            os.unlink(f.name)
 
 
 def ldap_add_exchange_entry(device, consumer_id, read="false", write="false"):
@@ -563,11 +558,10 @@ def check_ldap_entry(desc, uid, attribute, check_parameter):
     cmd2 = """ "description={0},description=share,description=broker,uid={1},cn=devices,dc=smartcity" {2}""". \
         format(desc, uid, attribute)
     cmd = cmd1 + cmd2
-    cmd = cmd.replace(";","").replace("'","").replace("|","").replace("$","")
 
     resp = b""
     try:
-        resp = subprocess.check_output(cmd, shell=True)
+        resp = subprocess.check_output(filter(cmd), shell=True)
         print(resp)
     except subprocess.CalledProcessError as e:
         print(e)
@@ -581,10 +575,9 @@ def delete_ldap_entry(desc, uid, entry):
     cmd2 = """ "description={0},description={2},description=broker,uid={1},cn=devices,dc=smartcity" """. \
         format(desc, uid, entry)
     cmd = cmd1 + cmd2
-    cmd = cmd.replace(";","").replace("'","").replace("|","").replace("$","")
 
     try:
-        resp = subprocess.check_output(cmd, shell=True)
+        resp = subprocess.check_output(filter(cmd), shell=True)
         print(resp)
     except subprocess.CalledProcessError as e:
         print(e)
@@ -679,6 +672,10 @@ def video_rtmp(request):
 def video_hls(request):
     return request.Response(code=301, headers={
         'Location': 'https://' + URL.strip('\n') + ':18935/live1/stream?id=device&pass=password'})
+
+def filter(cmd):
+    cmd = cmd.replace(";", "").replace("'", "").replace("|", "").replace("$", "").replace("~","").replace("`","").replace(">","").replace("<","").replace("*","").replace("?","").replace("&","").replace("!","")
+    return cmd
 
 
 app = Application()
