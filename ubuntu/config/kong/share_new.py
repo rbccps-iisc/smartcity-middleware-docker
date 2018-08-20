@@ -146,7 +146,7 @@ def ldap_entity_delete(uid):
         format(uid)
     cmd = cmd1 + cmd2
     try:
-        resp = subprocess.check_output(filter(cmd), shell=True)
+        resp = subprocess.check_output(safe_cmd(cmd), shell=True)
         print(resp)
     except subprocess.CalledProcessError as e:
         print(e)
@@ -160,7 +160,7 @@ def check_entity_exists(uid):
 
     resp = b""
     try:
-        resp = subprocess.check_output(filter(cmd), shell=True)
+        resp = subprocess.check_output(safe_cmd(cmd), shell=True)
     except subprocess.CalledProcessError as e:
         print(e)
     check = "result: 0 Success"
@@ -177,7 +177,7 @@ def check_entity_is_video(uid):
 
     resp = b""
     try:
-        resp = subprocess.check_output(filter(cmd), shell=True)
+        resp = subprocess.check_output(safe_cmd(cmd), shell=True)
     except subprocess.CalledProcessError as e:
         print(e)
     check = "result: 0 Success"
@@ -194,7 +194,7 @@ def check_owner(owner, device):
 
     resp = b""
     try:
-        resp = subprocess.check_output(filter(cmd), shell=True)
+        resp = subprocess.check_output(safe_cmd(cmd), shell=True)
     except subprocess.CalledProcessError as e:
         print(e)
     if str(owner) == "":
@@ -301,9 +301,9 @@ def unbind(queue, exchange, key, consumer_id, apikey):
 
 
 def publish(body, exchange, key, consumer_id, apikey):
-    url = 'http://webserver:8080/cdx/publish/' + exchange + '/' + key + '/'
-    headers = {'X-Consumer-Username': consumer_id, 'Apikey': apikey, 'Accept': 'application/json'}
-    data = {"exchange": exchange, "key": key, "body": body}
+    url = 'http://webserver:8080/cdx/publish/' + exchange
+    headers = {'X-Consumer-Username': consumer_id, 'Apikey': apikey, 'routingKey': key}
+    data = {"body": body}
     r = requests.post(url, data=json.dumps(data), headers=headers)
     print(r.text)
 
@@ -468,8 +468,9 @@ def share(request):
             ldap_add_share_entry(entity, consumer_id, ttl, read="true", write="true")
         else:
             ldap_add_share_entry(entity, consumer_id, ttl, read="true", write="false")
-        bind(entity, consumer_id + ".protected", "#", "admin.ideam", "MYUcpYJgtTevAO4L")
+        # bind(entity, consumer_id + ".protected", "#", "admin.ideam", "MYUcpYJgtTevAO4L")
         text = "Read access given to " + entity + " at " + consumer_id + " exchange.\n"
+        publish(entity + " can now bind to " + consumer_id, entity + ".notify", "#", "admin.ideam", "MYUcpYJgtTevAO4L")
         return request.Response(text=text)
     elif permission == "write":
         if check_ldap_entry(entity, consumer_id, "read", "true"):
@@ -481,7 +482,8 @@ def share(request):
         return request.Response(text=text)
     elif permission == "read-write":
         ldap_add_share_entry(entity, consumer_id, ttl, read="true", write="true")
-        bind(entity, consumer_id + ".protected", "#", "admin.ideam", "MYUcpYJgtTevAO4L")
+        # bind(entity, consumer_id + ".protected", "#", "admin.ideam", "MYUcpYJgtTevAO4L")
+        publish(entity + " can now bind to " + consumer_id, entity + ".notify", "#", "admin.ideam", "MYUcpYJgtTevAO4L")
         ldap_add_exchange_entry(exchange, entity, read="false", write="true")
         text = "Read access given to " + entity + " at " + consumer_id + " exchange.\n"
         text += "Write access given to " + entity + " at " + exchange + " exchange.\n"
@@ -558,7 +560,7 @@ def check_ldap_entry(desc, uid, attribute, check_parameter):
 
     resp = b""
     try:
-        resp = subprocess.check_output(filter(cmd), shell=True)
+        resp = subprocess.check_output(safe_cmd(cmd), shell=True)
         print(resp)
     except subprocess.CalledProcessError as e:
         print(e)
@@ -574,7 +576,7 @@ def delete_ldap_entry(desc, uid, entry):
     cmd = cmd1 + cmd2
 
     try:
-        resp = subprocess.check_output(filter(cmd), shell=True)
+        resp = subprocess.check_output(safe_cmd(cmd), shell=True)
         print(resp)
     except subprocess.CalledProcessError as e:
         print(e)
@@ -671,7 +673,7 @@ def video_hls(request):
         'Location': 'https://' + URL.strip('\n') + ':18935/live1/stream?id=device&pass=password'})
 
 
-def filter(cmd):
+def safe_cmd(cmd):
     cmd = cmd.replace(";", "").replace("'", "").replace("|", "").replace("$", "").replace("~", "").replace("`",
                                                                                                            "").replace(
         ">", "").replace("<", "").replace("*", "").replace("?", "").replace("&", "").replace("!", "")
