@@ -5,7 +5,6 @@ NC='\033[0m'
 YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
 
-
 echo -e "${YELLOW}[  INFO  ]${NC} Creating Error Log File"
 
 touch /var/log/cdxapis_error.log
@@ -42,7 +41,7 @@ nohup java -jar /usr/local/webserver/cdxapis.jar 2>/var/log/cdxapis_error.log >/
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ]${NC} Started Webserver"
-    echo -e "${YELLOW}[   INFO   ]${NC} Webserver Logs are at /var/log/"
+    echo -e "${YELLOW}[  INFO  ]${NC} Webserver Logs are at /var/log/"
 else
     echo -e "${RED}[ ERROR ]${NC} Failed to start Webserver"
 fi

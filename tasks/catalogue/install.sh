@@ -5,16 +5,6 @@ NC='\033[0m'
 YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
 
-#echo -e "${YELLOW}[  INFO  ]${NC} Copying CA user certificate keys"
-
-#echo "TrustedUserCAKeys /etc/ssh/ca-user-certificate-key.pub" >> /etc/ssh/sshd_config
-
-#if [ $? -eq 0 ]; then
-#    echo -e "${GREEN}[   OK   ]${NC} Copied certificate key"
-#else
-#    echo -e "${RED}[ ERROR ]${NC} Failed to copied certificate key"
-#fi
-
 pwd=`cat /etc/ldapd | cut -d : -f 2 | awk '{$1=$1};1'`
 
 echo -e "${YELLOW}[  INFO  ]${NC} Changing passwords in files"

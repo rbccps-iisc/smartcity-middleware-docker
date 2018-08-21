@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 import sys
 import os
+import time
 VERSION = '0.0-1'
 # No ideam.conf in /etc/ideam if during development
 if os.path.exists("/etc/ideam/ideam.conf"):
@@ -76,14 +77,14 @@ def str2bool(v):
 
 
 def test(arguments):
-    cmd = "./tests/create_entity.sh apitestingstreetlight"
-    api_testing_streetlight_key = ""
+    cmd = "./tests/create_entity.sh testdevice1"
+    testdevice1_key = ""
 
     try:
         process = subprocess.check_output(cmd, shell=True)
         register = json.loads(process)
-        api_testing_streetlight_key = register["apiKey"]
-        output_ok("REGISTER API: Created entity apitestingstreetlight. API KEY is " + api_testing_streetlight_key)
+        testdevice1_key = register["apiKey"]
+        output_ok("REGISTER API: Created entity testdevice1. API KEY is " + testdevice1_key)
     except:
         output_error(process,
                      error_message=traceback.format_exc())
@@ -92,23 +93,109 @@ def test(arguments):
         # f.close()
         exit()
 
-    cmd = "./tests/create_entity.sh apitestingdashboard"
-    api_testing_dashboard_key = ""
+    cmd = "./tests/create_entity.sh testdevice2"
+    testdevice2_key = ""
     try:
         process = subprocess.check_output(cmd, shell=True)
         register = json.loads(process)
-        api_testing_dashboard_key = register["apiKey"]
-        output_ok("REGISTER API: Created entity apitestingdashboard. API KEY is " + api_testing_dashboard_key)
+        testdevice2_key = register["apiKey"]
+        output_ok("REGISTER API: Created entity testdevice2. API KEY is " + testdevice2_key)
     except:
         output_error(process,
                      error_message=traceback.format_exc())
         exit()
 
-    cmd = "./tests/publish.sh " + api_testing_streetlight_key
+    cmd = "./tests/follow.sh "+ testdevice2_key + " testdevice1"
+
+    try:
+        process = subprocess.check_output(cmd, shell=True)
+
+        if "200 OK" in process:
+            output_ok("FOLLOW API: testdevice2 made a follow request to testdevice1")
+        else:
+            output_error(process,
+                         error_message=traceback.format_exc())
+
+    except:
+        output_error(process,
+                     error_message=traceback.format_exc())
+        exit()
+
+    time.sleep(1)
+
+    cmd = "./tests/subscribe.sh testdevice1.follow " + testdevice1_key
+    try:
+        process = subprocess.check_output(cmd, shell=True)
+        subscribe = json.loads(process)
+
+        if "Entity testdevice2 made a follow request" in subscribe[0]["data"] :
+            output_ok("FOLLOW API: testdevice1 has recieved the follow request")
+        else:
+            output_error(process,
+                             error_message=traceback.format_exc())
+
+    except:
+        output_error(process,
+                     error_message=traceback.format_exc())
+        exit()
+
+    cmd = "./tests/share.sh " + testdevice1_key + " testdevice2"
+
+    try:
+        process = subprocess.check_output(cmd, shell=True)
+
+        if "200 OK" in process:
+            output_ok("SHARE API: testdevice1 authorised a share request to testdevice2")
+        else:
+            output_error(process,
+                         error_message=traceback.format_exc())
+
+    except:
+        output_error(process,
+        error_message=traceback.format_exc())
+        exit()
+
+    time.sleep(1)
+
+    cmd = "./tests/subscribe.sh testdevice2.notify " + testdevice2_key
+
+    try:
+        process = subprocess.check_output(cmd, shell=True)
+        subscribe = json.loads(process)
+
+        if "testdevice2 can now bind to testdevice1" in subscribe[0]["data"]["body"]:
+            output_ok("SHARE API: testdevice2 has recieved the share approval")
+        else:
+            output_error(process,
+                             error_message=traceback.format_exc())
+
+    except:
+        output_error(process,
+                     error_message=traceback.format_exc())
+        exit()
+
+    cmd = "./tests/bind.sh testdevice2 testdevice1.protected " + testdevice2_key
+
+    try:
+        process = subprocess.check_output(cmd, shell=True)
+
+        if "200 OK" in process:
+            output_ok("BIND API: testdevice2 has bound its queue to testdevice1.protected exchange")
+        else:
+            output_error(process,
+                         error_message=traceback.format_exc())
+
+    except:
+        output_error(process,
+                     error_message=traceback.format_exc())
+        exit()
+
+
+    cmd = "./tests/publish.sh testdevice1 " + testdevice1_key
     try:
         process = subprocess.check_output(cmd, shell=True)
         if "200 OK" in process:
-            output_ok("PUBLISH API: Published message as apitestingstreetlight.")
+            output_ok("PUBLISH API: Published message as testdevice1.")
         else:
             output_error(process,
                          error_message=traceback.format_exc())
@@ -117,11 +204,46 @@ def test(arguments):
                      error_message=traceback.format_exc())
         exit()
 
-    cmd = "./tests/catalogue.sh apitestingdashboard"
+    time.sleep(1)
+
+    cmd = "./tests/subscribe.sh testdevice2 " + testdevice2_key
+
     try:
         process = subprocess.check_output(cmd, shell=True)
-        if "apitestingdashboard" in process:
-            output_ok("CATALOGUE API: Device apitestingdashboard found in catalogue.")
+        subscribe = json.loads(process)
+
+        if "testdata" in subscribe[0]["data"]["body"]:
+            output_ok("SUBSCRIBE API: testdevice2 has recieved the data published by testdevice1")
+        else:
+            output_error(process,
+                             error_message=traceback.format_exc())
+
+    except:
+        output_error(process,
+                     error_message=traceback.format_exc())
+        exit()
+
+    cmd = "./tests/unbind.sh testdevice2 testdevice1.protected " + testdevice2_key
+
+    try:
+        process = subprocess.check_output(cmd, shell=True)
+
+        if "200 OK" in process:
+            output_ok("BIND API: testdevice2 has unbound its queue from testdevice1.protected exchange")
+        else:
+            output_error(process,
+                         error_message=traceback.format_exc())
+
+    except:
+        output_error(process,
+                     error_message=traceback.format_exc())
+        exit()
+
+    cmd = "./tests/publish.sh testdevice1 " + testdevice1_key
+    try:
+        process = subprocess.check_output(cmd, shell=True)
+        if "200 OK" in process:
+            output_ok("PUBLISH API: Published message as testdevice1.")
         else:
             output_error(process,
                          error_message=traceback.format_exc())
@@ -130,11 +252,43 @@ def test(arguments):
                      error_message=traceback.format_exc())
         exit()
 
-    cmd = "./tests/deregister.sh"
+    time.sleep(1)
+
+    cmd = "./tests/subscribe.sh testdevice2 " + testdevice2_key
+
+    try:
+        process = subprocess.check_output(cmd, shell=True)
+        subscribe = json.loads(process)
+
+        if not subscribe:
+            output_ok("SUBSCRIBE API: testdevice2 has not recieved the data published by testdevice1")
+        else:
+            output_error(process,
+                         error_message=traceback.format_exc())
+
+    except:
+        output_error(process,
+                     error_message=traceback.format_exc())
+        exit()
+
+    cmd = "./tests/catalogue.sh testdevice1"
+    try:
+        process = subprocess.check_output(cmd, shell=True)
+        if "testdevice1" in process:
+            output_ok("CATALOGUE API: Device testdevice1 found in catalogue.")
+        else:
+            output_error(process,
+                         error_message=traceback.format_exc())
+    except:
+        output_error(process,
+                     error_message=traceback.format_exc())
+        exit()
+
+    cmd = "./tests/deregister.sh testdevice1"
     try:
         process = subprocess.check_output(cmd, shell=True)
         if "success" in process:
-            output_ok("DEREGISTER API: Device apitestingdashboard removed.")
+            output_ok("DEREGISTER API: Device testdevice1 removed.")
         else:
             output_error(process,
                          error_message=traceback.format_exc())
@@ -143,11 +297,11 @@ def test(arguments):
                      error_message=traceback.format_exc())
         exit()
 
-    cmd = "sh tests/deregister1.sh"
+    cmd = "sh tests/deregister.sh testdevice2"
     try:
         process = subprocess.check_output(cmd, shell=True)
         if "success" in process:
-            output_ok("DEREGISTER API: Device apitestingstreetlight removed.")
+            output_ok("DEREGISTER API: Device testdevice2 removed.")
         else:
             output_error(process,
                          error_message=traceback.format_exc())
@@ -156,11 +310,11 @@ def test(arguments):
                      error_message=traceback.format_exc())
         exit()
 
-    cmd = "./tests/catalogue.sh apitestingdashboard"
+    cmd = "./tests/catalogue.sh testdevice1"
     try:
         process = subprocess.check_output(cmd, shell=True)
         if "apitestingdashboard" not in process:
-            output_ok("CATALOGUE API: Device apitestingdashboard not found in catalogue.")
+            output_ok("CATALOGUE API: Device testdevice1 not found in catalogue.")
         else:
             output_error(process,
                          error_message=traceback.format_exc())

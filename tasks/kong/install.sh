@@ -5,27 +5,6 @@ NC='\033[0m'
 YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
 
-#echo -e "${YELLOW}[  INFO  ]${NC} Copying CA user certificate keys"
-
-#echo "TrustedUserCAKeys /etc/ssh/ca-user-certificate-key.pub" >> /etc/ssh/sshd_config
-
-#if [ $? -eq 0 ]; then
-#    echo -e "${GREEN}[   OK   ]${NC} Copied CA user certificate keys"
-#else
-#    echo -e "${RED}[ ERROR ]${NC} Failed to copy CA user certificate keys"
-#fi
-
-#echo -e "${YELLOW}[  INFO  ]${NC} Attempting to remove previous tmux sessions"
-
-#TODO Get rid of this!
-rm -r /tmp/tmux-* > /dev/null 2>&1
-
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}[   OK   ]${NC} Removed old tmux sessions"
-else
-    echo -e "${YELLOW}[  INFO  ]${NC} There are no tmux sessions to remove"
-fi
-
 echo -e "${YELLOW}[  INFO  ]${NC} Starting postgres"
 
 su postgres -c "/usr/local/pgsql/bin/postgres -D /usr/local/pgsql/data > /var/lib/postgresql/logfile 2>&1 &"
