@@ -10,10 +10,10 @@ mkdir -p ideam_0.0-1/var/ideam/data/kong-config
 mkdir -p ideam_0.0-1/var/ideam/data/catalogue
 mkdir -p ideam_0.0-1/var/ideam/data/rabbitmq
 mkdir -p ideam_0.0-1/var/ideam/data/ldap
-mkdir -p ideam_0.0-1/var/ideam/data/tomcat
+mkdir -p ideam_0.0-1/var/ideam/data/webserver
 mkdir -p ideam_0.0-1/var/ideam/data/logs/kong
 mkdir -p ideam_0.0-1/var/ideam/data/logs/rabbitmq
-mkdir -p ideam_0.0-1/var/ideam/data/logs/tomcat
+mkdir -p ideam_0.0-1/var/ideam/data/logs/webserver
 cp ../ideam.py ideam_0.0-1/usr/local/bin/ideam
 cp debian/control ideam_0.0-1/DEBIAN/control
 cp debian/prerm ideam_0.0-1/DEBIAN/prerm

@@ -443,7 +443,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
         #                  error_message=traceback.format_exc())
         #     exit()
 
-        cmd = "docker run -d -p 127.0.0.1:{1}:1935 -p 127.0.0.1:{2}:8080 -p 127.0.0.1:{3}:8088 --net=mynet --hostname={0} --privileged --cap-add=ALL --name={0} {4}". \
+        cmd = "docker run -d -p {1}:1935 -p {2}:8080 -p {3}:8088 --net=mynet --hostname={0} --privileged --cap-add=ALL --name={0} {4}". \
             format("videoserver", rtmp, hls, http, image)
         try:
             out, err = subprocess_popen(cmd,

@@ -46,13 +46,14 @@ def start(arguments):
 
     """ Starts all docker containers. """
     setup_logging(log_file=arguments.log_file)
-    container_start.start_containers(["kong","rabbitmq","ldapd","elasticsearch","videoserver","tomcat","catalogue"],arguments.log_file)
+    container_start.start_containers(["kong","rabbitmq","ldapd","elasticsearch","videoserver","webserver","catalogue","konga"],arguments.log_file)
+    container_start.start_volumes(["kong","rabbitmq","cat","elk","ldapd","webserver"],log_file=arguments.log_file)
 
     if arguments.limit:
         container_start.start_services(arguments.limit)
 
     else:
-        container_start.start_services("kong,rabbitmq,ldapd,elasticsearch,videoserver,webserver,catalogue")
+        container_start.start_services(["kong","rabbitmq","ldapd","elasticsearch","videoserver","webserver","catalogue"])
 
 def restart(arguments):
     """ Stops and starts all docker containers. """

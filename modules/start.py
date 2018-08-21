@@ -16,11 +16,14 @@ def start_containers(list,log_file):
                               log_file=log_file,
                               exit_on_fail=False)
 
-    subprocess_with_print("docker volume start ldapd-data",
-                          success_msg="Removed ldapd-data volume",
-                          failure_msg="Ldapd-data volume doesn't exist. SKIPPING THIS ERROR.",
-                          log_file=log_file,
-                          exit_on_fail=False)
+def start_volumes(list,log_file):
+
+    for volume in list:
+        subprocess_with_print("docker volume start {0}-data".format(volume),
+                              success_msg="Started {0}-data volume".format(volume),
+                              failure_msg="{0}-data volume doesn't exist. SKIPPING THIS ERROR.".format(volume),
+                              log_file=log_file,
+                              exit_on_fail=False)
 
 def start_services(list):
 
