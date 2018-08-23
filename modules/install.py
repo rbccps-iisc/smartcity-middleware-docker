@@ -178,7 +178,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
 
     output_ok("Created RabbitMQ docker instance. \n " + details)
 
-    ip, details = create_instance("elasticsearch", "ideam/elasticsearch-nokibana",
+    ip, details = create_instance("elasticsearch", "ideam/elasticsearch",
                                   storage_host="elk-data",
                                   storage_guest="/home/ideam/elasticsearch-6.2.4",
                                   log_file=log_file,
@@ -413,7 +413,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
         #     exit()
 
         cmd = "docker run -d --net=mynet " \
-              "--hostname={0} --cap-add=NET_ADMIN --name={0} {1}".format(server, image, kibana)
+              "--hostname={0} --cap-add=NET_ADMIN -p 127.0.0.1:{2}:5601 --name={0} {1}".format(server, image, kibana)
         try:
             out, err = subprocess_popen(cmd,
                                         log_file,
@@ -518,7 +518,7 @@ def limit_install(list):
 
     for container in list:
         output_info("Starting {0} installation".format(container))
-        subprocess.call('tasks/{0}/setup.sh',shell=True)
+        subprocess.call('tasks/{0}/setup.sh'.format(container),shell=True)
         output_ok("Installed {0}".format(container))
 
 

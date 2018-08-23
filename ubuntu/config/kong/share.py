@@ -296,7 +296,7 @@ def bind(queue, exchange, key, consumer_id, apikey):
 
 
 def unbind(queue, exchange, key, consumer_id, apikey):
-    url = 'http://webserver:8080/cdx/cbind/'+queue+'/'+exchange
+    url = 'http://webserver:8080/cdx/bind/'+queue+'/'+exchange
     headers = {'X-Consumer-Username': consumer_id, 'Apikey': apikey,'routingKey':key}
     r = requests.delete(url, headers=headers)
     print(r.text)
