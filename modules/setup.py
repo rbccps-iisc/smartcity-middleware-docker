@@ -70,19 +70,76 @@ def initial_setup(log_file):
                log_file=log_file,
                exit_on_fail=True)
 
-    cmd = "docker cp kong:/usr/local/kong/auth.log ."
+    cmd = "docker cp kong:/usr/local/kong/auth_out.log ."
     setup_kong(cmd, success_msg="Copying apikey",
                failure_msg="Failed copying apikey",
                log_file=log_file,
                exit_on_fail=True)
 
-    with open('auth.log') as response:
+    with open('auth_out.log') as response:
         data = json.load(response)
         key = data["key"]
 
     with open("ideam.conf", "a") as text_file:
         text_file.write("admin.ideam = {0}".format(key))
         output_ok("Copied admin.ideam key to ideam.conf file")
+
+    cmd = "docker cp setup/setup_database.sh kong:/usr/local/kong/setup"
+    setup_kong(cmd, success_msg="Copied setup_database.sh to setup directory",
+               failure_msg="Copying setup_database.sh failed",
+               log_file=log_file,
+               exit_on_fail=True)
+
+    cmd = "docker cp setup/register_database.sh kong:/usr/local/kong/setup"
+    setup_kong(cmd, success_msg="Copied register_database.sh to setup directory",
+               failure_msg="Copying register_database.sh failed",
+               log_file=log_file,
+               exit_on_fail=True)
+
+    cmd = "docker exec kong chmod +x /usr/local/kong/setup/register_database.sh"
+    setup_kong(cmd, success_msg="Added necessary permissions to register_database.sh",
+               failure_msg="Changing file permission failed",
+               log_file=log_file,
+               exit_on_fail=True)
+
+
+    cmd = "docker exec kong chmod +x /usr/local/kong/setup/setup_database.sh"
+    setup_kong(cmd, success_msg="Added necessary permissions to setup_database.sh",
+               failure_msg="Changing file permission failed",
+               log_file=log_file,
+               exit_on_fail=True)
+
+    cmd = "docker exec kong /usr/local/kong/setup/register_database.sh"
+    setup_kong(cmd, success_msg="Executing database setup script",
+               failure_msg="Database setup failed",
+               log_file=log_file,
+               exit_on_fail=True)
+
+    cmd = "docker exec kong /usr/local/kong/setup/setup_database.sh " + key + " database"
+    setup_kong(cmd, success_msg="Executing database setup script",
+               failure_msg="Database setup failed",
+               log_file=log_file,
+               exit_on_fail=True)
+
+    cmd = "docker cp kong:/usr/local/kong/database_out.log ."
+    setup_kong(cmd, success_msg="Copying database apikey",
+               failure_msg="Failed copying database apikey",
+               log_file=log_file,
+               exit_on_fail=True)
+
+    with open('database_out.log') as response:
+        data = json.load(response)
+        key = data["apiKey"]
+
+    with open("ideam.conf", "a") as text_file:
+        text_file.write("database = {0}".format(key))
+        output_ok("Copied database key to ideam.conf file")
+
+    # cmd = "sh ../setup/setup_database.sh " + key + " databasequeue"
+    # setup_database(cmd, success_msg="Created database user ",
+    #                        failure_msg="Creation of database user failed.",
+    #                        log_file=log_file,
+    #                        exit_on_fail=True)
 
     exit()
 
@@ -100,8 +157,8 @@ def setup_database(cmd, success_msg, failure_msg, log_file, exit_on_fail=False):
     try:
         process = subprocess.check_output(cmd, shell=True)
         register = json.loads(process)
-        testdevice1_key = register["apiKey"]
-        output_ok("REGISTER API: Created entity testdevice1. API KEY is " + testdevice1_key)
+        database_key = register["apiKey"]
+        output_ok("REGISTER API: Created entity database. API KEY is " + database_key)
     except:
         output_error(process,
                      error_message=traceback.format_exc())
