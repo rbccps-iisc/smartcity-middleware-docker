@@ -37,16 +37,16 @@ def replace(path, old, new, new_path):
 
 
 def kong_pass(config):
-    password = config.get('PASSWORDS', 'KONG')
+    password = config.get('PASSWORDS', 'APIGATEWAY')
     if password == "?":
         password = id_generator()
-    write("host_vars/kong", "kong_password: " + password + "\npostgresql_password: " + password)
-    with open('config/kong/kong.conf', 'r') as f:
+    write("host_vars/apigateway", "kong_password: " + password + "\npostgresql_password: " + password)
+    with open('config/apigateway/kong.conf', 'r') as f:
         data = f.read()
     data = data + "\npg_password = " + str(password)
-    with open('config/kong/kong_new.conf', 'w+') as f:
+    with open('config/apigateway/kong_new.conf', 'w+') as f:
         f.write(data)
-    config.set('PASSWORDS', 'KONG', password)
+    config.set('PASSWORDS', 'APIGATEWAY', password)
 
 
 def catalogue_pass(config):
@@ -58,18 +58,18 @@ def catalogue_pass(config):
 
 
 def rmq_pass(config):
-    password = config.get('PASSWORDS', 'RABBITMQ')
+    password = config.get('PASSWORDS', 'BROKER')
     if password == "?":
         password = id_generator(size=16, chars=string.ascii_letters + string.digits)
     write("config/webserver/rmqpwd", password)
-    write("host_vars/rabbitmq", "password: " + password)
+    write("host_vars/broker", "password: " + password)
     replace("config/elasticsearch/logstash-input-rabbitmq.conf", "rmq_pwd", password,
             "config/elasticsearch/logstash-input-rabbitmq_new.conf")
     replace("config/elasticsearch/logstash-input-rabbitmq_new.conf", "rmq_user", "admin.ideam",
             "config/elasticsearch/logstash-input-rabbitmq_new.conf")
     # replace("config/kong/share_new.py", "rmq_pwd", password, "config/kong/share_new.py")
     # replace("config/kong/share_new.py", "rmq_user", "admin.ideam", "config/kong/share_new.py")
-    config.set('PASSWORDS', 'RABBITMQ', password)
+    config.set('PASSWORDS', 'BROKER', password)
 
 
 def idps_pass(config):

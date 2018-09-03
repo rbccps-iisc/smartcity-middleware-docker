@@ -5,14 +5,14 @@ mkdir -p ideam_0.0-1/usr/local/bin
 mkdir -p ideam_0.0-1/usr/share/ideam
 mkdir -p ideam_0.0-1/etc/ideam
 mkdir -p ideam_0.0-1/DEBIAN
-mkdir -p ideam_0.0-1/var/ideam/data/kong
-mkdir -p ideam_0.0-1/var/ideam/data/kong-config
+mkdir -p ideam_0.0-1/var/ideam/data/apigateway
+mkdir -p ideam_0.0-1/var/ideam/data/apigateway-config
 mkdir -p ideam_0.0-1/var/ideam/data/catalogue
-mkdir -p ideam_0.0-1/var/ideam/data/rabbitmq
+mkdir -p ideam_0.0-1/var/ideam/data/broker
 mkdir -p ideam_0.0-1/var/ideam/data/ldap
 mkdir -p ideam_0.0-1/var/ideam/data/webserver
-mkdir -p ideam_0.0-1/var/ideam/data/logs/kong
-mkdir -p ideam_0.0-1/var/ideam/data/logs/rabbitmq
+mkdir -p ideam_0.0-1/var/ideam/data/logs/apigateway
+mkdir -p ideam_0.0-1/var/ideam/data/logs/broker
 mkdir -p ideam_0.0-1/var/ideam/data/logs/webserver
 cp ../ideam.py ideam_0.0-1/usr/local/bin/ideam
 cp debian/control ideam_0.0-1/DEBIAN/control
@@ -25,5 +25,5 @@ tar --exclude='./build' --exclude='./.git' --exclude='./.idea' --exclude='*.retr
 tar -xvzf ideam.tgz -C build/ideam_0.0-1/usr/share/ideam/
 rm ideam.tgz
 cd build/
-chmod -R 777 ideam_0.0-1/var/ideam/data/logs/kong
+chmod -R 777 ideam_0.0-1/var/ideam/data/logs/apigateway
 dpkg-deb --build ideam_0.0-1/

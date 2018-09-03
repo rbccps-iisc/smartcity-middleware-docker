@@ -7,7 +7,7 @@ from time import time
 
 
 def remove_containers(list,log_file):
-    """ Removes all existing docker containers with names like kong, rabbitmq. This is done to avoid any
+    """ Removes all existing docker containers with names like apigateway, broker. This is done to avoid any
     clash of names during the creation of containers.
 
     Args:
@@ -33,7 +33,7 @@ def remove_volumes(list,log_file):
 
 
 def stop_containers(list,log_file):
-    """ Stops all existing docker containers like kong, rabbitmq, webserver .
+    """ Stops all existing docker containers like apigateway, broker, webserver .
 
     Args:
         log_file      (string): log file path
@@ -52,7 +52,7 @@ def unique_value():
 
 
 def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
-    """ Creates docker instances for kong, ca, catalogue, rabbitmq, elastic search, apache storm, ldap, ntp and bind
+    """ Creates docker instances for apigateway, ca, catalogue, broker, elastic search, apache storm, ldap, ntp and bind
     server from an ubuntu-ssh image. First, docker creates certificate authority (CA) instance and then have the CA
     certify Ansible user's public key. A new docker image with this CA's public key in TrustedUserCAKeys is created to
     avoid redundant sending of Ansible's public keys to all hosts.
@@ -70,13 +70,13 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
                           log_file=log_file,
                           exit_on_fail=False)
 
-    kong_storage = config.get('KONG', 'DATA_STORAGE')
-    kong_log_location = config.get('KONG', 'LOG_LOCATION')
-    output_info("Using {0} as Kong's persistent storage. ".format(kong_storage))
-    kong_config_storage = config.get('KONG', 'CONFIG_STORAGE')
-    output_info("Using {0} as Kong's config persistent storage. ".format(kong_config_storage))
-    rabbitmq_storage = config.get('RABBITMQ', 'DATA_STORAGE')
-    output_info("Using {0} as RabbitMQ's persistent storage. ".format(rabbitmq_storage))
+    kong_storage = config.get('APIGATEWAY', 'DATA_STORAGE')
+    kong_log_location = config.get('APIGATEWAY', 'LOG_LOCATION')
+    output_info("Using {0} as apigateway's's persistent storage. ".format(kong_storage))
+    kong_config_storage = config.get('APIGATEWAY', 'CONFIG_STORAGE')
+    output_info("Using {0} as apigateway's config persistent storage. ".format(kong_config_storage))
+    broker_storage = config.get('BROKER', 'DATA_STORAGE')
+    output_info("Using {0} as broker's persistent storage. ".format(broker_storage))
     webserver_storage = config.get('WEBSERVER', 'DATA_STORAGE')
     output_info("Using {0} as webserver's persistent storage. ".format(webserver_storage))
     catalogue_storage = config.get('CATALOGUE', 'DATA_STORAGE')
@@ -88,15 +88,15 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
                           log_file=log_file,
                           exit_on_fail=True)
 
-    subprocess_with_print("docker volume create --name kong-data",
-                          success_msg="Created kong-data data container ",
-                          failure_msg="Creation of kong-data data container failed.",
+    subprocess_with_print("docker volume create --name apigateway-data",
+                          success_msg="Created apigateway-data data container ",
+                          failure_msg="Creation of apigateway-data data container failed.",
                           log_file=log_file,
                           exit_on_fail=True)
 
-    subprocess_with_print("docker volume create --name rabbitmq-data",
-                          success_msg="Created rabbitmq-data data container ",
-                          failure_msg="Creation of rabbitmq-data data container failed.",
+    subprocess_with_print("docker volume create --name broker-data",
+                          success_msg="Created broker-data data container ",
+                          failure_msg="Creation of broker-data data container failed.",
                           log_file=log_file,
                           exit_on_fail=True)
 
@@ -153,14 +153,14 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
     # output_ok("Copied Certificate Authority's cert file to Ansible's .ssh. ")
 
 #TODO change data folder of postgres
-    ip, details = create_instance("kong", "ideam/kong",
-                                        storage_host="kong-data",
+    ip, details = create_instance("apigateway", "ideam/apigateway",
+                                        storage_host="apigateway-data",
                                         storage_guest="/usr/local/pgsql/data",
                                         log_file=log_file,
                                         config_path=config_path,
                                         log_storage=kong_log_location)
 
-    output_ok("Created Kong docker instance. \n " + details)
+    output_ok("Created apigateway docker instance. \n " + details)
 
     ip, details = create_instance("catalogue", "ideam/catalogue",
                                         storage_host="cat-data",
@@ -170,13 +170,13 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
 
     output_ok("Created Catalogue docker instance. \n " + details)
 
-    ip, details = create_instance("rabbitmq", "ideam/rabbitmq",
-                                        storage_host="rabbitmq-data",
+    ip, details = create_instance("broker", "ideam/broker",
+                                        storage_host="broker-data",
                                         storage_guest="/home/ideam/rabbitmq_server-3.7.5/var/lib/rabbitmq/",
                                         log_file=log_file,
                                         config_path=config_path)
 
-    output_ok("Created RabbitMQ docker instance. \n " + details)
+    output_ok("Created Broker docker instance. \n " + details)
 
     ip, details = create_instance("elasticsearch", "ideam/elasticsearch",
                                   storage_host="elk-data",
@@ -207,7 +207,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
     output_ok("Created Videoserver docker instance. \n " + details)
 
     konga = config.get('KONGA', 'HTTP')
-    cmd = 'docker run -d -p 127.0.0.1:{0}:1337 --net mynet --link kong:kong --name konga -e "NODE_ENV=production" pantsel/konga'.\
+    cmd = 'docker run -d -p 127.0.0.1:{0}:1337 --net mynet --link apigateway:kong --name konga -e "NODE_ENV=production" pantsel/konga'.\
         format(konga)
     subprocess_with_print(cmd,
                           success_msg="Created KONGA docker instance. ",
@@ -215,7 +215,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
                           log_file=log_file,
                           exit_on_fail=True)
 
-    for container in ["kong","rabbitmq","ldapd","catalogue","videoserver","webserver","elasticsearch"]:
+    for container in ["apigateway","broker","ldapd","catalogue","videoserver","webserver","elasticsearch"]:
 
         print("") #Just to separate out the individual installations
         output_info("Starting {0} installation".format(container))
@@ -241,7 +241,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     config = ConfigParser.ConfigParser()
     config.readfp(open(config_path))
 
-    if server == "kong":  # separate kong log storage needed
+    if server == "apigateway":  # separate apigateway log storage needed
 
         # cmd = "docker run -d -p 80:8000 --net=mynet --hostname={0} " \
         #       "-v {2}:{3} -v {4}:/tmp --cap-add=NET_ADMIN --name={0} {1}".\
@@ -272,16 +272,16 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
                          "\n           Check logs {0} for more details.".format(log_file),
                          error_message=traceback.format_exc())
             exit()
-    elif server == "rabbitmq":  # separate rabbitmq log storage needed
+    elif server == "broker":  # separate rabbitmq log storage needed
         #TODO: have only amqps, mqtts and https
-        http = config.get('RABBITMQ', 'HTTP')
-        amqp = config.get('RABBITMQ', 'AMQP')
-        mqtt = config.get('RABBITMQ', 'MQTT')
-        log_storage = config.get('RABBITMQ', 'LOG_LOCATION')
-        management = config.get('RABBITMQ', 'MANAGEMENT')
+        http = config.get('BROKER', 'HTTP')
+        amqp = config.get('BROKER', 'AMQP')
+        mqtt = config.get('BROKER', 'MQTT')
+        log_storage = config.get('BROKER', 'LOG_LOCATION')
+        management = config.get('BROKER', 'MANAGEMENT')
 
         # cmd = "docker run -d -p {4}:8000 -p {5}:5672 -p {6}:1883 -p 127.0.0.1:{7}:15672 --net=mynet --hostname={0}" \
-        #       " -v {2}:{3} -v {8}:/var/log/rabbitmq -v {8}:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
+        #       " -v {2}:{3} -v {8}:/var/log/broker -v {8}:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
         #     format(server, image, storage_host, storage_guest, http, amqp, mqtt, management, log_storage)
         #
         # try:
@@ -540,7 +540,7 @@ def check_dependencies(log_file):
 #
 #     Args:
 #          limit (string):  Limits the ansible installation to the servers mentioned.
-#                           A comma separated list of servers like --limit kong, rabbitmq
+#                           A comma separated list of servers like --limit kong, broker
 #     """
 #     output_info("Starting Ansible setup. ")
 #     # subprocess.call('ansible-playbook -i \'localhost\' -s install_idps.yml --ask-sudo-pass')
