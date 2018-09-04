@@ -1,7 +1,7 @@
-import passlib.hash
 import string
 import random
 import ConfigParser
+import json
 
 
 def id_generator(size=16, chars=string.ascii_letters + string.digits + "_+^/"):
@@ -12,8 +12,6 @@ def ansible_user_pass(config):
     password = config.get('PASSWORDS', 'USER_ANSIBLE')
     if password == "?":
         password = id_generator()
-    sha_hash = passlib.hash.sha512_crypt.encrypt(password)
-    write("host_vars/all", "password: " + sha_hash)
     config.set('PASSWORDS', 'USER_ANSIBLE', password)
 
 
@@ -71,7 +69,6 @@ def rmq_pass(config):
     # replace("config/kong/share_new.py", "rmq_user", "admin.ideam", "config/kong/share_new.py")
     config.set('PASSWORDS', 'RABBITMQ', password)
 
-
 def idps_pass(config):
     password = config.get('PASSWORDS', 'IDPS')
     if password == "?":
@@ -79,11 +76,25 @@ def idps_pass(config):
     write("host_vars/idps", "db_password: " + password)
     config.set('PASSWORDS', 'IDPS', password)
 
+def cdxadmin(config):
+    password = config.get('PASSWORDS', 'cdx.admin')
+    with open('auth_out.log') as response:
+            data = json.load(response)
+            key = data["key"]
+    config.set('PASSWORDS', 'CDX.ADMIN', key)
+    print(key)
+
+def database(config):
+    password = config.get('PASSWORDS', 'database')
+    with open('database_out.log') as response:
+            data = json.load(response)
+            key = data["apiKey"]
+    config.set('PASSWORDS', 'DATABASE', key)
+    print(key)
 
 def write(path, contents):
     with open(path, 'w+') as f:
         f.write(contents)
-
 
 def set_passwords(conf):
     config = ConfigParser.ConfigParser()
@@ -94,5 +105,13 @@ def set_passwords(conf):
     catalogue_pass(config)
     idps_pass(config)
     rmq_pass(config)
+    with open(conf, 'w+') as configfile:
+        config.write(configfile)
+
+def update_passwords(conf):
+    config = ConfigParser.ConfigParser()
+    config.readfp(open(conf))
+    cdxadmin(config)
+    database(config)
     with open(conf, 'w+') as configfile:
         config.write(configfile)
