@@ -573,7 +573,7 @@ def check_ldap_entry(desc, uid, attribute, check_parameter):
 
 
 def delete_ldap_entry(desc, uid, entry):
-    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "ldap_pwd" """
+    cmd1 = """ldapdelete -r -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w "ldap_pwd" """
     cmd2 = """ "description={0},description={2},description=broker,uid={1},cn=devices,dc=smartcity" """. \
         format(desc, uid, entry)
     cmd = cmd1 + cmd2

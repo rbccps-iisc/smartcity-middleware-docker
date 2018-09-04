@@ -38,10 +38,10 @@ def install(arguments):
 
     else:
         container_setup.check_dependencies(log_file=arguments.log_file)
-        container_setup.stop_containers(["kong","rabbitmq","ldapd","catalogue","videoserver","webserver","elasticsearch","konga"],log_file=arguments.log_file)
-        container_setup.remove_containers(["kong","rabbitmq","ldapd","catalogue","videoserver","webserver","elasticsearch","konga"],log_file=arguments.log_file)
-        container_setup.remove_volumes(["kong","rabbitmq","cat","elk","ldapd","webserver"],log_file=arguments.log_file)
-        password.set_passwords(arguments.config_file)
+        container_setup.stop_containers(["apigateway","broker","ldapd","catalogue","videoserver","webserver","elasticsearch","konga"],log_file=arguments.log_file)
+        container_setup.remove_containers(["apigateway","broker","ldapd","catalogue","videoserver","webserver","elasticsearch","konga"],log_file=arguments.log_file)
+        container_setup.remove_volumes(["apigateway","broker","cat","elk","ldapd","webserver"],log_file=arguments.log_file)
+        set_passwords(arguments.config_file)
         container_setup.docker_setup(log_file=arguments.log_file,config_path=arguments.config_file)
         setup.initial_setup(log_file=arguments.log_file)
         password.update_passwords(arguments.config_file)
@@ -56,14 +56,14 @@ def start(arguments):
 
     """ Starts all docker containers. """
     setup_logging(log_file=arguments.log_file)
-    container_start.start_containers(["kong","rabbitmq","ldapd","elasticsearch","videoserver","webserver","catalogue","konga"],arguments.log_file)
-    container_start.start_volumes(["kong","rabbitmq","cat","elk","ldapd","webserver"],log_file=arguments.log_file)
+    container_start.start_containers(["apigateway","broker","ldapd","elasticsearch","videoserver","webserver","catalogue","konga"],arguments.log_file)
+    container_start.start_volumes(["apigateway","broker","cat","elk","ldapd","webserver"],log_file=arguments.log_file)
 
     if arguments.limit:
         container_start.start_services(arguments.limit)
 
     else:
-        container_start.start_services(["kong","rabbitmq","ldapd","elasticsearch","videoserver","webserver","catalogue"])
+        container_start.start_services(["apigateway","broker","ldapd","elasticsearch","videoserver","webserver","catalogue"])
 
 def restart(arguments):
     """ Stops and starts all docker containers. """
@@ -73,7 +73,7 @@ def restart(arguments):
 
     else:
         container_setup.stop_containers(log_file=arguments.log_file)  # Stops all containers
-        container_start.start_services("kong,rabbitmq,ldapd,elasticsearch,videoserver,webserver,catalogue")
+        container_start.start_services("apigateway,broker,ldapd,elasticsearch,videoserver,webserver,catalogue")
 
 
 def str2bool(v):
@@ -97,9 +97,6 @@ def test(arguments):
     except:
         output_error(process,
                      error_message=traceback.format_exc())
-        # f=open("/tmp/status")
-        # print("File contents:" + f.read())
-        # f.close()
         exit()
 
     cmd = "./tests/create_entity.sh testdevice2"
@@ -114,7 +111,7 @@ def test(arguments):
                      error_message=traceback.format_exc())
         exit()
 
-    cmd = "./tests/follow.sh "+ testdevice2_key + " testdevice1"
+    cmd = "./tests/follow.sh "+ testdevice2_key + " testdevice2 testdevice1"
 
     try:
         process = subprocess.check_output(cmd, shell=True)
@@ -137,7 +134,7 @@ def test(arguments):
         process = subprocess.check_output(cmd, shell=True)
         subscribe = json.loads(process)
 
-        if "Entity testdevice2 made a follow request" in subscribe[0]["data"] :
+        if subscribe[0]["data"]["requestor"] == "testdevice2" and subscribe[0]["data"]["permission"] == "read" :
             output_ok("FOLLOW API: testdevice1 has recieved the follow request")
         else:
             output_error(process,
@@ -148,7 +145,7 @@ def test(arguments):
                      error_message=traceback.format_exc())
         exit()
 
-    cmd = "./tests/share.sh " + testdevice1_key + " testdevice2"
+    cmd = "./tests/share.sh " + testdevice1_key + " testdevice1 testdevice2"
 
     try:
         process = subprocess.check_output(cmd, shell=True)
@@ -172,7 +169,7 @@ def test(arguments):
         process = subprocess.check_output(cmd, shell=True)
         subscribe = json.loads(process)
 
-        if "testdevice2 can now bind to testdevice1" in subscribe[0]["data"]["body"]:
+        if "Approved" in json.dumps(subscribe):
             output_ok("SHARE API: testdevice2 has recieved the share approval")
         else:
             output_error(process,
@@ -238,7 +235,7 @@ def test(arguments):
         process = subprocess.check_output(cmd, shell=True)
 
         if "200 OK" in process:
-            output_ok("BIND API: testdevice2 has unbound its queue from testdevice1.protected exchange")
+            output_ok("UNBIND API: testdevice2 has unbound its queue from testdevice1.protected exchange")
         else:
             output_error(process,
                          error_message=traceback.format_exc())
@@ -347,7 +344,7 @@ if __name__ == '__main__':
                                            help='Fresh installation of all the docker containers for the middleware')
     install_parser.add_argument("-l", "--limit",
                                 help="Limits the ansible installation to the servers mentioned. A comma separated list"
-                                     " of servers like --limit kong,rabbitmq",
+                                     " of servers like --limit apigateway,broker",
                                 required=False,
                                 default="")
 
@@ -374,7 +371,7 @@ if __name__ == '__main__':
     start_parser.add_argument("-l",
                               "--limit",
                               help="Limits the ansible installation to the servers mentioned. A comma separated list"
-                                   " of servers like --limit kong,rabbitmq",
+                                   " of servers like --limit apigateway,broker",
                               required=False,
                               default="")
     start_parser.add_argument("--log-file", help="Path to log file",

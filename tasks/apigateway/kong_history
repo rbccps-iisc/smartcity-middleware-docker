@@ -1,0 +1,78 @@
+   3 kong start -c /etc/kong/kong.conf
+   4 useradd ideam
+   5 adduser ideam
+   6 cd /home/ideam/
+  15 apk add --update --no-cache python3-dev
+  16 apk add --update --no-cache py3-pip
+  17 apk add --update --no-cache py3-requests
+  19 pip3 install --no-cache install https://github.com/squeaky-pl/japronto/archive/master.zip
+  20 pip3 --no-cache install https://github.com/squeaky-pl/japronto/archive/master.zip
+  21 apk add --update --no-cache build-base 
+  22 pip3 --no-cache install https://github.com/squeaky-pl/japronto/archive/master.zip
+  24 python3.6 share.py 
+  25 vi /etc/url
+  26 python3.6 share.py 
+  28 apk del --purge build-base
+  74 ls -lah /usr/local/pgsql/share/timezone
+  75 df -h
+ 125 curl -XGET "http://localhost:8001/apis"
+ 126 kong start -c /etc/kong/kong.conf
+ 127 curl -XGET "http://localhost:8001/apis"
+ 128 cd /usr/local/pgsql/data/
+ 131 curl -XPOST "http://localhost:8001/plugins/" -d 'name=file-log&config.path=/tmp/file.json&config.reopen=true'
+ 132 curl -XPOST "http://localhost:8001/plugins/" -d 'name=badrequest'
+ 133 curl -XPOST "http://localhost:8001/plugins/" -d 'name=request-size-limiting&config.allowed_payload_size=0.1'
+ 134 curl -XPOST "http://localhost:8001/consumers/" -d 'username=guest&custom_id=guest'
+ 135 curl -XPOST "http://localhost:8001/consumers/guest/key-auth/" -d 'key=guest'
+ 136 curl -XPOST "http://localhost:8001/consumers/guest/acls" -d 'group=provider'
+ 137 curl -XPOST "http://localhost:8001/apis/" -d 'name=register&upstream_url=http://tomcat:8080/RegisterAPI/rest/newregister&uris=/api/1.0.0/register&methods=POST'
+ 138 curl -XPOST "http://localhost:8001/apis/register/plugins" -d 'name=key-auth'
+ 139 curl -XPOST "http://localhost:8001/apis/register/plugins" -d 'name=acl&config.whitelist=provider'
+ 140 curl -XPOST "http://localhost:8001/apis/" -d 'name=publish&upstream_url=http://rabbitmq:8000/publish&uris=/api/1.0.0/publish&methods=POST'
+ 141 curl -XPOST "http://localhost:8001/apis/publish/plugins" -d 'name=key-auth'
+ 142 curl -XPOST "http://localhost:8001/apis/publish/plugins" -d 'name=acl&config.whitelist=publish'
+ 143 curl -XPOST "http://localhost:8001/apis/" -d 'name=subscribe&methods=GET&upstream_url=http://rabbitmq:8000/queue&uris=/api/1.0.0/subscribe&upstream_read_timeout=3600000'
+ 144 curl -XPOST "http://localhost:8001/apis/subscribe/plugins" -d 'name=key-auth'
+ 145 curl -XPOST "http://localhost:8001/apis/subscribe/plugins" -d 'name=acl&config.whitelist=subscribe'
+ 146 curl -XPOST "http://localhost:8001/apis/" -d 'name=catGET&methods=GET&upstream_url=http://catalogue:8000/cat&uris=/api/1.0.0/cat'
+ 147 curl -XPOST "http://localhost:8001/apis/" -d 'name=catPOST&methods=POST&upstream_url=http://catalogue:8000/cat&uris=/api/1.0.0/cat'
+ 148 curl -XPOST "http://localhost:8001/apis/catPOST/plugins" -d 'name=key-auth'
+ 149 curl -XPOST "http://localhost:8001/apis/catPOST/plugins" -d 'name=acl&config.whitelist=provider'
+ 150 curl -XPOST "http://localhost:8001/apis/" -d 'name=database&methods=GET&upstream_url=http://elasticsearch:9200/sensor_data*/_search&uris=/api/1.0.0/db'
+ 151 curl -XPOST "http://localhost:8001/apis/database/plugins" -d 'name=key-auth'
+ 152 curl -XPOST "http://localhost:8001/apis/database/plugins" -d 'name=acl&config.whitelist=db'
+ 153 curl -XPOST "http://localhost:8001/apis/" -d 'name=landing&methods=GET&upstream_url=http://tomcat:8080/RegisterAPI/rest/redirect&uris='
+ 162 python3.6 share.py 
+ 164 curl -XGET "http://localhost:8001/apis"
+ 165 curl -XPOST "http://localhost:8001/apis/" -d 'name=follow&methods=POST&upstream_url=http://kong:8080/follow&uris=/api/1.0.0/follow'
+ 166 curl -XPOST "http://localhost:8001/apis/follow/plugins" -d 'name=key-auth'
+ 167 curl -XPOST "http://localhost:8001/apis/follow/plugins" -d 'name=acl&config.whitelist=subscribe'
+ 168 curl -XPOST "http://localhost:8001/apis/" -d 'name=unfollow&methods=DELETE&upstream_url=http://kong:8080/follow&uris=/api/1.0.0/follow'
+ 169 curl -XPOST "http://localhost:8001/apis/unfollow/plugins" -d 'name=key-auth'
+ 170 curl -XPOST "http://localhost:8001/apis/unfollow/plugins" -d 'name=acl&config.whitelist=subscribe'
+ 171 curl -XPOST "http://localhost:8001/apis/" -d 'name=share&methods=POST&upstream_url=http://kong:8080/share&uris=/api/1.0.0/share'
+ 172 curl -XPOST "http://localhost:8001/apis/share/plugins" -d 'name=key-auth'
+ 173 curl -XPOST "http://localhost:8001/apis/share/plugins" -d 'name=acl&config.whitelist=publish'
+ 174 curl -XPOST "http://localhost:8001/apis/" -d 'name=unshare&methods=DELETE&upstream_url=http://kong:8080/share&uris=/api/1.0.0/share'
+ 175 curl -XPOST "http://localhost:8001/apis/unshare/plugins" -d 'name=key-auth'
+ 176 curl -XPOST "http://localhost:8001/apis/unshare/plugins" -d 'name=acl&config.whitelist=publish'
+ 177 curl -XPOST "http://localhost:8001/apis/" -d 'name=deregister&upstream_url=http://kong:8080/register&uris=/api/1.0.0/register&methods=DELETE'
+ 178 curl -XPOST "http://localhost:8001/apis/deregister/plugins" -d 'name=key-auth'
+ 179 curl -XPOST "http://localhost:8001/apis/deregister/plugins" -d 'name=acl&config.whitelist=provider'
+ 180 curl -XPOST "http://localhost:8001/apis/" -d 'name=video.rtmp&upstream_url=http://kong:8080/video&uris=/api/1.0.0/video.rtmp&methods=GET'
+ 181 curl -XPOST "http://localhost:8001/apis/video.rtmp/plugins" -d 'name=key-auth'
+ 182 curl -XPOST "http://localhost:8001/apis/video.rtmp/plugins" -d 'name=acl&config.whitelist=subscribe'
+ 183 curl -XPOST "http://localhost:8001/apis/video.rtmp/plugins" -d 'name=acl&config.whitelist=publish'
+ 184 curl -i -XPOST "http://localhost:8001/apis/video.rtmp/plugins" -d 'name=acl&config.whitelist=publish'
+ 194 luarocks install kong-plugin-badrequest-0.1.0-1.all.rock 
+ 199 su postgres -c "/usr/local/pgsql/bin/postgres -D /usr/local/pgsql/data >/var/lib/postgresql/logfile 2>&1 &"
+ 201 kong start -c /etc/kong/kong.conf
+ 203 curl -XPOST "http://localhost:8001/apis/" -d 'name=catGET&methods=GET&upstream_url=http://catalogue:8000/cat&uris=/api/1.0.0/cat'
+ 204 curl -XDELETE "localhost:8001/apis/catGET"
+ 205 curl -XPOST "http://localhost:8001/apis/" -d 'name=catGET&methods=GET&upstream_url=http://catalogue:8000/cat&uris=/api/1.0.0/cat'
+ 206 curl -XPOST "http://localhost:8001/apis/" -d 'name=catPOST&methods=POST&upstream_url=http://catalogue:8000/cat&uris=/api/1.0.0/cat'
+ 207 curl -XDELETE "localhost:8001/apis/catPOST"
+ 208 curl -XPOST "http://localhost:8001/apis/" -d 'name=catPOST&methods=POST&upstream_url=http://catalogue:8000/cat&uris=/api/1.0.0/cat'
+ 232 apk add --update --no-cache openldap-clients
+ 233 chmod -R 777 /tmp
+ 248 rm .s.PGSQL.5432.lock 

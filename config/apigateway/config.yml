@@ -1,0 +1,319 @@
+host: 'localhost:8001'
+headers: []
+apis:
+  - name: follow
+    plugins:
+      - name: key-auth
+        attributes:
+          enabled: true
+          config:
+            key_in_body: false
+            run_on_preflight: true
+            anonymous: ''
+            hide_credentials: false
+            key_names:
+              - apikey
+      - name: acl
+        attributes:
+          enabled: true
+          config:
+            whitelist:
+              - subscribe
+    attributes:
+      uris:
+        - /api/1.0.0/follow
+      methods:
+        - POST
+        - DELETE
+      strip_uri: true
+      preserve_host: false
+      upstream_url: 'http://webserver:8080/cdx/follow'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: landing
+    plugins: []
+    attributes:
+      uris:
+        - /
+      methods:
+        - GET
+      strip_uri: true
+      preserve_host: false
+      upstream_url: 'http://webserver:8080/cdx/redirect'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: catGET
+    plugins: []
+    attributes:
+      uris:
+        - /api/1.0.0/cat
+      methods:
+        - GET
+      strip_uri: true
+      preserve_host: false
+      upstream_url: 'http://catalogue:8000/cat'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: catPOST
+    plugins:
+      - name: key-auth
+        attributes:
+          enabled: true
+          config:
+            key_in_body: false
+            run_on_preflight: true
+            anonymous: ''
+            hide_credentials: false
+            key_names:
+              - apikey
+      - name: acl
+        attributes:
+          enabled: true
+          config:
+            whitelist:
+              - provider
+    attributes:
+      uris:
+        - /api/1.0.0/cat
+      methods:
+        - POST
+      strip_uri: true
+      preserve_host: false
+      upstream_url: 'http://catalogue:8000/cat'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: share
+    plugins:
+      - name: key-auth
+        attributes:
+          enabled: true
+          config:
+            key_in_body: false
+            run_on_preflight: true
+            anonymous: ''
+            hide_credentials: false
+            key_names:
+              - apikey
+      - name: acl
+        attributes:
+          enabled: true
+          config:
+            whitelist:
+              - publish
+    attributes:
+      uris:
+        - /api/1.0.0/share
+      methods:
+        - POST
+        - DELETE
+      strip_uri: true
+      preserve_host: false
+      upstream_url: 'http://webserver:8080/cdx/share'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: bind
+    plugins:
+      - name: key-auth
+        attributes:
+          enabled: true
+          config:
+            key_in_body: false
+            run_on_preflight: true
+            anonymous: ''
+            hide_credentials: false
+            key_names:
+              - apikey
+      - name: acl
+        attributes:
+          enabled: true
+          config:
+            whitelist:
+              - subscribe
+    attributes:
+      uris:
+        - /api/1.0.0/bind
+      methods:
+        - GET
+        - DELETE
+      strip_uri: true
+      preserve_host: false
+      upstream_url: 'http://webserver:8080/cdx/bind'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: publish
+    plugins:
+      - name: key-auth
+        attributes:
+          enabled: true
+          config:
+            key_in_body: false
+            run_on_preflight: true
+            anonymous: ''
+            hide_credentials: false
+            key_names:
+              - apikey
+      - name: acl
+        attributes:
+          enabled: true
+          config:
+            whitelist:
+              - publish
+    attributes:
+      uris:
+        - /api/1.0.0/publish
+      methods:
+        - POST
+      strip_uri: true
+      preserve_host: false
+      upstream_url: 'http://webserver:8080/cdx/publish/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: register
+    plugins:
+      - name: key-auth
+        attributes:
+          enabled: true
+          config:
+            key_in_body: false
+            run_on_preflight: true
+            anonymous: ''
+            hide_credentials: false
+            key_names:
+              - apikey
+      - name: acl
+        attributes:
+          enabled: true
+          config:
+            whitelist:
+              - provider
+    attributes:
+      uris:
+        - /api/1.0.0/register
+      methods:
+        - POST
+        - DELETE
+      strip_uri: true
+      preserve_host: false
+      upstream_url: 'http://webserver:8080/cdx/register'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: database
+    plugins:
+      - name: key-auth
+        attributes:
+          enabled: true
+          config:
+            key_in_body: false
+            run_on_preflight: true
+            anonymous: ''
+            hide_credentials: false
+            key_names:
+              - apikey
+      - name: acl
+        attributes:
+          enabled: true
+          config:
+            whitelist:
+              - db
+    attributes:
+      uris:
+        - /api/1.0.0/database
+      methods:
+        - GET
+      strip_uri: true
+      preserve_host: false
+      upstream_url: 'http://webserver:8080/cdx/database'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: subscribe
+    plugins:
+      - name: key-auth
+        attributes:
+          enabled: true
+          config:
+            key_in_body: false
+            run_on_preflight: true
+            anonymous: ''
+            hide_credentials: false
+            key_names:
+              - apikey
+      - name: acl
+        attributes:
+          enabled: true
+          config:
+            whitelist:
+              - subscribe
+    attributes:
+      uris:
+        - /api/1.0.0/subscribe
+      methods:
+        - GET
+      strip_uri: true
+      preserve_host: false
+      upstream_url: 'http://webserver:8080/cdx/subscribe'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 3600000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+consumers:
+  - username: guest
+    custom_id: guest
+    acls:
+      - group: provider
+    credentials:
+      - name: key-auth
+        attributes:
+          key: guest
+plugins:
+  - name: file-log
+    attributes:
+      enabled: true
+      config:
+        reopen: true
+        path: /tmp/file.json
+  - name: request-size-limiting
+    attributes:
+      enabled: true
+      config:
+        allowed_payload_size: 0.1
+upstreams: []
+certificates: []
+

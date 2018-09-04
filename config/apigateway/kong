@@ -1,0 +1,43 @@
+#!/bin/bash
+#
+# chkconfig: 35 90 12
+# description: Kong server
+#
+
+# Get function from functions library
+# Start the service Kong
+start() {
+        if [ ! -f /var/lock/subsys/kong ]; then
+            mkdir /var/lock/subsys 1>&2>/dev/null
+            /usr/local/bin/kong start -c /etc/kong/kong.conf --nginx-conf /usr/local/kong/nginx1.conf  &
+            touch /var/lock/subsys/kong
+        fi
+}
+
+# Restart the service kong
+stop() {
+        /usr/local/bin/kong stop &
+        rm -f /var/lock/subsys/kong
+}
+
+### main logic ###
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  status)
+        status kong
+        ;;
+  restart|reload|condrestart)
+        stop
+        start
+        ;;
+  *)
+        echo $"Usage: $0 {start|stop|restart|reload|status}"
+        exit 1
+esac
+
+exit 0

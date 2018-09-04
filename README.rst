@@ -132,7 +132,7 @@ If you want to install IDEAM for contributing to the project (or if you just wan
 
   ``python ideam.py install -f ideam.conf -l <comma separated list of containers>``
   
-  For e.g ``python ideam.py install -f ideam.conf -l kong,rabbitmq,tomcat``
+  For e.g ``python ideam.py install -f ideam.conf -l apigateway,broker,tomcat``
 
 - Once the installation completes, the containers need to be started by using
 
