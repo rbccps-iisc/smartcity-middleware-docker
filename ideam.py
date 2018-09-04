@@ -10,8 +10,8 @@ if os.path.exists("/etc/ideam/ideam.conf"):
 
 import modules.start as container_start
 import modules.install as container_setup
-import modules.setup as initial_setup
-from modules.generate_password import set_passwords
+import modules.setup as setup
+import modules.generate_password as password
 from datetime import datetime
 from modules.utils import setup_logging
 import argparse
@@ -41,11 +41,10 @@ def install(arguments):
         container_setup.stop_containers(["kong","rabbitmq","ldapd","catalogue","videoserver","webserver","elasticsearch","konga"],log_file=arguments.log_file)
         container_setup.remove_containers(["kong","rabbitmq","ldapd","catalogue","videoserver","webserver","elasticsearch","konga"],log_file=arguments.log_file)
         container_setup.remove_volumes(["kong","rabbitmq","cat","elk","ldapd","webserver"],log_file=arguments.log_file)
-        set_passwords(arguments.config_file)
+        password.set_passwords(arguments.config_file)
         container_setup.docker_setup(log_file=arguments.log_file,config_path=arguments.config_file)
-
-
-        initial_setup.initial_setup(log_file=arguments.log_file)
+        setup.initial_setup(log_file=arguments.log_file)
+        password.update_passwords(arguments.config_file)
 
 #       cmd = "sh /setup/setup_database.sh databasequeue"
         # initial_setup.setup_database(cmd, success_msg="Created admin user ",
