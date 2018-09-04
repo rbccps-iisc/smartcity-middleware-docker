@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 
 import subprocess
-from modules.utils import output_ok, output_error, output_warning
+from modules.utils import output_ok, output_error, output_warning, output_info
 import traceback
 import json
 import sys
@@ -63,7 +63,6 @@ def initial_setup(log_file):
                log_file=log_file,
                exit_on_fail=True)
 
-
     cmd = "docker exec apigateway /usr/local/kong/setup/install.sh"
     setup_apigateway(cmd, success_msg="Executing initial setup script",
                failure_msg="Initial setup failed",
@@ -79,7 +78,6 @@ def initial_setup(log_file):
     with open('auth_out.log') as response:
         data = json.load(response)
         apikey = data["key"]
-
 
     cmd = "docker cp setup/setup_database.sh apigateway:/usr/local/kong/setup"
     setup_apigateway(cmd, success_msg="Copied setup_database.sh to setup directory",
@@ -139,6 +137,31 @@ def initial_setup(log_file):
     #                        log_file=log_file,
     #                        exit_on_fail=True))
 
+def initial_setup_cleanup(log_file):
+
+    cmd = "docker exec apigateway rm -rf /usr/local/kong/setup"
+    cleanup_setup_apigateway(cmd, success_msg="Removed setup files in apigateway",
+                             info_msg="Removing setup files in apigateway",
+                             failure_msg="Removing setup files in apigateway failed",
+                             log_file=log_file,
+                             exit_on_fail=True)
+
+    cmd = "rm -rf auth_out.log"
+    cleanup_setup_apigateway(cmd, success_msg="Removed auth_out log file in installation directory",
+                             info_msg="Removing auth_out log file in installation directory",
+                             failure_msg="Removing auth_out log file in installation directory",
+                             log_file=log_file,
+                             exit_on_fail=True)
+
+
+    cmd = "rm -rf database_out.log"
+    cleanup_setup_apigateway(cmd, success_msg="Removed database_out log file in installation directory",
+                             info_msg="Removing database_out log file in installation directory",
+                             failure_msg="Removing database_out log file in installation directory",
+                             log_file=log_file,
+                             exit_on_fail=True)
+
+
 def setup_database(cmd, success_msg, failure_msg, log_file, exit_on_fail=False):
     """ Create a subprocess call and outputs success and errors if any.
 
@@ -187,4 +210,29 @@ def setup_apigateway(cmd, success_msg, failure_msg, log_file, exit_on_fail=False
             output_warning(failure_msg + "\n           Check logs {0} for more details.".format(log_file),
                            error_message=traceback.format_exc())
 
+
+def cleanup_setup_apigateway(cmd, success_msg, info_msg, failure_msg, log_file, exit_on_fail=False):
+    """ Create a subprocess call and outputs success and errors if any.
+
+    Args:
+        cmd          (string): docker instance name
+        success_msg  (string): success message to be displayed in [OK] format.
+        failure_msg  (string): failure text to be displayed with [FAILED] format.
+        log_file     (string): log file path
+        exit_on_fail   (bool): exit program if failed
+    """
+    try:
+        process = subprocess.Popen(cmd.split(" "), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output_info(info_msg, message=process.stdout.read(), stderr=process.stderr.read())
+        output_ok(success_msg, message=process.stdout.read(), stderr=process.stderr.read())
+
+
+    except OSError:
+        if exit_on_fail:
+            output_error(failure_msg + "\n           Check logs {0} for more details.".format(log_file),
+                         error_message=traceback.format_exc())
+            exit()
+        else:
+            output_warning(failure_msg + "\n           Check logs {0} for more details.".format(log_file),
+                           error_message=traceback.format_exc())
 

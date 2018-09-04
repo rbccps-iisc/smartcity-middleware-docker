@@ -45,6 +45,7 @@ def install(arguments):
         container_setup.docker_setup(log_file=arguments.log_file,config_path=arguments.config_file)
         setup.initial_setup(log_file=arguments.log_file)
         password.update_passwords(arguments.config_file)
+        setup.initial_setup_cleanup(log_file=arguments.log_file)
 
 #       cmd = "sh /setup/setup_database.sh databasequeue"
         # initial_setup.setup_database(cmd, success_msg="Created admin user ",
