@@ -78,11 +78,8 @@ def initial_setup(log_file):
 
     with open('auth_out.log') as response:
         data = json.load(response)
-        key = data["key"]
+        apikey = data["key"]
 
-    with open("ideam.conf", "a") as text_file:
-        text_file.write("admin.ideam = {0}".format(key))
-        output_ok("Copied admin.ideam key to ideam.conf file")
 
     cmd = "docker cp setup/setup_database.sh kong:/usr/local/kong/setup"
     setup_kong(cmd, success_msg="Copied setup_database.sh to setup directory",
@@ -115,7 +112,7 @@ def initial_setup(log_file):
                log_file=log_file,
                exit_on_fail=True)
 
-    cmd = "docker exec kong /usr/local/kong/setup/setup_database.sh " + key + " database"
+    cmd = "docker exec kong /usr/local/kong/setup/setup_database.sh " + apikey + " database"
     setup_kong(cmd, success_msg="Executing database setup script",
                failure_msg="Database setup failed",
                log_file=log_file,
@@ -129,19 +126,18 @@ def initial_setup(log_file):
 
     with open('database_out.log') as response:
         data = json.load(response)
-        key = data["apiKey"]
+        apikey = data["apiKey"]
 
-    with open("ideam.conf", "a") as text_file:
-        text_file.write("database = {0}".format(key))
-        output_ok("Copied database key to ideam.conf file")
+
+    # with open("ideam.conf", "a") as text_file:
+    #    text_file.write("database = {0}".format(key))
+    #    output_ok("Copied database key to ideam.conf file")
 
     # cmd = "sh ../setup/setup_database.sh " + key + " databasequeue"
     # setup_database(cmd, success_msg="Created database user ",
     #                        failure_msg="Creation of database user failed.",
     #                        log_file=log_file,
-    #                        exit_on_fail=True)
-
-    exit()
+    #                        exit_on_fail=True))
 
 def setup_database(cmd, success_msg, failure_msg, log_file, exit_on_fail=False):
     """ Create a subprocess call and outputs success and errors if any.
