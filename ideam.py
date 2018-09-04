@@ -41,7 +41,7 @@ def install(arguments):
         container_setup.stop_containers(["apigateway","broker","ldapd","catalogue","videoserver","webserver","elasticsearch","konga"],log_file=arguments.log_file)
         container_setup.remove_containers(["apigateway","broker","ldapd","catalogue","videoserver","webserver","elasticsearch","konga"],log_file=arguments.log_file)
         container_setup.remove_volumes(["apigateway","broker","cat","elk","ldapd","webserver"],log_file=arguments.log_file)
-        set_passwords(arguments.config_file)
+        password.set_passwords(arguments.config_file)
         container_setup.docker_setup(log_file=arguments.log_file,config_path=arguments.config_file)
         setup.initial_setup(log_file=arguments.log_file)
         password.update_passwords(arguments.config_file)
