@@ -7,19 +7,13 @@ from time import time
 
 
 def remove_containers(list,log_file):
-    """ Removes all existing docker containers with names like apigateway, broker. This is done to avoid any
-    clash of names during the creation of containers.
 
-    Args:
-        log_file      (string): log file path
-    """
     for container in list:
         subprocess_with_print("docker rm {0}".format(container),
                               success_msg="Removing {0}".format(container),
                               failure_msg="{0} container doesn't exist. SKIPPING THIS ERROR.".format(container),
                               log_file=log_file,
                               exit_on_fail=False)
-
 
 def remove_volumes(list,log_file):
 
@@ -30,14 +24,8 @@ def remove_volumes(list,log_file):
                               log_file=log_file,
                               exit_on_fail=False)
 
-
-
 def stop_containers(list,log_file):
-    """ Stops all existing docker containers like apigateway, broker, webserver .
 
-    Args:
-        log_file      (string): log file path
-    """
     for container in list:
 
         subprocess_with_print("docker stop {0}".format(container),
@@ -50,17 +38,8 @@ def stop_containers(list,log_file):
 def unique_value():
     return str(int(time()))
 
-
 def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
-    """ Creates docker instances for apigateway, ca, catalogue, broker, elastic search, apache storm, ldap, ntp and bind
-    server from an ubuntu-ssh image. First, docker creates certificate authority (CA) instance and then have the CA
-    certify Ansible user's public key. A new docker image with this CA's public key in TrustedUserCAKeys is created to
-    avoid redundant sending of Ansible's public keys to all hosts.
 
-    Important: This docker setup will remove all the current containers and there will be loss of data.
-               This should be used only for fresh installation.
-
-    """
     config = ConfigParser.ConfigParser()
     config.readfp(open(config_path))
 
@@ -70,17 +49,10 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
                           log_file=log_file,
                           exit_on_fail=False)
 
-    kong_storage = config.get('APIGATEWAY', 'DATA_STORAGE')
-    kong_log_location = config.get('APIGATEWAY', 'LOG_LOCATION')
-    output_info("Using {0} as apigateway's's persistent storage. ".format(kong_storage))
-    kong_config_storage = config.get('APIGATEWAY', 'CONFIG_STORAGE')
-    output_info("Using {0} as apigateway's config persistent storage. ".format(kong_config_storage))
-    broker_storage = config.get('BROKER', 'DATA_STORAGE')
-    output_info("Using {0} as broker's persistent storage. ".format(broker_storage))
-    webserver_storage = config.get('WEBSERVER', 'DATA_STORAGE')
-    output_info("Using {0} as webserver's persistent storage. ".format(webserver_storage))
-    catalogue_storage = config.get('CATALOGUE', 'DATA_STORAGE')
-    output_info("Using {0} as Catalogue's persistent storage. ".format(catalogue_storage))
+    output_info("Using apigateway-data as apigateway's persistent storage.")
+    output_info("Using broker-data as broker's persistent storage.")
+    output_info("Using webserver-data as webserver's persistent storage.")
+    output_info("Using catalogue-data as Catalogue's persistent storage.")
 
     subprocess_with_print("docker volume create --name ldapd-data",
                           success_msg="Created ldapd-data data container ",
@@ -118,47 +90,11 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
                           log_file=log_file,
                           exit_on_fail=True)
 
-    # key = config.get('SYSTEM_CONFIG', 'SSH_PUBLIC_KEY')
-    # output_info("Using {0} as your ssh key for certification. ".format(key))
-    # home = os.path.expanduser('~')
-    # with open(home + "/.ssh/configs", 'w+') as f:
-    #     f.write("IdentityFile {0}\n".format(key))
-    # key = key.replace("~", home)
-    #
-    # subprocess_popen("find "+key, log_file, "Missing ssh public key file in {}. Create one using command ssh-keygen.".
-    #                  format(key))
-    # cmd = 'cp -r ' + key + ' ' + os.getcwd() + '/config/certificate_authority/keys/id_rsa.pub'
-    # subprocess_popen(cmd, log_file, "Copying to /config/certificate_authority/keys/ failed.")
-
-    # subprocess_with_print("docker build -t ideam/alpine-ssh -f images/alpine/Dockerfile.alpine-ssh .".
-    #                       format(unique_value()),
-    #                       success_msg="Created ideam/alpine-ssh docker image. ",
-    #                       failure_msg="Building alpine image from images/alpine/Dockerfile.alpine-ssh failed.",
-    #                       log_file=log_file,
-    #                       exit_on_fail=True)
-    #
-    # ca_ip, ca_port, details = create_instance("certificate_authority", "ideam/alpine-ssh", log_file, config_path=config_path)
-    # output_ok("Created Certificate Authority docker instance. \n " + details)
-    #
-    # instance_details["certificate_authority"] = [ca_ip, ca_port]
-    # create_ansible_host_file(instance_details)
-    # output_ok("Created Ansible hosts file with CA instance. ")
-    #
-    # output_info("Starting Ansible Certificate Authority Setup. ")
-    # subprocess.call('tasks/certificate_authority/ca.sh '+str(subprocess.check_output("docker port certificate_authority | grep 22 | cut -d : -f 2",shell=True)).strip(),
-    #                 shell=True)
-    #
-    # cmd = "cp config/certificate_authority/keys/id_rsa-cert.pub " + "~/.ssh/".replace("~", home)
-    # subprocess_popen(cmd, log_file, "Copying Certificate Authority's cert file to ansible's .ssh/ failed.")
-    # output_ok("Copied Certificate Authority's cert file to Ansible's .ssh. ")
-
-#TODO change data folder of postgres
     ip, details = create_instance("apigateway", "ideam/apigateway",
                                         storage_host="apigateway-data",
-                                        storage_guest="/usr/local/pgsql/data",
+                                        storage_guest="/var/lib/postgresql/",
                                         log_file=log_file,
-                                        config_path=config_path,
-                                        log_storage=kong_log_location)
+                                        config_path=config_path)
 
     output_ok("Created apigateway docker instance. \n " + details)
 
@@ -172,7 +108,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
 
     ip, details = create_instance("broker", "ideam/broker",
                                         storage_host="broker-data",
-                                        storage_guest="/home/ideam/rabbitmq_server-3.7.5/var/lib/rabbitmq/",
+                                        storage_guest="/var/lib/rabbitmq/",
                                         log_file=log_file,
                                         config_path=config_path)
 
@@ -188,7 +124,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
 
     ip, details = create_instance("webserver", "ideam/webserver",
                                         storage_host="webserver-data",
-                                        storage_guest="/usr/local/webserver",
+                                        storage_guest="/usr/local/webserver/",
                                         log_file=log_file,
                                         config_path=config_path)
 
@@ -243,22 +179,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
 
     if server == "apigateway":  # separate apigateway log storage needed
 
-        # cmd = "docker run -d -p 80:8000 --net=mynet --hostname={0} " \
-        #       "-v {2}:{3} -v {4}:/tmp --cap-add=NET_ADMIN --name={0} {1}".\
-        #     format(server, image, storage_host, storage_guest, log_storage)
-        #
-        # try:
-        #     out, err = subprocess_popen(cmd,
-        #                                 log_file,
-        #                                 failure_msg="Creation of {0} docker instance failed.".format(server))
-        #     container_id = out
-        # except OSError:
-        #     output_error("Creation of {0} docker instance failed.".format(server) +
-        #                  "\n           Check logs {0} for more details.".format(log_file),
-        #                  error_message=traceback.format_exc())
-        #     exit()
-
-        cmd = "docker run -d -p 8443:8443 --net=mynet --hostname={0} " \
+        cmd = "docker run -d -p 8443:8443 -v {2}:{3} --net=mynet --hostname={0} " \
               "--cap-add=NET_ADMIN --name={0} {1}". \
             format(server, image, storage_host, storage_guest, log_storage)
 
@@ -273,31 +194,17 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
                          error_message=traceback.format_exc())
             exit()
     elif server == "broker":  # separate rabbitmq log storage needed
+
         #TODO: have only amqps, mqtts and https
+
         http = config.get('BROKER', 'HTTP')
         amqp = config.get('BROKER', 'AMQP')
         mqtt = config.get('BROKER', 'MQTT')
-        log_storage = config.get('BROKER', 'LOG_LOCATION')
         management = config.get('BROKER', 'MANAGEMENT')
 
-        # cmd = "docker run -d -p {4}:8000 -p {5}:5672 -p {6}:1883 -p 127.0.0.1:{7}:15672 --net=mynet --hostname={0}" \
-        #       " -v {2}:{3} -v {8}:/var/log/broker -v {8}:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
-        #     format(server, image, storage_host, storage_guest, http, amqp, mqtt, management, log_storage)
-        #
-        # try:
-        #     out, err = subprocess_popen(cmd,
-        #                                 log_file,
-        #                                 failure_msg="Creation of {0} docker instance failed.".format(server))
-        #     container_id = out
-        # except OSError:
-        #     output_error("Creation of {0} docker instance failed.".format(server) +
-        #                  "\n           Check logs {0} for more details.".format(log_file),
-        #                  error_message=traceback.format_exc())
-        #     exit()
-
-        cmd = "docker run -d -p 127.0.0.1:{4}:8000 -p {5}:5672 -p {6}:1883 -p 127.0.0.1:{7}:15672 --net=mynet --hostname={0}" \
+        cmd = "docker run -d -v {2}:{3} -p 127.0.0.1:{4}:8000 -p {5}:5672 -p {6}:1883 -p 127.0.0.1:{7}:15672 --net=mynet --hostname={0}" \
               " --cap-add=NET_ADMIN --name={0} {1}". \
-            format(server, image, storage_host, storage_guest, http, amqp, mqtt, management, log_storage)
+            format(server, image, storage_host, storage_guest, http, amqp, mqtt, management)
 
         try:
             out, err = subprocess_popen(cmd,
@@ -311,12 +218,11 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
             exit()
 
     elif server == "webserver":  # separate webserver log storage needed
+
         http = config.get('WEBSERVER', 'HTTP')
-        log_storage = config.get('WEBSERVER', 'LOG_LOCATION')
         
-        
-        cmd = "docker run -d -p 127.0.0.1:{4}:8080 --net=mynet --hostname={0}" \
-              " --cap-add=NET_ADMIN --name={0} {1}".format(server, image, storage_host, storage_guest, http, log_storage)
+        cmd = "docker run -d -v {2}:{3} -p 127.0.0.1:{4}:8080 --net=mynet --hostname={0}" \
+              " --cap-add=NET_ADMIN --name={0} {1}".format(server, image, storage_host, storage_guest, http)
 
         try:
             out, err = subprocess_popen(cmd,
@@ -332,22 +238,7 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     elif server == "catalogue":  # separate data storage needed
         http = config.get('CATALOGUE', 'HTTP')
 
-        # cmd = "docker run -d -p {4}:8000 --net=mynet --hostname={0} " \
-        #       "-v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
-        #     format(server, image, storage_host, storage_guest, http)
-        #
-        # try:
-        #     out, err = subprocess_popen(cmd,
-        #                                 log_file,
-        #                                 failure_msg="Creation of {0} docker instance failed.".format(server))
-        #     container_id = out
-        # except OSError:
-        #     output_error("Creation of {0} docker instance failed.".format(server) +
-        #                  "\n           Check logs {0} for more details.".format(log_file),
-        #                  error_message=traceback.format_exc())
-        #     exit()
-
-        cmd = "docker run -d -p 127.0.0.1:{4}:8000 --net=mynet --hostname={0} " \
+        cmd = "docker run -d -v {2}:{3} -p 127.0.0.1:{4}:8000 --net=mynet --hostname={0} " \
               "--cap-add=NET_ADMIN --name={0} {1}". \
             format(server, image, storage_host, storage_guest, http)
 
@@ -365,21 +256,6 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
 
     elif server == "ldapd":  # separate data storage needed
         ldap = config.get('LDAP', 'LDAP')
-
-        # cmd = "docker run -d -p {4}:8389 --net=mynet --hostname={0} " \
-        #       "-v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
-        #     format(server, image, storage_host, storage_guest, ldap)
-        #
-        # try:
-        #     out, err = subprocess_popen(cmd,
-        #                                 log_file,
-        #                                 failure_msg="Creation of {0} docker instance failed.".format(server))
-        #     container_id = out
-        # except OSError:
-        #     output_error("Creation of {0} docker instance failed.".format(server) +
-        #                  "\n           Check logs {0} for more details.".format(log_file),
-        #                  error_message=traceback.format_exc())
-        #     exit()
 
         cmd = "docker run -d -p 127.0.0.1:{4}:8389 --net=mynet --hostname={0} " \
               "-v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}". \
@@ -399,21 +275,8 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     elif server == "elasticsearch":
         kibana = config.get('ELASTICSEARCH', 'KIBANA')
 
-        # cmd = "docker run -d -p {2}:5601 --net=mynet " \
-        #       "--hostname={0} --cap-add=NET_ADMIN --name={0} {1}".format(server, image, kibana)
-        # try:
-        #     out, err = subprocess_popen(cmd,
-        #                                 log_file,
-        #                                 failure_msg="Creation of {0} docker instance failed.".format(server))
-        #     container_id = out
-        # except OSError:
-        #     output_error("Creation of {0} docker instance failed.".format(server) +
-        #                  "\n           Check logs {0} for more details.".format(log_file),
-        #                  error_message=traceback.format_exc())
-        #     exit()
-
-        cmd = "docker run -d --net=mynet " \
-              "--hostname={0} --cap-add=NET_ADMIN -p 127.0.0.1:{2}:5601 --name={0} {1}".format(server, image, kibana)
+        cmd = "docker run -d -v {2}:{3} --net=mynet " \
+              "--hostname={0} --cap-add=NET_ADMIN -p 127.0.0.1:{4}:5601 --name={0} {1}".format(server, image, storage_host, storage_guest, kibana)
         try:
             out, err = subprocess_popen(cmd,
                                         log_file,
@@ -429,19 +292,6 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
         rtmp = config.get('VIDEOSERVER', 'RTMP')
         hls = config.get('VIDEOSERVER', 'HLS')
         http = config.get('VIDEOSERVER', 'HTTP')
-
-        # cmd = "docker run -d -p {1}:1935 -p {2}:8080 -p {3}:8088 --net=mynet --hostname={0} --privileged --cap-add=ALL --name={0} {4}". \
-        #     format("videoserver", rtmp, hls, http, image)
-        # try:
-        #     out, err = subprocess_popen(cmd,
-        #                                 log_file,
-        #                                 failure_msg="Creation of {0} docker instance failed.".format(server))
-        #     container_id = out
-        # except OSError:
-        #     output_error("Creation of {0} docker instance failed.".format(server) +
-        #                  "\n           Check logs {0} for more details.".format(log_file),
-        #                  error_message=traceback.format_exc())
-        #     exit()
 
         cmd = "docker run -d -p {1}:1935 -p {2}:8080 -p {3}:8088 --net=mynet --hostname={0} --privileged --cap-add=ALL --name={0} {4}". \
             format("videoserver", rtmp, hls, http, image)
@@ -468,27 +318,6 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
                          "\n           Check logs {0} for more details.".format(log_file),
                          error_message=traceback.format_exc())
             exit()
-    # Code to figure out port of the docker container
-    # docker inspect --format='{{(index (index .NetworkSettings.Ports "22/tcp") 0).HostPort}}'
-    # (index .NetworkSettings.Ports "22/tcp") gives an array whose 0th element has .HostPort value
-    # try:
-    #     p = subprocess.Popen(['docker',
-    #                          'inspect',
-    #                           """--format='{{(index (index .NetworkSettings.Ports "22/tcp") 0).HostPort}}'""",
-    #                           server], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    #     stdoutdata, stderrdata = p.communicate()
-    #
-    #     if p.returncode != 0:
-    #         output_error("Creation of {0} docker instance failed, when port address was fetched.".format(server) +
-    #                      "\n           Check logs {0} for more details.".format(log_file),
-    #                      error_message=stderrdata, stdout=stdoutdata)
-    #         exit()
-    #     port = stdoutdata
-    # except OSError:
-    #     output_error("Creation of {0} docker instance failed.".format(server) +
-    #                  "\n           Check logs {0} for more details.".format(log_file),
-    #                  error_message=traceback.format_exc())
-    #     exit()
 
     details = "\n"
     details += " DOCKER INSTANCE\n"
@@ -496,23 +325,6 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     details += " {0} docker container ID : {1}\n".format(server, container_id.rstrip())
 
     return "localhost", details
-
-
-# def create_ansible_host_file(instances):
-#     """ Creates an inventory file named hosts for ansible in the current directory. Inventory file will contain
-#     IP address, port and ssh_username of the all the hosts (docker containers) mentioned in instances parameter.
-#
-#     Args:
-#         instances (dict): instances is a dict of the form { 'server' : [IPAddress, Port] }.
-#     """
-#     hosts_list = []
-#     for key, value in instances.iteritems():
-#         hosts_list.append("{0} ansible_host={1} ansible_port={2} ansible_user=root".format(key, value[0], value[1]))
-#
-#     hosts_contents = "\n".join(hosts_list)
-#     print(hosts_contents)
-#     with open('hosts', 'w+') as host_file:
-#         host_file.write(hosts_contents)
 
 def limit_install(list):
 
@@ -534,19 +346,6 @@ def check_dependencies(log_file):
                           log_file=log_file,
                           exit_on_fail=True)
 
-
-# def ansible_installation(limit):
-#     """ Creates all the plays/installation from ansible install.yaml file.
-#
-#     Args:
-#          limit (string):  Limits the ansible installation to the servers mentioned.
-#                           A comma separated list of servers like --limit kong, broker
-#     """
-#     output_info("Starting Ansible setup. ")
-#     # subprocess.call('ansible-playbook -i \'localhost\' -s install_idps.yml --ask-sudo-pass')
-#     subprocess.call('ansible-playbook -i hosts install.yaml --limit "' + limit + '"', shell=True)
-
-
 def subprocess_with_print(cmd, success_msg, failure_msg, log_file, exit_on_fail=False):
     """ Create a subprocess call and outputs success and errors if any.
 
@@ -557,6 +356,13 @@ def subprocess_with_print(cmd, success_msg, failure_msg, log_file, exit_on_fail=
         log_file     (string): log file path
         exit_on_fail   (bool): exit program if failed
     """
+
+    cmd = cmd.replace(";", "")
+    cmd = cmd.replace("|", "")
+    cmd = cmd.replace("$", "")
+    cmd = cmd.replace("{", "")
+    cmd = cmd.replace("}", "")
+
     try:
         process = subprocess.Popen(cmd.split(" "), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output_ok(success_msg, message=process.stdout.read(), stderr=process.stderr.read())

@@ -88,9 +88,6 @@ def test(arguments):
     except:
         output_error(process,
                      error_message=traceback.format_exc())
-        # f=open("/tmp/status")
-        # print("File contents:" + f.read())
-        # f.close()
         exit()
 
     cmd = "./tests/create_entity.sh testdevice2"

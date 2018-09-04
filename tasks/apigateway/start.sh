@@ -13,11 +13,35 @@ else
     echo -e "${YELLOW}[  INFO  ]${NC} There are no tmux sessions to remove"
 fi
 
+rm /var/lib/postgresql/postmaster.* > /dev/null
+
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}[   OK   ]${NC} Removed old postmaster files"
+else
+    echo -e "${YELLOW}[  INFO  ]${NC} There are no postmaster files to remove"
+fi
+
+rm /tmp/.s.PGSQL.5432 > /dev/null
+
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}[   OK   ]${NC} Removed PGSQL file"
+else
+    echo -e "${YELLOW}[  INFO  ]${NC} There is no PGSQL file to remove"
+fi
+
+rm /tmp/.s.PGSQL.5432.lock > /dev/null
+
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}[   OK   ]${NC} Removed PGSQL lock file"
+else
+    echo -e "${YELLOW}[  INFO  ]${NC} There is no PGSQL lock file to remove"
+fi
+
 if ! nc -z localhost 5432
 then
 echo -e "${YELLOW}[  INFO  ]${NC} Starting postgres"
 
-su postgres -c "/usr/local/pgsql/bin/postgres -D /usr/local/pgsql/data > /var/lib/postgresql/logfile 2>&1 &"
+su postgres -c "postgres -D /var/lib/postgresql  > /var/lib/postgresql/logfile 2>&1 &"
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ]${NC} Started Postgres"
@@ -32,7 +56,7 @@ fi
 
 echo -e "${YELLOW}[  INFO  ]${NC} Waiting for the database system to start up"
 
-until su postgres -c 'pg_isready' >/dev/null 2>&1
+until su postgres -c 'pg_isready' > /dev/null 2>&1
 do
   sleep 0.1
 done
@@ -53,21 +77,4 @@ fi
 
 else
 echo -e "${YELLOW}[  INFO  ]${NC} Kong is running"
-fi
-
-if ! nc -z localhost 8080
-then
-
-echo -e "${YELLOW}[  INFO  ]${NC} Starting data exchange APIs"
-
-tmux new-session -d -s share 'python3.6 /home/ideam/share.py'
-
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}[   OK   ]${NC} Started APIs"
-else
-    echo -e "${RED}[ ERROR ]${NC} Failed to start APIs"
-fi
-
-else
-echo -e "${YELLOW}[  INFO  ]${NC} Data exchange APIs are running"
 fi

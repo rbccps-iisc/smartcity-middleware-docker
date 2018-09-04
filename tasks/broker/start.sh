@@ -10,7 +10,7 @@ then
 
 echo -e "${YELLOW}[  INFO  ]${NC} Starting RabbitMQ in detached mode"
 
-/home/ideam/rabbitmq_server-3.7.5/sbin/rabbitmq-server -detached 2>&1
+rabbitmq-server -detached 2>&1
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ]${NC} Started RabbitMQ server"

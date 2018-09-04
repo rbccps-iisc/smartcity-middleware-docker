@@ -38,7 +38,7 @@ fi
 
 echo -e "${YELLOW}[  INFO  ]${NC} Applyling API configurations"
 
-kongfig apply --path /etc/config.yml --host localhost:8001
+kongfig apply --path /etc/config.yml --host localhost:8001 > /dev/null 
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ]${NC} Applied API configurations"
