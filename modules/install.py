@@ -411,9 +411,12 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
         #                  "\n           Check logs {0} for more details.".format(log_file),
         #                  error_message=traceback.format_exc())
         #     exit()
+        #
+        # cmd = "docker run -d --net=mynet " \
+        #       "--hostname={0} --cap-add=NET_ADMIN -p 127.0.0.1:{2}:5601 --name={0} {1}".format(server, image, kibana)
 
         cmd = "docker run -d --net=mynet " \
-              "--hostname={0} --cap-add=NET_ADMIN -p 127.0.0.1:{2}:5601 --name={0} {1}".format(server, image, kibana)
+              "--hostname={0} --cap-add=NET_ADMIN -p 0.0.0.0:{2}:5601 -p 0.0.0.0:9200:9200 --name={0} {1}".format(server, image, kibana)
         try:
             out, err = subprocess_popen(cmd,
                                         log_file,
