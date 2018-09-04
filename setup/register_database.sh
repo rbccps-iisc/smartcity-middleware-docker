@@ -7,8 +7,8 @@ GREEN='\033[0;32m'
 
 echo -e "${YELLOW}[  INFO  ]${NC} Setting up database subscriber log files"
 
-touch /usr/local/apigateway/database_error.log
-touch /usr/local/apigateway/database_out.log
+touch /usr/local/kong/setup/database_error.log
+touch /usr/local/kong/setup/database_out.log
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ] ${NC}Log Setup Completed"

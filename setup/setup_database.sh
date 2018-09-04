@@ -5,4 +5,4 @@ curl -k -X POST \
   -H 'content-type: application/json' \
   -d '{
    "id": '$2'
-}' 2>/usr/local/apigateway/database_error.log >/usr/local/apigateway/database_out.log
+}' 2>/usr/local/kong/setup/database_error.log >/usr/local/kong/setup/database_out.log

@@ -9,68 +9,68 @@ import sys
 
 def initial_setup(log_file):
 
-    cmd = "docker exec apigateway mkdir /usr/local/apigateway/setup"
+    cmd = "docker exec apigateway mkdir /usr/local/kong/setup"
     setup_apigateway(cmd, success_msg="Created setup directory in apigateway",
                          failure_msg="Creation of setup directory in apigateway failed",
                          log_file=log_file,
                          exit_on_fail=True)
 
-    cmd = "docker cp setup/setup_consumer.sh apigateway:/usr/local/apigateway/setup"
+    cmd = "docker cp setup/setup_consumer.sh apigateway:/usr/local/kong/setup"
     setup_apigateway(cmd, success_msg="Copied setup_consumer.sh to setup directory",
                          failure_msg="Copying setup_consumer.sh failed",
                          log_file=log_file,
                          exit_on_fail=True)
 
-    cmd = "docker exec apigateway chmod +x /usr/local/apigateway/setup/setup_consumer.sh"
+    cmd = "docker exec apigateway chmod +x /usr/local/kong/setup/setup_consumer.sh"
     setup_apigateway(cmd, success_msg="Added necessary permissions to setup_consumer.sh",
                          failure_msg="Changing file permission failed",
                          log_file=log_file,
                          exit_on_fail=True)
 
-    cmd = "docker cp setup/setup_consumer-acl.sh apigateway:/usr/local/apigateway/setup"
+    cmd = "docker cp setup/setup_consumer-acl.sh apigateway:/usr/local/kong/setup"
     setup_apigateway(cmd, success_msg="Copied setup_consumer-acl.sh to setup directory",
                          failure_msg="Copying setup_consumer-acl.sh failed",
                          log_file=log_file,
                          exit_on_fail=True)
 
-    cmd = "docker exec apigateway chmod +x /usr/local/apigateway/setup/setup_consumer-acl.sh"
+    cmd = "docker exec apigateway chmod +x /usr/local/kong/setup/setup_consumer-acl.sh"
     setup_apigateway(cmd, success_msg="Added necessary permissions to setup_consumer-acl.sh",
                          failure_msg="Changing file permission failed",
                          log_file=log_file,
                          exit_on_fail=True)
 
-    cmd = "docker cp setup/setup_consumer-key-auth.sh apigateway:/usr/local/apigateway/setup"
+    cmd = "docker cp setup/setup_consumer-key-auth.sh apigateway:/usr/local/kong/setup"
     setup_apigateway(cmd, success_msg="Copied setup_consumer-key-auth.sh to setup directory",
                          failure_msg="Copying setup_consumer-key-auth.sh failed",
                          log_file=log_file,
                          exit_on_fail=True)
 
-    cmd = "docker exec apigateway chmod +x /usr/local/apigateway/setup/setup_consumer-key-auth.sh"
+    cmd = "docker exec apigateway chmod +x /usr/local/kong/setup/setup_consumer-key-auth.sh"
     setup_apigateway(cmd, success_msg="Added necessary permissions to setup_consumer-key-auth.sh",
                          failure_msg="Changing file permission failed",
                          log_file=log_file,
                          exit_on_fail=True)
 
-    cmd = "docker cp setup/install.sh apigateway:/usr/local/apigateway/setup"
+    cmd = "docker cp setup/install.sh apigateway:/usr/local/kong/setup"
     setup_apigateway(cmd, success_msg="Copied install.sh to setup directory",
                failure_msg="Copying install.sh failed",
                log_file=log_file,
                exit_on_fail=True)
 
-    cmd = "docker exec apigateway chmod +x /usr/local/apigateway/setup/install.sh"
+    cmd = "docker exec apigateway chmod +x /usr/local/kong/setup/install.sh"
     setup_apigateway(cmd, success_msg="Added necessary permissions to install.sh",
                failure_msg="Changing file permission failed",
                log_file=log_file,
                exit_on_fail=True)
 
 
-    cmd = "docker exec apigateway /usr/local/apigateway/setup/install.sh"
+    cmd = "docker exec apigateway /usr/local/kong/setup/install.sh"
     setup_apigateway(cmd, success_msg="Executing initial setup script",
                failure_msg="Initial setup failed",
                log_file=log_file,
                exit_on_fail=True)
 
-    cmd = "docker cp apigateway:/usr/local/apigateway/auth_out.log ."
+    cmd = "docker cp apigateway:/usr/local/kong/auth_out.log ."
     setup_apigateway(cmd, success_msg="Copying apikey",
                failure_msg="Failed copying apikey",
                log_file=log_file,
@@ -81,44 +81,44 @@ def initial_setup(log_file):
         apikey = data["key"]
 
 
-    cmd = "docker cp setup/setup_database.sh apigateway:/usr/local/apigateway/setup"
+    cmd = "docker cp setup/setup_database.sh apigateway:/usr/local/kong/setup"
     setup_apigateway(cmd, success_msg="Copied setup_database.sh to setup directory",
                failure_msg="Copying setup_database.sh failed",
                log_file=log_file,
                exit_on_fail=True)
 
-    cmd = "docker cp setup/register_database.sh apigateway:/usr/local/apigateway/setup"
+    cmd = "docker cp setup/register_database.sh apigateway:/usr/local/kong/setup"
     setup_apigateway(cmd, success_msg="Copied register_database.sh to setup directory",
                failure_msg="Copying register_database.sh failed",
                log_file=log_file,
                exit_on_fail=True)
 
-    cmd = "docker exec apigateway chmod +x /usr/local/apigateway/setup/register_database.sh"
+    cmd = "docker exec apigateway chmod +x /usr/local/kong/setup/register_database.sh"
     setup_apigateway(cmd, success_msg="Added necessary permissions to register_database.sh",
                failure_msg="Changing file permission failed",
                log_file=log_file,
                exit_on_fail=True)
 
 
-    cmd = "docker exec apigateway chmod +x /usr/local/apigateway/setup/setup_database.sh"
+    cmd = "docker exec apigateway chmod +x /usr/local/kong/setup/setup_database.sh"
     setup_apigateway(cmd, success_msg="Added necessary permissions to setup_database.sh",
                failure_msg="Changing file permission failed",
                log_file=log_file,
                exit_on_fail=True)
 
-    cmd = "docker exec apigateway /usr/local/apigateway/setup/register_database.sh"
+    cmd = "docker exec apigateway /usr/local/kong/setup/register_database.sh"
     setup_apigateway(cmd, success_msg="Executing database setup script",
                failure_msg="Database setup failed",
                log_file=log_file,
                exit_on_fail=True)
 
-    cmd = "docker exec apigateway /usr/local/apigateway/setup/setup_database.sh " + apikey + " database"
+    cmd = "docker exec apigateway /usr/local/kong/setup/setup_database.sh " + apikey + " database"
     setup_apigateway(cmd, success_msg="Executing database setup script",
                failure_msg="Database setup failed",
                log_file=log_file,
                exit_on_fail=True)
 
-    cmd = "docker cp apigateway:/usr/local/apigateway/database_out.log ."
+    cmd = "docker cp apigateway:/usr/local/kong/setup/database_out.log ."
     setup_apigateway(cmd, success_msg="Copying database apikey",
                failure_msg="Failed copying database apikey",
                log_file=log_file,
