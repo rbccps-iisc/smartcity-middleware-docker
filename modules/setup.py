@@ -34,6 +34,7 @@ def initial_setup(log_file):
                          exit_on_fail=True)
 
     cmd = "docker exec apigateway chmod +x /usr/local/kong/setup/setup_consumer-acl.sh"
+
     setup_apigateway(cmd, success_msg="Added necessary permissions to setup_consumer-acl.sh",
                          failure_msg="Changing file permission failed",
                          log_file=log_file,

@@ -69,12 +69,12 @@ def start(arguments):
 def restart(arguments):
     """ Stops and starts all docker containers. """
     if arguments.limit:
-        container_setup.stop_containers(log_file=arguments.log_file)
+        container_setup.stop_containers([arguments.limit],log_file=arguments.log_file)
         container_start.start_services(arguments.limit)
 
     else:
-        container_setup.stop_containers(log_file=arguments.log_file)  # Stops all containers
-        container_start.start_services("apigateway,broker,ldapd,elasticsearch,videoserver,webserver,catalogue")
+        container_setup.stop_containers(["apigateway","broker","ldapd","elasticsearch","videoserver","webserver","catalogue"],log_file=arguments.log_file)  # Stops all containers
+        container_start.start_services(["apigateway","broker","ldapd","elasticsearch","videoserver","webserver","catalogue"])
 
 
 def str2bool(v):

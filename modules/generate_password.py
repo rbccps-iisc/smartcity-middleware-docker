@@ -56,7 +56,6 @@ def cdxadmin(config):
             data = json.load(response)
             key = data["key"]
     config.set('PASSWORDS', 'CDX.ADMIN', key)
-    print(key)
 
 def database(config):
     password = config.get('PASSWORDS', 'database')
@@ -64,7 +63,6 @@ def database(config):
             data = json.load(response)
             key = data["apiKey"]
     config.set('PASSWORDS', 'DATABASE', key)
-    print(key)
 
 def write(path, contents):
     with open(path, 'w+') as f:

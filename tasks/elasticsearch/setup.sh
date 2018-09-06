@@ -7,7 +7,7 @@ GREEN='\033[0;32m'
 
 echo -e "${YELLOW}[  INFO  ]${NC} Copying RabbitMQ password"
 
-docker cp host_vars/rabbitmq elasticsearch:/etc/
+docker cp host_vars/broker elasticsearch:/etc/
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ] ${NC}Copied RabbitMQ password file"

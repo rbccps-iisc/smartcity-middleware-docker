@@ -5,7 +5,7 @@ NC='\033[0m'
 YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
 
-pwd=`cat /etc/rabbitmq | cut -d : -f 2 | awk '{$1=$1};1'`
+pwd=`cat /etc/broker | cut -d : -f 2 | awk '{$1=$1};1'`
 
 echo -e "${YELLOW}[  INFO  ]${NC} Changing passwords in files"
 
@@ -16,7 +16,7 @@ echo -e "${GREEN}[   OK   ]${NC} Changed passwords"
 
 echo -e "${YELLOW}[  INFO  ]${NC} Removing RabbitMQ password file"
 
-rm /etc/rabbitmq
+rm /etc/broker
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ]${NC} Removed password file"
