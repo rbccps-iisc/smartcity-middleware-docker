@@ -1,2 +1,2 @@
 #!/bin/bash
-python ideam.py install -f ideam.conf 
+python ideam.py install -f ideam.conf $@ 

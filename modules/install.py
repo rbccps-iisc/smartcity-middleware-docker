@@ -143,7 +143,7 @@ def docker_setup(log_file, config_path="/etc/ideam/ideam.conf"):
     output_ok("Created Videoserver docker instance. \n " + details)
 
     konga = config.get('KONGA', 'HTTP')
-    cmd = 'docker run -d -p 127.0.0.1:{0}:1337 --net mynet --link apigateway:kong --name konga -e "NODE_ENV=production" pantsel/konga'.\
+    cmd = 'docker run -d -e "DB_HOST=apigateway" -p 127.0.0.1:{0}:1337 --net mynet --link apigateway:kong --name konga -e "NODE_ENV=production" pantsel/konga'.\
         format(konga)
     subprocess_with_print(cmd,
                           success_msg="Created KONGA docker instance. ",

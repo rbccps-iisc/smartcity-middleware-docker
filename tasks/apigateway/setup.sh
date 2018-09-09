@@ -4,17 +4,6 @@ NC='\033[0m'
 YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
 
-echo -e "${YELLOW}[  INFO  ] ${NC}Copying RabbitMQ and LDAP password"
-
-docker cp host_vars/rabbitmq apigateway:/etc
-docker cp host_vars/ldapd apigateway:/etc
-
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}[   OK   ] ${NC}Copied passwords"
-else
-    echo -e "${RED}[ ERROR ] ${NC}Failed to copy RabbitMQ and LDAP passwords"
-fi
-
 echo -e "${YELLOW}[  INFO  ] ${NC}Copying setup script into kong container"
 
 docker cp tasks/apigateway/install.sh apigateway:/etc/
@@ -36,11 +25,10 @@ else
 fi
 
 echo -e "${YELLOW}[  INFO  ] ${NC}Adding necessary permissions to files and folders needed by kong"
+
 #TODO give necessary permissions only to the required user
 
 docker exec apigateway chmod +x /etc/install.sh
-#docker exec kong chmod -R 777 /var/lib/postgresql
-#docker exec kong chmod -R 777 /tmp
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ] ${NC}Added necessary permissions"
