@@ -34,7 +34,7 @@ def install(arguments):
     setup_logging(log_file=arguments.log_file)
 
     if arguments.limit:
-        container_setup.limit_install([arguments.limit])
+        container_setup.limit_install(str(arguments.limit).split(","))
 
     else:
         container_setup.check_dependencies(log_file=arguments.log_file)
@@ -61,7 +61,7 @@ def start(arguments):
     container_start.start_volumes(["apigateway","broker","cat","elk","ldapd","webserver"],log_file=arguments.log_file)
 
     if arguments.limit:
-        container_start.start_services(arguments.limit)
+        container_start.start_services(str(arguments.limit).split(","))
 
     else:
         container_start.start_services(["apigateway","broker","ldapd","elasticsearch","videoserver","webserver","catalogue"])
@@ -70,7 +70,7 @@ def restart(arguments):
     """ Stops and starts all docker containers. """
     if arguments.limit:
         container_setup.stop_containers([arguments.limit],log_file=arguments.log_file)
-        container_start.start_services(arguments.limit)
+        container_start.start_services(str(arguments.limit).split(","))
 
     else:
         container_setup.stop_containers(["apigateway","broker","ldapd","elasticsearch","videoserver","webserver","catalogue"],log_file=arguments.log_file)  # Stops all containers

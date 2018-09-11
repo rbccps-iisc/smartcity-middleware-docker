@@ -72,9 +72,7 @@ kong start -c /etc/kong/kong.conf > /dev/null
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ]${NC} Started Kong"
 else
-    echo -e "${RED}[ ERROR ]${NC} Failed to start Kong. Check /usr/local/kong/logs/error.log for more details"
+echo -e "${YELLOW}[  INFO  ]${NC} Kong is running"
 fi
 
-else
-echo -e "${YELLOW}[  INFO  ]${NC} Kong is running"
 fi
