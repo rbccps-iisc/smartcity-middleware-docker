@@ -1,165 +1,161 @@
 =================================================================
-IoT Data Exchange & Analytics Middleware (IDEAM) for Smart Cities
+City Data Exchange & Analytics Middleware (CDX) for Smart Cities
 =================================================================
 
 .. image:: https://travis-ci.org/rbccps-iisc/ideam.svg?branch=master
     :target: https://travis-ci.org/rbccps-iisc/ideam
 
-Web Page
-========
-- Main Page: https://smartcity.rbccps.org/
-- About: http://www.rbccps.org/smart-city/
-- Middleware API Documentation: https://rbccps-iisc.github.io/
-- Tools and SDK's: https://github.com/rbccps-iisc/ideam-python-sdk
-
 Architecture
 ============
-.. image:: https://rbccps.org/smartcity/lib/exe/fetch.php?media=mw_architecture.png
 
-Requirements
-============
-- ``Docker``: `Installation steps for Docker in Ubuntu/Debian <https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#os-requirements>`_
-- ``passlib``: Install ``python-pip`` package in ubuntu and then do ``pip install passlib``.
+.. image:: hourglass.png
 
-Release
-=======
+.. image:: ms_arch.png
 
-ideam v1.0.0_
+Resources
+=========
+- About: http://www.rbccps.org/smart-city/
+- Extensive Documentation: https://cdx.readthedocs.io/en/latest/
 
-Use the ideam deb file to install in Linux machines after satisfying the requirements. ``dpkg -i ideam.deb`` .
+Getting Started
+-------------
 
+This guide will help you to quickly get started with a single node instance of CDX and start publishing data from a device.
 
-.. _v1.0.0: https://github.com/rbccps-iisc/ideam/releases/latest
+#. Install Docker ::
 
-Configuration
-=============
+    sudo apt-get install docker.io
 
-ideam.conf_ v1.0.0
+#. Add permission to user ::
 
-- Config file is located at ``/etc/ideam/ideam.conf``. If you cloned the repository then it should be located in the same directory
+    sudo usermod -a -G docker $USER
 
-- The data files or docker persistent storage is at ``/var/ideam/data``
+#. Logout and log back in.
 
-- The persistent storage can be changed by modifying the ``ideam.conf`` before installation.
+#. Run ``ifconfig`` and note down the name of the interface you're connected to.
 
-.. _ideam.conf: https://github.com/rbccps-iisc/ideam/blob/master/ideam.conf
-
-
-Steps to Install
-================
-
-- After downloading and installing the deb file, you can install middleware by:
-  ``ideam install``
-
-- If you want to install afresh then data can be removed from the volume mapped folders using ``ideam rm data``
-
-- To test the API endpoints of ideam use ``ideam test``.
-
-- All time-dated logs are available at ``/tmp/ideam-%Y-%m-%d-%H-%M.log``.
-
-
-
-IDEAM API ENDPOINTS
-===================
-
-+----------------------------------------------------------+------------------------------------------------+
-| ::                                                       |                                                |
-|                                                          |                                                |
-|        Register                                          |      ``POST``      `/api/1.0.0/register`_      |
-+----------------------------------------------------------+------------------------------------------------+
-| ::                                                       |                                                |
-|                                                          |                                                |
-|        Publish                                           |      ``POST``      `/api/1.0.0/publish`_       |
-+----------------------------------------------------------+------------------------------------------------+
-| ::                                                       |                                                |
-|                                                          |                                                |
-|        Follow                                            |      ``POST``      `/api/1.0.0/follow`_        |
-+----------------------------------------------------------+------------------------------------------------+
-| ::                                                       |                                                |
-|                                                          |                                                |
-|        Share                                             |      ``POST``      `/api/1.0.0/share`_         |
-+----------------------------------------------------------+------------------------------------------------+
-| ::                                                       |                                                |
-|                                                          |                                                |
-|        Subscribe                                         |      ``GET``       `/api/1.0.0/subscribe`_     |
-+----------------------------------------------------------+------------------------------------------------+
-| ::                                                       |                                                |
-|                                                          |                                                |
-|        Catalogue                                         |      ``GET``      `/api/1.0.0/cat`_            |
-+----------------------------------------------------------+------------------------------------------------+
-| ::                                                       |                                                |
-|                                                          |                                                |
-|        Database                                          |      ``GET``      `/api/1.0.0/db`_             |
-+----------------------------------------------------------+------------------------------------------------+
-| ::                                                       |                                                |
-|                                                          |                                                |
-|        Video RTMP                                        |      ``GET``      `/api/1.0.0/video.rtmp`_     |
-+----------------------------------------------------------+------------------------------------------------+
-| ::                                                       |                                                |
-|                                                          |                                                |
-|        Unshare                                           |``DELETE``   /api/1.0.0/share  `unshare.md`_    |
-+----------------------------------------------------------+------------------------------------------------+
-| ::                                                       |                                                |
-|                                                          |                                                |
-|        Unfollow                                          |``DELETE``  /api/1.0.0/follow  `unfollow.md`_   |
-+----------------------------------------------------------+------------------------------------------------+
-| ::                                                       |                                                |
-|                                                          |                                                |
-|        Deregister                                        |``DELETE`` /api/1.0.0/register `deregister.md`_ |
-+----------------------------------------------------------+------------------------------------------------+
-
-.. _/api/1.0.0/register: docs/api/1.0.0/register.md
-.. _/api/1.0.0/publish: docs/api/1.0.0/publish.md
-.. _/api/1.0.0/follow: docs/api/1.0.0/follow.md
-.. _/api/1.0.0/share: docs/api/1.0.0/share.md
-.. _/api/1.0.0/subscribe: docs/api/1.0.0/subscribe.md
-.. _/api/1.0.0/cat: docs/api/1.0.0/catalogue.md
-.. _/api/1.0.0/db: docs/api/1.0.0/db.md
-.. _/api/1.0.0/video.rtmp: docs/api/1.0.0/video.md
-.. _unshare.md : docs/api/1.0.0/unshare.md
-.. _unfollow.md : docs/api/1.0.0/unfollow.md
-.. _deregister.md : docs/api/1.0.0/deregister.md
-
-Customising the install
-============================
-
-If you want to install IDEAM for contributing to the project (or if you just want to customise the installation) then do the following:
-
-- ``git clone https://github.com/rbccps-iisc/ideam.git && cd ideam``
-- Make sure you have all the dependencies installed (as mentioned previously)
-- Run ``python ideam.py install -f ideam.conf``
-- If you want to install only some of the containers (maybe because some succeeded and some failed) you can install it by typing
-
-  ``python ideam.py install -f ideam.conf -l <comma separated list of containers>``
+    .. image:: ifconfig.png
+       :width: 550px
+       :align: center
+       :height: 250px
+       :alt: alternate textI
   
-  For e.g ``python ideam.py install -f ideam.conf -l apigateway,broker,tomcat``
+   In the above example the interface name is ``enp9s0``
 
-- Once the installation completes, the containers need to be started by using
+#. Now run::
 
-  ``python ideam.py start``
+    sudo nmcli device show enp9s0
 
-- If only some of the containers need to be started then use
+   Replace ``enp9s0`` with your respective interface name. The output should be something like this
 
-  ``python ideam.py start -l <comma separated list of containers>``
+   .. image:: nmcli.png
+       :width: 700px
+       :align: center
+       :height: 175px
+       :alt: alternate textI
+   
+   Note down the DNS from ``IP4.DNS`` section
+
+#. Add DNS obtained in the previous step to the file ``/etc/docker/daemon.json`` If the file does not exist, create it. The entry should look something like this ::
+
+    {"dns": ["8.8.8.8", "8.8.4.4"]}
+
+   Add the obtained DNS to the above JSON array. So the final entry should look something like this::
+
+    {"dns": ["8.8.8.8","8.8.4.4","168.95.1.1"]}
+
+   Of course, the DNS would change according to your network.
+
+#. Add DNS in ``/etc/default/docker`` file as follows::
+
+    DOCKER_OPTS="--dns 8.8.8.8 --dns 8.8.4.4 --dns 168.95.1.1"
+
+#. Restart Docker ::
+
+    service docker restart
+
+CDX Installation
+----------------
+
+#. Clone CDX git repo ::
+
+    git clone https://github.com/rbccps-iisc/ideam.git
+
+   CDX repository comes with a default configuration file ``ideam.conf``::
   
-  For e.g. ``python ideam.py start -l pushpin,catalogue``
+    [APIGATEWAY]
+    https = 8443
 
-Common problems
-===============
-- Installation in Linux machines can fail for the following reasons.
-    - If you are in a corporate network that blocks Google DNS Servers, the ``ideam install`` command fails.
+    [BROKER]
+    http = 12080
+    management = 12081
+    amqp = 12082
+    mqtt = 12083
 
-      To fix it, add your corporate DNS servers in DOCKER_OPTS in /etc/default/docker. (for SysV machines)
+    [ELASTICSEARCH]
+    kibana = 13081
 
-         DOCKER_OPTS="--dns 208.67.222.222 --dns 208.67.220.220"
+    [WEBSERVER]
+    http = 14080
+    
+    [LDAP]
+    ldap = 15389
+    
+    [CATALOGUE]
+    http = 16080
+    
+    [KONGA]
+    http = 17080
+    
+    [VIDEOSERVER]
+    rtmp = 18935
+    hls = 18080
+    http = 18088
+    
+    [PASSWORDS]
+    ldap = ? 
+    broker = ? 
+    cdx.admin = ? 
+    database = ?
 
-      If this fails to set the DNS properly, try updating /etc/docker/daemon.json with the following (for systemd machines)
+   This file contains details about the ports used by different microservices. It also allows the user to configure passwords that should be used for certain services during 
+   installation. By default, the password fields in the config file is set to ``?``, which indicates that the system will generate random passwords during runtime.
+   
+#. Install CDX ::
 
-         { "dns": ["208.67.222.222", "208.67.220.220"] }
-       
-- If copying the RegisterAPI.war fails, then run
+    cd ideam/
+    ./install
 
-  ``chown -R $(whoami) /var/ideam``
 
-- IDEAM has been tested on MacOS as well. However, the elasticsearch container might fail because of the ``vm.max_map_count`` setting. If this happens then try increasing the swap space of the docker VM 
+Registering your first device
+-----------------------------
+* Once CDX has installed you can now start registering devices with it. Let's create a simple test device for the sake of illustration::
+      
+   sh tests/create_entity.sh testStreetlight
 
+* This will give you the details of the registration
+
+  .. code-block:: JSON
+
+   {
+     "Registration": "success",
+     "entityID": "teststreetlight",
+     "apiKey": "EHQilai5cF_tNmWOwg-oiPdncmRPdfGCIhFHM85zDDW",
+     "subscriptionEndPoint": "https://smartcity.rbccps.org/api/{version}/followid=teststreetlight",
+     "accessEndPoint": "https://smartcity.rbccps.org/api/{version}/db?id=teststreetlight",
+     "publicationEndPoint": "https://smartcity.rbccps.org/api/{version}/publish?id=teststreetlight",
+     "resourceAPIInfo": "https://rbccps-iisc.github.io"
+   }     
+
+Publishing from your device
+---------------------------
+
+* You can now publish data from this device using::
+
+     sh tests/publish.sh teststreetlight EHQilai5cF_tNmWOwg-oiPdncmRPdfGCIhFHM85zDDW
+  
+  This will publish ``{"body": "testdata"}`` to the exchange ``teststreetlight.protected``
+
+* That's it! You can similarly register more devices and apps with the middleware.
+
+For detailed guides and resources visit https://cdx.readthedocs.io/en/latest/
