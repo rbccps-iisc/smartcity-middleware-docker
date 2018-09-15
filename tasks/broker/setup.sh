@@ -15,6 +15,16 @@ else
     echo -e "${RED}[ ERROR ]${NC} Failed to copy RabbitMQ password file"
 fi
 
+echo -e "${YELLOW}[  INFO  ]${NC} Copying RabbitMQ config file"
+
+docker cp config/broker/rabbitmq.config broker:/etc/rabbitmq/
+
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}[   OK   ]${NC} Copied config file"
+else
+    echo -e "${RED}[ ERROR ]${NC} Failed to copy RabbitMQ config file"
+fi
+
 echo -e "${YELLOW}[  INFO  ]${NC} Copying setup script into RabbitMQ container"
 
 docker cp tasks/broker/install.sh broker:/etc/
