@@ -15,6 +15,17 @@ else
     echo -e "${RED}[ ERROR ] ${NC}Failed to copy jar file"
 fi
 
+
+echo -e "${YELLOW}[  INFO  ]${NC} Copying cdxdatabase.jar into webserver folder"
+
+docker cp config/webserver/cdxdatabase.jar webserver:/usr/local/webserver
+
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}[   OK   ] ${NC}Copied jar file"
+else
+    echo -e "${RED}[ ERROR ] ${NC}Failed to copy jar file"
+fi
+
 echo -e "${YELLOW}[  INFO  ]${NC} Copying setup script into webserver container"
 
 docker cp tasks/webserver/install.sh webserver:/etc/

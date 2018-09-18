@@ -10,10 +10,11 @@ then
 
 echo -e "${YELLOW}[  INFO  ]${NC} Starting Webserver"
 
-nohup java -jar /usr/local/webserver/cdxapis.jar 2>/dev/null >/dev/null &
+nohup java -jar /usr/local/webserver/cdxapis.jar 2>/var/log/cdxapis_error.log >/var/log/cdxapis_out.log &
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ]${NC} Started Webserver"
+    echo -e "${YELLOW}[  INFO  ]${NC} Webserver Logs are at /var/log/"
 else
     echo -e "${RED}[ ERROR ]${NC} Failed to start Webserver"
 fi
