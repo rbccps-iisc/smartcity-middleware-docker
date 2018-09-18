@@ -201,7 +201,7 @@ def test(arguments):
     cmd = "./tests/publish.sh testdevice1 " + testdevice1_key
     try:
         process = subprocess.check_output(cmd, shell=True)
-        if "200 OK" in process:
+        if "202 Accepted" in process:
             output_ok("PUBLISH API: Published message as testdevice1.")
         else:
             output_error(process,
@@ -249,7 +249,7 @@ def test(arguments):
     cmd = "./tests/publish.sh testdevice1 " + testdevice1_key
     try:
         process = subprocess.check_output(cmd, shell=True)
-        if "200 OK" in process:
+        if "202 Accepted" in process:
             output_ok("PUBLISH API: Published message as testdevice1.")
         else:
             output_error(process,
