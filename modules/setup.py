@@ -126,9 +126,52 @@ def initial_setup(log_file):
     with open('database_out.log') as response:
         data = json.load(response)
         apikey = data["apiKey"]
+        write("config/webserver/databasepwd", apikey)
+        write("host_vars/database", "password: " + apikey)
 
+    cmd = "docker cp config/webserver/databasepwd webserver:/etc/"
+    setup_apigateway(cmd, success_msg="Copying database apikey to webserver",
+               failure_msg="Failed copying database apikey",
+               log_file=log_file,
+               exit_on_fail=True)
 
-    # with open("ideam.conf", "a") as text_file:
+    cmd = "docker cp tasks/webserver/database_setup.sh webserver:/usr/local/webserver"
+    setup_apigateway(cmd, success_msg="Copying database setup script",
+               failure_msg="Failed copying database setup script",
+               log_file=log_file,
+               exit_on_fail=True)
+
+    cmd = "docker cp tasks/webserver/database_start.sh webserver:/usr/local/webserver"
+    setup_apigateway(cmd, success_msg="Copying database start script",
+               failure_msg="Failed copying database start script",
+               log_file=log_file,
+               exit_on_fail=True)
+
+    cmd = "docker exec webserver chmod +x /usr/local/webserver/database_setup.sh"
+    setup_apigateway(cmd, success_msg="Added necessary permissions to database setup script",
+                     failure_msg="Changing file permission failed",
+                     log_file=log_file,
+                     exit_on_fail=True)
+
+    cmd = "docker exec webserver chmod +x /usr/local/webserver/database_start.sh"
+    setup_apigateway(cmd, success_msg="Added necessary permissions to database start script",
+                     failure_msg="Changing file permission failed",
+                     log_file=log_file,
+                     exit_on_fail=True)
+
+    cmd = "docker exec webserver /usr/local/webserver/database_setup.sh"
+    setup_apigateway(cmd, success_msg="Executing database setup script",
+                     failure_msg="Database Connector setup failed",
+                     log_file=log_file,
+                     exit_on_fail=True)
+
+    cmd = "docker exec webserver /usr/local/webserver/database_start.sh"
+    setup_apigateway(cmd, success_msg="Executing database start script",
+                     failure_msg="Database Connector start failed",
+                     log_file=log_file,
+                     exit_on_fail=True)
+
+# with open("ideam.conf", "a") as text_file:
     #    text_file.write("database = {0}".format(key))
     #    output_ok("Copied database key to ideam.conf file")
 
@@ -137,6 +180,11 @@ def initial_setup(log_file):
     #                        failure_msg="Creation of database user failed.",
     #                        log_file=log_file,
     #                        exit_on_fail=True))
+
+
+def write(path, contents):
+    with open(path, 'w+') as f:
+        f.write(contents)
 
 def initial_setup_cleanup(log_file):
 
@@ -162,8 +210,29 @@ def initial_setup_cleanup(log_file):
                              log_file=log_file,
                              exit_on_fail=True)
 
+    cmd = "docker exec apigateway rm -rf /usr/local/kong/setup"
+    cleanup_setup_apigateway(cmd, success_msg="Removed setup files in apigateway",
+                             info_msg="Removing setup files in apigateway",
+                             failure_msg="Removing setup files in apigateway failed",
+                             log_file=log_file,
+                             exit_on_fail=True)
+
+    cmd = "docker exec webserver rm -rf /usr/local/webserver/database_setup.sh"
+    cleanup_setup_apigateway(cmd, success_msg="Removed setup files in webserver",
+                             info_msg="Removing setup files in webserver",
+                             failure_msg="Removing setup files in webserver failed",
+                             log_file=log_file,
+                             exit_on_fail=True)
+
+    cmd = "docker exec webserver rm -rf /usr/local/webserver/database_start.sh"
+    cleanup_setup_apigateway(cmd, success_msg="Removed start file in webserver",
+                             info_msg="Removing start files in webserver",
+                             failure_msg="Removing start files in webserver failed",
+                             log_file=log_file,
+                             exit_on_fail=True)
 
 def setup_database(cmd, success_msg, failure_msg, log_file, exit_on_fail=False):
+
     """ Create a subprocess call and outputs success and errors if any.
 
     Args:
