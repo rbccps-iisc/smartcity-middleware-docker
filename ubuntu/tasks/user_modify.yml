@@ -1,3 +1,0 @@
----
-  - name: Set password for ideam
-    command: usermod -p {{ password }} ideam

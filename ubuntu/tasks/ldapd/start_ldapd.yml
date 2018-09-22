@@ -1,3 +1,0 @@
----
-  - name: Start ldapd
-    command: ldapd

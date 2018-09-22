@@ -1,3 +1,0 @@
-#* localhost:8080
-#*,ssl=yes localhost:443,ssl,insecure
-*,ssl=yes kong:8000

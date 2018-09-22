@@ -1,3 +1,0 @@
----
-  - name: Start pushpin
-    command: tmux new-session -d 'pushpin --config /root/pushpin/pushpin.conf --logfile pushpin_log_file'

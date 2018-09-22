@@ -1,7 +1,0 @@
----
-## create ideam user
-  - name: User ideam creation
-    user: name=ideam password={{ password }} groups=sudo
-
-  - name: Set Bash for ideam ssh session
-    command: usermod -s /bin/bash ideam
