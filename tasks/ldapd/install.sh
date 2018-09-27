@@ -19,7 +19,7 @@ fi
 
 echo -e "${YELLOW}[  INFO  ]${NC} Starting LDAP"
 
-/usr/local/sbin/ldapd
+tmux new-session -d -s ldapd './ldapd.sh'
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}[   OK   ]${NC} Started LDAP server"
@@ -28,6 +28,7 @@ else
 fi
 
 echo -e "${YELLOW}[  INFO  ]${NC} Waiting for LDAP to start up"
+
 while ! nc -z localhost 8389
 do
 sleep 0.1
